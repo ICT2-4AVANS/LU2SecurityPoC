@@ -66,11 +66,11 @@ De module maakt op de **service-laag** consequent gebruik van OpenMRS `@Authoriz
 @Authorized(AppointmentUtils.PRIV_SCHEDULE_APPOINTMENTS)
 ```
 
-![AppointmentService @Authorized annotaties](image.png)
-![PRIV_MANAGE_APPOINTMENT_TYPES](image-1.png)
-![PRIV_MANAGE_APPOINTMENT_BLOCKS](image-2.png)
-![PRIV_VIEW_APPOINTMENTS](image-3.png)
-![PRIV_SCHEDULE_APPOINTMENTS](image-4.png)
+![AppointmentService @Authorized annotaties](img/image.png)
+![PRIV_MANAGE_APPOINTMENT_TYPES](img/image-1.png)
+![PRIV_MANAGE_APPOINTMENT_BLOCKS](img/image-2.png)
+![PRIV_VIEW_APPOINTMENTS](img/image-3.png)
+![PRIV_SCHEDULE_APPOINTMENTS](img/image-4.png)
 
 In totaal zijn er **97 `@Authorized`-annotaties** aanwezig in `AppointmentService.java`, wat aantoont dat toegangsbeveiliging op service-laag systematisch is toegepast.
 
@@ -88,8 +88,8 @@ public DelegatingResourceDescription getCreatableProperties() { ... }
 public DelegatingResourceDescription getUpdatableProperties() { ... }
 ```
 
-![REST resource zonder @Authorized](image-5.png)
-![getUpdatableProperties zonder check](image-6.png)
+![REST resource zonder @Authorized](img/image-5.png)
+![getUpdatableProperties zonder check](img/image-6.png)
 
 **Bestand:** `omod/.../web/DWRAppointmentService.java`
 
@@ -97,7 +97,7 @@ public DelegatingResourceDescription getUpdatableProperties() { ... }
 → Geen @Authorized of privilege-check aanwezig in het gehele bestand
 ```
 
-![DWRAppointmentService zonder autorisatie](image-7.png)
+![DWRAppointmentService zonder autorisatie](img/image-7.png)
 
 ### Risico
 > Als de service-laag wordt omzeild (via een directe REST-aanroep of toekomstige refactoring), is er geen tweede verdedigingslinie. De module biedt geen *defense-in-depth*.
