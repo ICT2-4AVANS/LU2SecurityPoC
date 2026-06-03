@@ -100,7 +100,6 @@ public DelegatingResourceDescription getUpdatableProperties() { ... }
 ![DWRAppointmentService zonder autorisatie](image-7.png)
 
 ### Risico
-
 > Als de service-laag wordt omzeild (via een directe REST-aanroep of toekomstige refactoring), is er geen tweede verdedigingslinie. De module biedt geen *defense-in-depth*.
 
 ---
@@ -136,9 +135,23 @@ grep -rn "HttpSession|SecurityContext|AuthenticationManager|isAuthenticated|getS
 
 Er is geen enkele aanroep naar authenticatiegerelateerde klassen of methoden aangetroffen.
 
+De zoekopdracht controleert op de volgende authenticatiegerelateerde klassen en methoden:
+
+| Term | Betekenis |
+|---|---|
+| `HttpSession` | Java-object dat een gebruikerssessie bijhoudt na het inloggen. Aanwezigheid betekent dat de module actief sessies beheert. |
+| `SecurityContext` | Spring Security-object dat de huidige ingelogde gebruiker opslaat. Code die dit aanroept wil weten *wie* er momenteel ingelogd is. |
+| `AuthenticationManager` | Het centrale Spring Security-component dat authenticatie uitvoert — controleert of een gebruikersnaam/wachtwoord klopt. |
+| `isAuthenticated()` | Methode die controleert of de huidige gebruiker daadwerkelijk ingelogd is en de sessie nog geldig is. |
+| `getSession()` | Haalt de huidige HTTP-sessie op uit een request om sessiedata te lezen, schrijven of te controleren. |
+
+Geen van deze termen komt voor in de productie-code. Dit bewijst dat de module volledig op het OpenMRS-platform vertrouwt en zelf niets controleert rondom authenticatie of sessiebeheer.
+
 ### Risico
 
 > De module verwerkt gevoelige medische gegevens. Als het OpenMRS-platform onvoldoende is geconfigureerd (geen sessietime-out, geen MFA, zwak wachtwoordbeleid), biedt de module zelf geen compenserende maatregelen.
+
+> NEN-7510:2024-2 beoordeelt het **systeem als geheel** — niet alleen de platformlaag. De norm vereist dat een organisatie aantoonbaar kan maken dat authenticatie correct is geïmplementeerd en geconfigureerd voor alle systemen die medische gegevens verwerken. Omdat de module zelf geen enkele authenticatiecontrole bevat en er geen gedocumenteerde eis bestaat aan de platformconfiguratie, is er geen garantie dat aan A.8.5 wordt voldaan. Bij een audit kan de module niet zelfstandig compliance aantonen: de verantwoordelijkheid ligt volledig buiten de module, zonder dat dit ergens is vastgelegd of afgedwongen.
 
 ---
 
