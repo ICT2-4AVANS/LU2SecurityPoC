@@ -1,0 +1,14 @@
+version: "3.8"
+services:
+  openmrs:
+    image: openmrs/openmrs-reference-application:latest
+    environment:
+      DB_HOST: db
+      DB_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "80:8080"
+  db:
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: openmrs_prod
