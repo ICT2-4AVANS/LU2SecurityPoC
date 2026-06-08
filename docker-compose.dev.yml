@@ -4,7 +4,7 @@ services:
     image: openmrs/openmrs-reference-application:2.13.0
     environment:
       DB_HOST: db
-      DB_PASSWORD: dev_only_not_secret
+      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
     ports:
       - "8082:8080"
     volumes:
@@ -14,7 +14,7 @@ services:
     # geblokkeerd door platformcompatibiliteit. Zie docs/non-functional-requirements.md.
     image: mysql:5.7.44
     environment:
-      MYSQL_ROOT_PASSWORD: dev_only_not_secret
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
       MYSQL_DATABASE: openmrs_dev
     volumes:
       - mysql_dev_data:/var/lib/mysql

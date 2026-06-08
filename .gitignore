@@ -1,5 +1,6 @@
 # Secrets — never commit real env files
 .env
+.env.dev
 .env.test
 .env.prod
 .env.production

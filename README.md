@@ -45,13 +45,14 @@ Praktisch betekent dit dat een ontwikkelaar testdata alleen gebruikt in een test
 ### Lokale ontwikkelomgeving opstarten
 
 1. Clone de repository.
-2. Kopieer `.env.example` naar `.env.test` en vul een lokaal wachtwoord in:
+2. Kopieer `.env.example` naar `.env.dev` en vul een lokaal wachtwoord in:
    ```bash
-   cp .env.example .env.test
-   # bewerk .env.test: zet DB_PASSWORD=<lokaal_wachtwoord>
+   cp .env.example .env.dev
+   # bewerk .env.dev: zet DB_PASSWORD=<lokaal_wachtwoord>
    ```
 3. Start de ontwikkelomgeving:
    ```bash
+   export $(cat .env.dev | xargs)
    docker compose -f docker-compose.dev.yml up -d
    ```
    OpenMRS is daarna bereikbaar op `http://localhost:8082`.
