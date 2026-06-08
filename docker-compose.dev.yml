@@ -10,6 +10,8 @@ services:
     volumes:
       - openmrs_dev_data:/usr/local/tomcat/.OpenMRS
   db:
+    # MySQL 5.7 is EOL maar vereist door OpenMRS 1.x — upgrade naar 8.x wordt
+    # geblokkeerd door platformcompatibiliteit. Zie docs/non-functional-requirements.md.
     image: mysql:5.7.44
     environment:
       MYSQL_ROOT_PASSWORD: dev_only_not_secret

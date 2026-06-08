@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Module** | openmrs-module-appointmentscheduling v2.0.0 |
+| **Module** | openmrs-module-appointmentscheduling 1.17.0-SNAPSHOT |
 | **Datum** | 2026-06-08 |
 
 ---
@@ -24,8 +24,16 @@
 |---|---|---|---|
 | MNT-1 | Cyclomatische complexiteit per methode | SonarCloud / Qodana | ≤ 10 per methode |
 | MNT-2 | Duplicaat-percentage in broncode | SonarCloud / Qodana | ≤ 5% |
-| MNT-3 | Testdekking (line coverage) | JaCoCo rapport als CI-artifact | ≥ 60% |
+| MNT-3 | Testdekking (line coverage) | JaCoCo rapport als CI-artifact (geconfigureerd in `pom.xml` + `ci.yml`) | ≥ 60% |
 | MNT-4 | Geen kritieke code smells geïntroduceerd bij PR | SonarCloud Quality Gate | "Passed" vereist |
+
+---
+
+## Bekende afwijkingen
+
+| ID | Afwijking | Reden | Mitigatie |
+|---|---|---|---|
+| AFW-1 | MySQL 5.7 is end-of-life (EOL) | OpenMRS 1.x vereist MySQL 5.6/5.7 — upgrade naar 8.x wordt geblokkeerd door platformcompatibiliteit | Gebruik de laatste patch-versie (5.7.44); omgeving is niet publiek bereikbaar |
 
 ---
 

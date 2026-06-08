@@ -62,7 +62,7 @@ De repository gebruikt twee GitHub Environments:
 | Environment | Doel | Protection rule |
 |---|---|---|
 | `test` | Validatie na een merge naar `main` | Automatische deployment, geen goedkeuring vereist |
-| `production` | Live omgeving | Handmatige goedkeuring van minimaal één reviewer vereist |
+| `production` | Productie-deployment (vereist een self-hosted runner of externe deploy-target in productie) | Handmatige goedkeuring van minimaal één reviewer vereist |
 
 Secrets worden per environment beheerd via **GitHub → Settings → Environments**. De `test`-secrets zijn alleen beschikbaar in de testomgeving en de `production`-secrets alleen in de productieomgeving. Zo is het onmogelijk dat een testwaarde in productie terechtkomt via de pipeline.
 

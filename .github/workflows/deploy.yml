@@ -12,6 +12,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # NOTE: deze job draait op een ephemere GitHub-hosted runner.
+      # Voor een persistente testomgeving is een self-hosted runner of
+      # een externe deploy-target (bijv. SSH naar een server) vereist.
       - name: Deploy to test environment
         run: |
           echo "Deploying to test environment"
@@ -27,6 +30,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # NOTE: zie deploy-test — voor echte productie is een self-hosted runner
+      # of externe deploy-target vereist. De handmatige goedkeuring via de
+      # GitHub Environment protection rule is wel actief.
       - name: Deploy to production environment
         run: |
           echo "Deploying to production environment"

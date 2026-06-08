@@ -4,15 +4,16 @@ services:
     image: openmrs/openmrs-reference-application:2.13.0
     environment:
       DB_HOST: db
-      DB_PASSWORD: ${DB_PASSWORD}
+      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
     ports:
       - "8081:8080"
     volumes:
       - openmrs_test_data:/usr/local/tomcat/.OpenMRS
   db:
+    # MySQL 5.7 EOL maar vereist door OpenMRS 1.x platformcompatibiliteit
     image: mysql:5.7.44
     environment:
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
       MYSQL_DATABASE: openmrs_test
     volumes:
       - mysql_test_data:/var/lib/mysql

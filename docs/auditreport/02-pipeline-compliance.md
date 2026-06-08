@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | **Norm** | NEN-7510:2024-2 |
-| **Module** | openmrs-module-appointmentscheduling v2.0.0 |
+| **Module** | openmrs-module-appointmentscheduling 1.17.0-SNAPSHOT |
 | **Datum** | 2026-06-08 |
 
 ---
@@ -20,7 +20,7 @@ Dit document beschrijft hoe de CI/CD-pipeline maatregelen implementeert die aans
 |---|---|---|---|---|
 | A.8.3 | Toegangsbeveiliging | Dependency review blokkeert `HIGH`/`CRITICAL` CVE's | `dependency-review.yml` | ✅ Actief |
 | A.8.5 | Authenticatie | CodeQL detecteert authenticatiegerelateerde kwetsbaarheden | `codeql.yml` | ✅ Actief |
-| A.8.15 | Logging en monitoring | CodeQL detecteert missing-log-patronen; SBOM geeft overzicht | `codeql.yml`, `SBOM.yml` | ✅ Actief |
+| A.8.15 | Logging en monitoring | CodeQL detecteert onveilige loggingpatronen; SBOM identificeert kwetsbare logging-libraries | `codeql.yml`, `SBOM.yml` | ✅ Actief |
 | — | Integriteit supply chain | SBOM gegenereerd in CycloneDX-formaat | `SBOM.yml` | ✅ Actief |
 | — | Veilig ontwikkelproces | Branch protection + PR-vereiste op `main` | GitHub branch rules | ✅ Actief |
 | — | Omgevingsscheiding | Gescheiden GitHub Environments (`test`, `production`) | `deploy.yml` | ✅ Actief |
@@ -39,7 +39,7 @@ Dit document beschrijft hoe de CI/CD-pipeline maatregelen implementeert die aans
     fail-on-severity: high
 ```
 
-**Bewijs:** De workflow is actief op alle pull requests naar `main`. Een PR met een kwetsbare afhankelijkheid zal falen op de `dependency-review` check en kan niet worden gemerged zonder expliciete goedkeuring.
+**Bewijs:** De workflow is actief op alle pull requests naar `main`. Zolang de `dependency-review` check faalt, kan de PR niet worden gemerged — mits deze check als required status check is ingesteld in de branch protection rules op `main`.
 
 **Relatie met gap-analyse:** De gap-analyse constateerde dat de REST/DWR-laag geen eigen autorisatiecontroles heeft. De dependency review biedt een compenserende maatregel door te voorkomen dat nieuwe kwetsbare libraries worden geïntroduceerd die misbruikt kunnen worden via de REST-laag.
 
@@ -68,7 +68,7 @@ Dit document beschrijft hoe de CI/CD-pipeline maatregelen implementeert die aans
 
 ## A.8.15 — Logging en monitoring
 
-**Maatregel 1:** CodeQL detecteert patronen die wijzen op ontbrekende of onveilige logging, zoals het loggen van gevoelige gegevens (persoonsgegevens, credentials).
+**Maatregel 1:** CodeQL detecteert onveilige loggingpatronen, zoals het loggen van gevoelige gegevens (persoonsgegevens, credentials). Standaard CodeQL detecteert geen *ontbrekende* audit logs — dat is een handmatige gap die in Sprint 3 wordt aangepakt via logging-tests en code-aanpassingen.
 
 **Maatregel 2:** De SBOM biedt een volledig overzicht van alle afhankelijkheden, inclusief logging-frameworks (`log4j`, `logback`, `slf4j`). Dit maakt het mogelijk om kwetsbare logging-libraries (zoals Log4Shell, CVE-2021-44228) te identificeren.
 
@@ -76,7 +76,7 @@ Dit document beschrijft hoe de CI/CD-pipeline maatregelen implementeert die aans
 
 **Bewijs:** De SBOM wordt gegenereerd als CI-artifact in CycloneDX JSON-formaat en is downloadbaar vanuit de Actions-tab.
 
-**Relatie met gap-analyse:** De gap-analyse constateerde dat er slechts 1 audit-logstatement aanwezig is. De pipeline detecteert actief gevallen waarbij gevoelige gegevens worden gelogd en waarschuwt bij kwetsbare logging-libraries.
+**Relatie met gap-analyse:** De gap-analyse constateerde dat er slechts 1 audit-logstatement aanwezig is. De pipeline detecteert gevallen waarbij gevoelige gegevens worden gelogd en waarschuwt bij kwetsbare logging-libraries. De volledige oplossing van de logging-gap valt buiten de scope van de pipeline en wordt opgepakt in de code zelf.
 
 ---
 
