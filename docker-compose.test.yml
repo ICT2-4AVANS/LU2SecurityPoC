@@ -1,7 +1,7 @@
 version: "3.8"
 services:
   openmrs:
-    image: openmrs/openmrs-reference-application:latest
+    image: openmrs/openmrs-reference-application:2.13.0
     environment:
       DB_HOST: db
       DB_PASSWORD: ${DB_PASSWORD}
@@ -10,7 +10,7 @@ services:
     volumes:
       - openmrs_test_data:/usr/local/tomcat/.OpenMRS
   db:
-    image: mysql:5.7
+    image: mysql:5.7.44
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
       MYSQL_DATABASE: openmrs_test
