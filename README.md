@@ -8,7 +8,7 @@ Er zijn drie gescheiden omgevingen, elk met een eigen `docker-compose`-bestand e
 
 | Omgeving | Bestand | Poort | Secrets |
 |---|---|---|---|
-| Ontwikkeling | `docker-compose.dev.yml` | 8082 | Vaste lokale waarden (niet secret) |
+| Ontwikkeling | `docker-compose.dev.yml` | 8082 | `DB_PASSWORD` via `.env.dev` (lokaal, nooit gecommit) |
 | Test | `docker-compose.test.yml` | 8081 | `DB_PASSWORD` via `.env.test` of GitHub Secrets |
 | Productie | `docker-compose.prod.yml` | 80 | `DB_PASSWORD` via GitHub Secrets (environment: production) |
 
