@@ -24,7 +24,7 @@
 |---|---|---|---|
 | MNT-1 | Cyclomatische complexiteit per methode | SonarCloud / Qodana | ≤ 10 per methode |
 | MNT-2 | Duplicaat-percentage in broncode | SonarCloud / Qodana | ≤ 5% |
-| MNT-3 | Testdekking (line coverage) | JaCoCo rapport als CI-artifact (geconfigureerd in `pom.xml` + `ci.yml`) | ≥ 60% |
+| MNT-3 | Testdekking (line coverage) | JaCoCo rapport als CI-artifact — vereist JaCoCo plugin in `pom.xml` (gepland Sprint 3) | ≥ 60% |
 | MNT-4 | Geen kritieke code smells geïntroduceerd bij PR | SonarCloud Quality Gate | "Passed" vereist |
 
 ---

@@ -92,7 +92,7 @@ Dit document beschrijft hoe de CI/CD-pipeline maatregelen implementeert die aans
 
 De `deploy.yml` workflow deployt eerst naar `test` en pas daarna, na handmatige goedkeuring via de GitHub Environment protection rules, naar `production`.
 
-**Bewijs:** De GitHub Environments `test` en `production` zijn geconfigureerd in de repository-instellingen. De `production` environment vereist handmatige goedkeuring van een reviewer voordat deployment plaatsvindt.
+**Bewijs:** De `deploy.yml` workflow verwijst naar `environment: test` en `environment: production`. De GitHub Environments moeten handmatig aangemaakt worden via **GitHub → Settings → Environments**. Bij de `production` environment moet een required reviewer ingesteld worden zodat deployment een expliciete goedkeuring vereist. De `deploy-production` job is geblokkeerd via `needs: deploy-test`, zodat productie nooit vóór test deployt.
 
 ---
 
