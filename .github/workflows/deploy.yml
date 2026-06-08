@@ -1,0 +1,41 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy-test:
+    name: Deploy to test
+    runs-on: ubuntu-latest
+    environment: test
+    steps:
+      - uses: actions/checkout@v4
+
+      # NOTE: deze job draait op een ephemere GitHub-hosted runner.
+      # Voor een persistente testomgeving is een self-hosted runner of
+      # een externe deploy-target (bijv. SSH naar een server) vereist.
+      - name: Deploy to test environment
+        run: |
+          echo "Deploying to test environment"
+          docker compose -f docker-compose.test.yml up -d --pull always
+        env:
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+
+  deploy-production:
+    name: Deploy to production
+    runs-on: ubuntu-latest
+    needs: deploy-test
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      # NOTE: zie deploy-test — voor echte productie is een self-hosted runner
+      # of externe deploy-target vereist. De handmatige goedkeuring via de
+      # GitHub Environment protection rule is wel actief.
+      - name: Deploy to production environment
+        run: |
+          echo "Deploying to production environment"
+          docker compose -f docker-compose.prod.yml up -d --pull always
+        env:
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}

@@ -4,17 +4,23 @@ Deze repository bevat een PoC-omgeving rond de OpenMRS Appointment Scheduling Mo
 
 ## Hoe de omgevingen zijn ingericht
 
-De repository is opgesplitst in een documentatielaag en de module zelf:
+Er zijn drie gescheiden omgevingen, elk met een eigen `docker-compose`-bestand en eigen configuratie:
 
-- `docs/` bevat de onderbouwing van de modulekeuze en andere projectdocumentatie.
-- `openmrs-module-appointmentscheduling/openmrs-module-appointmentscheduling/` bevat de broncode van de OpenMRS-module.
+| Omgeving | Bestand | Poort | Secrets |
+|---|---|---|---|
+| Ontwikkeling | `docker-compose.dev.yml` | 8082 | `DB_PASSWORD` via `.env.dev` (lokaal, nooit gecommit) |
+| Test | `docker-compose.test.yml` | 8081 | `DB_PASSWORD` via `.env.test` of GitHub Secrets |
+| Productie | `docker-compose.prod.yml` | 80 | `DB_PASSWORD` via GitHub Secrets (environment: production) |
+
+Elke omgeving gebruikt een aparte database (`openmrs_dev`, `openmrs_test`, `openmrs_prod`) en aparte Docker volumes, zodat data tussen omgevingen strikt gescheiden is.
+
+De repository is daarnaast opgesplitst in een documentatielaag en de module zelf:
+
+- `docs/` bevat projectdocumentatie waaronder de gap-analyse en pipeline-compliance.
+- `openmrs-module-appointmentscheduling/openmrs-module-appointmentscheduling/` bevat de broncode van de OpenMRS-module (versie 1.17.0-SNAPSHOT, OpenMRS 1.9.9).
 - Binnen de module is een expliciet onderscheid gemaakt tussen productcode en testcode:
-  - `api/src/main/` en `omod/src/main/` bevatten de code en resources die onderdeel zijn van de module.
+  - `api/src/main/` en `omod/src/main/` bevatten de productiecode en resources.
   - `api/src/test/` en `omod/src/test/` bevatten alleen testcode en testdata.
-
-De module wordt met Maven gebouwd. De belangrijkste output staat in `omod/target/` en `api/target/`. Die mappen zijn build-artifacts en vormen geen bron van waarheid voor de codebase.
-
-Voor ontwikkeling is de omgeving bedoeld als lokale werkruimte op een eigen machine of in een aparte ontwikkelomgeving. De moduleversie in deze repository is gekoppeld aan OpenMRS 1.9.9 en aan oudere Java- en Maven-compatibiliteit, dus een ontwikkelaar moet de lokale toolchain daarop afstemmen.
 
 ## Hoe wordt voorkomen dat testdata in productie terechtkomt
 
@@ -36,26 +42,68 @@ Praktisch betekent dit dat een ontwikkelaar testdata alleen gebruikt in een test
 
 ## Hoe een nieuwe ontwikkelaar met de omgeving werkt
 
-1. Clone de repository en open de workspace in VS Code.
-2. Werk in de modulemap `openmrs-module-appointmentscheduling/openmrs-module-appointmentscheduling/`.
-3. Controleer of je lokale toolchain aansluit op de module:
-   - Maven voor build en test;
-   - een OpenMRS-compatibele Java-versie passend bij deze legacy module.
-4. Bouw de module met:
+### Lokale ontwikkelomgeving opstarten
 
+1. Clone de repository.
+2. Kopieer `.env.example` naar `.env.dev` en vul een lokaal wachtwoord in:
    ```bash
-   mvn package
+   cp .env.example .env.dev
+   # bewerk .env.dev: zet DB_PASSWORD=<lokaal_wachtwoord>
    ```
+3. Start de ontwikkelomgeving:
+   ```bash
+   export $(cat .env.dev | xargs)
+   docker compose -f docker-compose.dev.yml up -d
+   ```
+   OpenMRS is daarna bereikbaar op `http://localhost:8082`.
 
-   Dit genereert de module-artifacts in `omod/target/`.
+### Module bouwen en testen
 
-5. Draai tests voordat je wijzigingen doorvoert naar een gedeelde omgeving. De testdatasets in `api/src/test/resources/` en `omod/src/test/resources/` worden automatisch door de tests gebruikt.
-6. Pas alleen broncode aan in `api/src/main/` of `omod/src/main/` tenzij je bewust testscenario's of testdata wilt uitbreiden.
-7. Gebruik testdata uitsluitend om gedrag te valideren in de lokale of testomgeving; zet geen testdatasets handmatig om naar productie.
+4. Zorg dat je lokale toolchain overeenkomt met de module:
+   - Java 8 (de module compileert met source/target 1.6, Java 8 is compatibel)
+   - Maven 3.x
+5. Bouw de module en voer alle tests uit:
+   ```bash
+   cd openmrs-module-appointmentscheduling/openmrs-module-appointmentscheduling
+   mvn verify
+   ```
+   Dit genereert de module-artifacts in `omod/target/` én draait alle unit-tests.
 
-Voor een nieuwe ontwikkelaar is de belangrijkste vuistregel: wijzig productcode in `src/main`, wijzig testscenario's in `src/test`, en vertrouw op Maven om beide strikt te scheiden.
+### Werken met de testomgeving
+
+6. Start de testomgeving met het DB_PASSWORD uit `.env.test`:
+   ```bash
+   export $(cat .env.test | xargs)
+   docker compose -f docker-compose.test.yml up -d
+   ```
+   Testomgeving bereikbaar op `http://localhost:8081`.
+
+### Vuistregels
+
+- Wijzig productcode in `src/main`, wijzig testscenario's in `src/test`.
+- Commit **nooit** een `.env`-bestand — deze staan in `.gitignore`.
+- Draai `mvn verify` voordat je een pull request aanmaakt; de CI doet hetzelfde.
+
+## GitHub Environments en protection rules
+
+De repository gebruikt twee GitHub Environments:
+
+| Environment | Doel | Protection rule |
+|---|---|---|
+| `test` | Validatie na een merge naar `main` | Automatische deployment, geen goedkeuring vereist |
+| `production` | Productie-deployment (vereist een self-hosted runner of externe deploy-target in productie) | Handmatige goedkeuring van minimaal één reviewer vereist |
+
+Secrets worden per environment beheerd via **GitHub → Settings → Environments**. De `test`-secrets zijn alleen beschikbaar in de testomgeving en de `production`-secrets alleen in de productieomgeving. Zo is het onmogelijk dat een testwaarde in productie terechtkomt via de pipeline.
+
+Branch protection op `main`:
+- Directe pushes naar `main` zijn geblokkeerd.
+- Een pull request en minimaal één goedkeuring zijn vereist.
+- De CI-checks (`ci`, `CodeQL`, `Dependency Review`) moeten slagen voordat een PR gemerged mag worden.
 
 ## Extra documentatie
 
 - [Modulekeuze](docs/module-keuze.md)
+- [Gap-analyse](docs/auditreport/01-gap-analyse.md)
+- [Pipeline-compliance](docs/auditreport/02-pipeline-compliance.md)
+- [Non-functional requirements](docs/non-functional-requirements.md)
 - [Module README](openmrs-module-appointmentscheduling/openmrs-module-appointmentscheduling/README.md)

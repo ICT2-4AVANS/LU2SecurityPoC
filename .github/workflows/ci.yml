@@ -1,0 +1,41 @@
+name: CI — Build & Test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Java 8
+        uses: actions/setup-java@v4
+        with:
+          java-version: "8"
+          distribution: temurin
+          cache: maven
+
+      - name: Build and test
+        working-directory: openmrs-module-appointmentscheduling/openmrs-module-appointmentscheduling
+        run: mvn --batch-mode verify
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: |
+            openmrs-module-appointmentscheduling/openmrs-module-appointmentscheduling/**/target/surefire-reports/
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          if-no-files-found: warn
+          path: |
+            openmrs-module-appointmentscheduling/openmrs-module-appointmentscheduling/**/target/site/jacoco/
