@@ -215,3 +215,15 @@ log.error("Error setting text: " + text, ex);
 | 🔴 Hoog | A.8.15 | Voeg audit-logging toe aan alle `save*`, `cancel*` en `purge*` methoden in `AppointmentServiceImpl.java` met minimaal: wie, wat, wanneer |
 | 🔴 Hoog | A.8.5 | Voeg sessievalidatie toe of documenteer expliciet welke platformconfiguratie vereist is voor NEN-7510-compliance |
 | 🟡 Middel | A.8.3 | Voeg privilege-checks toe op de REST-resource-laag als tweede verdedigingslinie (defense-in-depth) |
+
+---
+
+## Pipeline-koppeling
+
+De onderstaande CI/CD-maatregelen zijn actief in de repository als aanvullend bewijs per control. Zie ook [`02-pipeline-compliance.md`](02-pipeline-compliance.md) voor het volledige complianceverslag.
+
+| Control | Pipeline-maatregel | Bestand |
+|---|---|---|
+| **A.8.3** | CodeQL-analyse detecteert ontbrekende toegangscontroles bij elke PR naar `main` | `.github/workflows/codeql.yml` |
+| **A.8.5** | Dependency Review blokkeert kwetsbare authenticatie-gerelateerde libraries bij elke PR | `.github/workflows/dependency-review.yml` |
+| **A.8.15** | SBOM-workflow genereert supply-chain-overzicht bij elke push; CodeQL bewaakt logging-kwaliteit | `.github/workflows/SBOM.yml`, `codeql.yml` |
