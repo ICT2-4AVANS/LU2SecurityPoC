@@ -4,11 +4,19 @@ services:
     image: openmrs/openmrs-reference-application:latest
     environment:
       DB_HOST: db
-      DB_PASSWORD: test_password
+      DB_PASSWORD: ${DB_PASSWORD}
     ports:
       - "8081:8080"
+    volumes:
+      - openmrs_test_data:/usr/local/tomcat/.OpenMRS
   db:
     image: mysql:5.7
     environment:
-      MYSQL_ROOT_PASSWORD: test_password
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
       MYSQL_DATABASE: openmrs_test
+    volumes:
+      - mysql_test_data:/var/lib/mysql
+
+volumes:
+  openmrs_test_data:
+  mysql_test_data:

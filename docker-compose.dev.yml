@@ -1,0 +1,22 @@
+version: "3.8"
+services:
+  openmrs:
+    image: openmrs/openmrs-reference-application:latest
+    environment:
+      DB_HOST: db
+      DB_PASSWORD: dev_only_not_secret
+    ports:
+      - "8082:8080"
+    volumes:
+      - openmrs_dev_data:/usr/local/tomcat/.OpenMRS
+  db:
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: dev_only_not_secret
+      MYSQL_DATABASE: openmrs_dev
+    volumes:
+      - mysql_dev_data:/var/lib/mysql
+
+volumes:
+  openmrs_dev_data:
+  mysql_dev_data:
