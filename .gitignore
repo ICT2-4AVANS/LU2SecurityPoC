@@ -1,0 +1,20 @@
+# Secrets — never commit real env files
+.env
+.env.dev
+.env.test
+.env.prod
+.env.production
+.env.local
+
+# Maven build output
+target/
+*.class
+
+# IDE
+.idea/
+*.iml
+.vscode/settings.json
+
+# OS
+.DS_Store
+Thumbs.db
