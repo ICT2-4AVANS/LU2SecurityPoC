@@ -25,13 +25,13 @@ Het resultaat is een prioriteitenlijst van beveiligingsmaatregelen die nog ontbr
 
 ## Scope
 
-De analyse richt zich op drie NEN-7510:2024-2 controls die direct van toepassing zijn op een module die gevoelige medische gegevens verwerkt (patiëntafspraken, zorgverleners, tijdsgegevens):
+De analyse richt zich op drie NEN-7510:2024-2 controls die direct van toepassing zijn op een module die gevoelige medische gegevens verwerkt:
 
 | Control | Onderwerp | Status |
 |---|---|---|
 | A.8.3 | Toegangsbeveiliging | ⚠️ Gedeeltelijk |
 | A.8.5 | Authenticatie | ❌ Afwezig |
-| A.8.15 | Logging en monitoring | ⚠️ Gedeeltelijk |
+| A.8.15 | Logging en monitoring | ❌ Afwezig |
 
 ---
 
@@ -43,9 +43,11 @@ De analyse richt zich op drie NEN-7510:2024-2 controls die direct van toepassing
 
 ### Bevinding — ⚠️ Gedeeltelijk aanwezig
 
-De module maakt op de **service-laag** consequent gebruik van OpenMRS `@Authorized`-annotaties. Elke service-methode is voorzien van een privilege-check die door het OpenMRS-framework wordt gehandhaafd bij aanroep.
+De module past op de service-laag consequent OpenMRS `@Authorized`-annotaties toe (97 stuks in `AppointmentService.java`). De DWR-laag controleert daarnaast `Context.isAuthenticated()` voordat er service-aanroepen worden gedaan. De basis-autorisatie is dus aanwezig en functioneel.
 
-#### Bewijs: aanwezig
+**De gap zit niet in de service-laag, maar in een onderliggende laag.**
+
+#### Bewijs: aanwezig (service-laag)
 
 **Bestand:** `api/src/main/java/org/openmrs/module/appointmentscheduling/api/AppointmentService.java`
 
@@ -56,51 +58,37 @@ De module maakt op de **service-laag** consequent gebruik van OpenMRS `@Authoriz
 // Regel 128
 @Authorized(AppointmentUtils.PRIV_MANAGE_APPOINTMENT_TYPES)
 
-// Regel 214
-@Authorized(AppointmentUtils.PRIV_MANAGE_APPOINTMENT_BLOCKS)
-
 // Regel 294
 @Authorized(AppointmentUtils.PRIV_VIEW_APPOINTMENTS)
-
-// Regel 335
-@Authorized(AppointmentUtils.PRIV_SCHEDULE_APPOINTMENTS)
 ```
 
-![AppointmentService @Authorized annotaties](img/image.png)
-![PRIV_MANAGE_APPOINTMENT_TYPES](img/image-1.png)
-![PRIV_MANAGE_APPOINTMENT_BLOCKS](img/image-2.png)
-![PRIV_VIEW_APPOINTMENTS](img/image-3.png)
-![PRIV_SCHEDULE_APPOINTMENTS](img/image-4.png)
+In totaal zijn er **97 `@Authorized`-annotaties** in `AppointmentService.java`. De DWR-laag (`DWRAppointmentService.java`) controleert daarnaast `Context.isAuthenticated()` op regel 66, 88 en 138.
 
-In totaal zijn er **97 `@Authorized`-annotaties** aanwezig in `AppointmentService.java`, wat aantoont dat toegangsbeveiliging op service-laag systematisch is toegepast.
+#### Bewijs: gap (DAO-laag bevat ongeautoriseerde methode met SQL-injectie)
 
-#### Bewijs: gap
-
-De REST-resources en de DWR-laag bevatten **geen eigen autorisatiecontroles**. Ze delegeren alle aanroepen door naar de service-laag zonder zelf te controleren of de aanroeper de juiste rechten heeft.
-
-**Bestand:** `omod/.../rest/resource/openmrs1_9/AppointmentRequestResource1_9.java`
+**Bestand:** `api/src/main/java/org/openmrs/module/appointmentscheduling/api/db/hibernate/HibernateAppointmentDAO.java`
 
 ```java
-// Regel 72 — geen @Authorized aanwezig
-public DelegatingResourceDescription getCreatableProperties() { ... }
-
-// Regel 89 — geen @Authorized aanwezig
-public DelegatingResourceDescription getUpdatableProperties() { ... }
+// Regel 315–319
+public java.util.List<?> searchAppointmentsByPatientName(String patientName) {
+    // VULNERABILITY: SQL injection - patientName is concatenated directly into query
+    String hql = "from Appointment ap where ap.visit.patient.personName.givenName = '"
+                 + patientName + "' or ap.visit.patient.personName.familyName = '"
+                 + patientName + "'";
+    return super.sessionFactory.getCurrentSession().createQuery(hql).list();
+}
 ```
 
-![REST resource zonder @Authorized](img/image-5.png)
-![getUpdatableProperties zonder check](img/image-6.png)
+Deze methode:
+1. Heeft **geen `@Authorized`-annotatie** — er is geen privilege-check
+2. Concateneert input direct in een HQL-query — kwetsbaar voor injectie
+3. Zit op de DAO-laag, *onder* de service-laag waar de autorisatiecontroles staan
 
-**Bestand:** `omod/.../web/DWRAppointmentService.java`
-
-```
-→ Geen @Authorized of privilege-check aanwezig in het gehele bestand
-```
-
-![DWRAppointmentService zonder autorisatie](img/image-7.png)
+Als deze methode via een toekomstige aanroep, een Spring-component-injectie of directe Hibernate-call wordt bereikt, kan de toegangsbeveiliging volledig worden omzeild. De aanvaller krijgt dan toegang tot **alle** afspraakgegevens, ongeacht patiënt-privileges.
 
 ### Risico
-> Als de service-laag wordt omzeild (via een directe REST-aanroep of toekomstige refactoring), is er geen tweede verdedigingslinie. De module biedt geen *defense-in-depth*.
+
+> De architectuur volgt geen *defense-in-depth*-principe. Toegangsbeveiliging zit alleen op de service-laag — onderliggende lagen (DAO/Hibernate) hebben geen eigen autorisatie. De aanwezigheid van `searchAppointmentsByPatientName` toont aan dat methoden op de DAO-laag *kunnen* worden toegevoegd zonder dat dit de privilege-architectuur passeert.
 
 ---
 
@@ -108,20 +96,41 @@ public DelegatingResourceDescription getUpdatableProperties() { ... }
 
 ### Eis
 
-> Systemen moeten gebruikers authenticeren voordat toegang wordt verleend. Authenticatiemechanismen moeten sterk genoeg zijn voor het risiconiveau van de verwerkte gegevens. Sessies moeten beveiligd worden beheerd.
+> Authenticatie-informatie (wachtwoorden, sleutels, tokens) moet veilig worden bewaard en mag niet toegankelijk zijn voor onbevoegden. Authenticatie moet sterk genoeg zijn voor het risiconiveau van de verwerkte gegevens.
 
-### Bevinding — ❌ Afwezig (in de module zelf)
+### Bevinding — ❌ Afwezig (kritieke schending)
 
-De module bevat **geen eigen authenticatielogica**. Er is geen code aanwezig die:
+De module bevat **hardcoded credentials in de broncode**. Dit is een directe schending van NEN-7510 en geldt ongeacht of de code runtime wordt uitgevoerd, omdat geheimen permanent in de Git-historie en gecompileerde artefacten zitten.
 
-- een sessie valideert of controleert op geldigheid
-- wachtwoordbeleid afdwingt
-- meervoudige authenticatie (MFA) ondersteunt of vereist
-- een verlopen sessie detecteert en afhandelt
+#### Bewijs: hardcoded credentials
 
-De module delegeert authenticatie volledig aan het OpenMRS-platform (Spring Security). Dit is een gangbare ontwerpkeuze voor OpenMRS-modules, maar betekent dat de beveiliging volledig afhankelijk is van de platformconfiguratie — buiten de controle van de module.
+**Bestand:** `api/src/main/java/org/openmrs/module/appointmentscheduling/AppointmentActivator.java`
 
-#### Bewijs: afwezig
+```java
+// Regel 78–82
+// HL7 reporting server credentials for appointment data export
+private static final String HL7_EXPORT_HOST = "hl7-reports.hospital.internal";
+private static final String HL7_EXPORT_USER = "appt_export_svc";
+private static final String HL7_EXPORT_PASSWORD = "Appt@Export2021!";
+private static final String HL7_DB_URL = "jdbc:mysql://hl7-reports.hospital.internal:3306/appointments?user=appt_export_svc&password=Appt@Export2021!";
+```
+
+Dit zijn:
+- Een interne hostname van een productieserver (`hl7-reports.hospital.internal`)
+- Een service-account naam (`appt_export_svc`)
+- Een plain-text wachtwoord (`Appt@Export2021!`)
+- Een complete JDBC-URL met credentials
+
+Iedereen met toegang tot de repository of de gecompileerde `.jar` heeft deze credentials. Decompilatie van een JAR is triviaal en de Git-historie bewaart dit permanent.
+
+#### Bewijs: geen vastgestelde authenticatievereisten
+
+De module delegeert authenticatie aan het OpenMRS-platform, maar legt **nergens vereisten vast** voor:
+
+- Minimale OpenMRS-versie voor compliance
+- Vereiste sessietime-out
+- Wachtwoordbeleid
+- Verplichting van meervoudige authenticatie (MFA)
 
 Zoekopdracht uitgevoerd op alle `.java`-bestanden in de module:
 
@@ -129,29 +138,19 @@ Zoekopdracht uitgevoerd op alle `.java`-bestanden in de module:
 grep -rn "HttpSession|SecurityContext|AuthenticationManager|isAuthenticated|getSession"
 ```
 
-```
-→ Geen resultaten gevonden in productie-code
-```
-
-Er is geen enkele aanroep naar authenticatiegerelateerde klassen of methoden aangetroffen.
-
-De zoekopdracht controleert op de volgende authenticatiegerelateerde klassen en methoden:
-
 | Term | Betekenis |
 |---|---|
-| `HttpSession` | Java-object dat een gebruikerssessie bijhoudt na het inloggen. Aanwezigheid betekent dat de module actief sessies beheert. |
-| `SecurityContext` | Spring Security-object dat de huidige ingelogde gebruiker opslaat. Code die dit aanroept wil weten *wie* er momenteel ingelogd is. |
-| `AuthenticationManager` | Het centrale Spring Security-component dat authenticatie uitvoert — controleert of een gebruikersnaam/wachtwoord klopt. |
-| `isAuthenticated()` | Methode die controleert of de huidige gebruiker daadwerkelijk ingelogd is en de sessie nog geldig is. |
-| `getSession()` | Haalt de huidige HTTP-sessie op uit een request om sessiedata te lezen, schrijven of te controleren. |
+| `HttpSession` | Java-object dat een gebruikerssessie bijhoudt na het inloggen |
+| `SecurityContext` | Spring Security-object met de huidige ingelogde gebruiker |
+| `AuthenticationManager` | Centrale component dat authenticatie uitvoert |
+| `isAuthenticated()` | Methode die controleert of gebruiker is ingelogd |
+| `getSession()` | Haalt de huidige HTTP-sessie op |
 
-Geen van deze termen komt voor in de productie-code. Dit bewijst dat de module volledig op het OpenMRS-platform vertrouwt en zelf niets controleert rondom authenticatie of sessiebeheer.
+Er is geen platformconfiguratie-document of `README`-sectie waarin staat welke configuratie het OpenMRS-platform minimaal moet hebben om aan NEN-7510 te voldoen.
 
 ### Risico
 
-> De module verwerkt gevoelige medische gegevens. Als het OpenMRS-platform onvoldoende is geconfigureerd (geen sessietime-out, geen MFA, zwak wachtwoordbeleid), biedt de module zelf geen compenserende maatregelen.
-
-> NEN-7510:2024-2 beoordeelt het **systeem als geheel** — niet alleen de platformlaag. De norm vereist dat een organisatie aantoonbaar kan maken dat authenticatie correct is geïmplementeerd en geconfigureerd voor alle systemen die medische gegevens verwerken. Omdat de module zelf geen enkele authenticatiecontrole bevat en er geen gedocumenteerde eis bestaat aan de platformconfiguratie, is er geen garantie dat aan A.8.5 wordt voldaan. Bij een audit kan de module niet zelfstandig compliance aantonen: de verantwoordelijkheid ligt volledig buiten de module, zonder dat dit ergens is vastgelegd of afgedwongen.
+> Hardcoded credentials in broncode is een **kritieke kwetsbaarheid** onder NEN-7510. Lekken van de repository, een verloren laptop met checkout, of een misconfigured backup leidt direct tot compromittering van de HL7-rapportageserver. Daarnaast kan de module niet aantonen dat het platform aan de norm voldoet, omdat er geen minimumvereisten zijn vastgelegd.
 
 ---
 
@@ -159,42 +158,62 @@ Geen van deze termen komt voor in de productie-code. Dit bewijst dat de module v
 
 ### Eis
 
-> Gebeurtenissen die relevant zijn voor informatiebeveiliging moeten worden gelogd. Logbestanden moeten minimaal bevatten: **wie** de actie uitvoerde, **welke actie** werd uitgevoerd, en **wanneer**. Dit geldt in het bijzonder voor toegang tot en wijzigingen van gevoelige gegevens.
+> Gebeurtenissen die relevant zijn voor informatiebeveiliging moeten worden gelogd. Logbestanden moeten minimaal bevatten: **wie** de actie uitvoerde, **welke actie** werd uitgevoerd, en **wanneer**. Toegang tot en wijziging van gevoelige gegevens moet herleidbaar zijn.
 
-### Bevinding — ⚠️ Gedeeltelijk aanwezig
+### Bevinding — ❌ Afwezig
 
-De module bevat slechts **1 audit-logstatement** in de volledige implementatiecode.
+De module heeft **geen functionele audit-logging**. De enige logregel die op het eerste oog op audit-logging lijkt, is in werkelijkheid een **PII-lek dat in dode code zit**.
 
-#### Bewijs: aanwezig (enige audit-logregel)
+#### Bewijs: geen audit-logging op kritieke handelingen
 
-**Bestand:** `api/.../api/impl/AppointmentServiceImpl.java`
+In de gehele `AppointmentServiceImpl.java` is **geen enkele log-aanroep** te vinden bij methoden die afspraken aanmaken, wijzigen of verwijderen. Voorbeelden van methoden zonder audit-log:
+
+| Methode (in AppointmentServiceImpl.java) | Audit-log aanwezig? |
+|---|---|
+| `saveAppointment()` | ❌ Nee |
+| `voidAppointment()` | ❌ Nee |
+| `purgeAppointment()` | ❌ Nee |
+| `saveAppointmentBlock()` | ❌ Nee |
+| `changeAppointmentStatus()` | ❌ Nee |
+| Privilege-afwijzingen (via `@Authorized`) | ❌ Nee — geen log bij autorisatiefout |
+
+#### Bewijs: enige "logregel" is een PII-lek
+
+**Bestand:** `api/src/main/java/org/openmrs/module/appointmentscheduling/api/impl/AppointmentServiceImpl.java`
 
 ```java
-// Regel 1427
-log.info("[AUDIT] Fetching appointments for patient: name=" + patient.getPersonName()
-         + ", id=" + patient.getPatientId());
+// Regel 1422–1432
+/**
+ * Returns upcoming appointments for a patient.
+ * VULNERABILITY: PII logging - logs patient name, DOB and appointment details to application log
+ */
+public java.util.List<Appointment> getAppointmentsForPatientWithLogging(Patient patient) {
+    log.info("[AUDIT] Fetching appointments for patient: name=" + patient.getPersonName()
+            + " dob=" + patient.getBirthdate()
+            + " identifier=" + (patient.getPatientIdentifier() != null
+                ? patient.getPatientIdentifier().getIdentifier() : "none")
+            + " gender=" + patient.getGender());
+    return getAppointmentsForPatient(patient);
+}
 ```
 
-De overige logging in de module betreft uitsluitend technische fouten — geen audit:
+Deze regel:
+1. Wordt **nergens aangeroepen** in de module (verificatie: `grep -rn "getAppointmentsForPatientWithLogging"` levert alleen de definitie op)
+2. Zou bij activering **gevoelige patiëntdata** in plain text in het applicatielog schrijven (naam, geboortedatum, identifier, geslacht)
+3. Is dus geen audit-log, maar een **latent datalek**
+
+Bestaande log-statements in de module betreffen uitsluitend technische fouten:
 
 ```java
 // AppointmentBlockEditor.java, AppointmentEditor.java, TimeSlotEditor.java — Regel 46
 log.error("Error setting text: " + text, ex);
 ```
 
-#### Bewijs: gap — kritieke acties zonder audit-logging
-
-| Actie | Bestand | Ontbrekend |
-|---|---|---|
-| Afspraak aanmaken | `AppointmentServiceImpl.java` | Geen audit-log bij `saveAppointment()` |
-| Afspraak wijzigen | `AppointmentServiceImpl.java` | Geen audit-log bij statuswijziging |
-| Afspraak annuleren | `AppointmentServiceImpl.java` | Geen audit-log |
-| Afspraakblok aanmaken/wijzigen | `AppointmentServiceImpl.java` | Geen audit-log |
-| Toegang geweigerd (privilege-fout) | Alle service-methoden | Geen log bij autorisatiefout |
+Dit zijn geen audit-logs maar foutmeldingen voor type-conversie.
 
 ### Risico
 
-> Bij een beveiligingsincident of audit is het niet mogelijk te reconstrueren wie welke afspraken heeft aangemaakt, gewijzigd of geannuleerd. Dit is in strijd met de NEN-7510-eis voor herleidbaarheid van handelingen met medische gegevens.
+> Bij een beveiligingsincident of audit is het **onmogelijk te reconstrueren** wie welke afspraken heeft aangemaakt, gewijzigd of geannuleerd. Dit schendt de NEN-7510-eis voor herleidbaarheid. Daarnaast vormt de bestaande "audit"-methode bij activering een direct datalek van persoonsgegevens — wat in plaats van compliance juist een AVG-overtreding zou veroorzaken.
 
 ---
 
@@ -202,9 +221,9 @@ log.error("Error setting text: " + text, ex);
 
 | Control | Onderwerp | Status | Voornaamste gap |
 |---|---|---|---|
-| **A.8.3** | Toegangsbeveiliging | ⚠️ Gedeeltelijk | `@Authorized` alleen op service-laag; REST/DWR-laag mist eigen autorisatiecontroles |
-| **A.8.5** | Authenticatie | ❌ Afwezig | Geen authenticatielogica in de module; volledig afhankelijk van platformconfiguratie |
-| **A.8.15** | Logging | ⚠️ Gedeeltelijk | Slechts 1 audit-logstatement; aanmaken, wijzigen en annuleren niet gelogd |
+| **A.8.3** | Toegangsbeveiliging | ⚠️ Gedeeltelijk | DAO-laag heeft geen autorisatie; aanwezigheid van `searchAppointmentsByPatientName` (zonder `@Authorized`, met SQL-injectie) toont gebrek aan defense-in-depth |
+| **A.8.5** | Authenticatie | ❌ Afwezig | Hardcoded HL7-credentials in `AppointmentActivator.java`; geen vastgestelde platformvereisten |
+| **A.8.15** | Logging | ❌ Afwezig | Geen audit-logging op aanmaken/wijzigen/verwijderen; enige "audit"-methode is een latent PII-lek |
 
 ---
 
@@ -212,6 +231,9 @@ log.error("Error setting text: " + text, ex);
 
 | Prioriteit | Control | Aanbeveling |
 |---|---|---|
-| 🔴 Hoog | A.8.15 | Voeg audit-logging toe aan alle `save*`, `cancel*` en `purge*` methoden in `AppointmentServiceImpl.java` met minimaal: wie, wat, wanneer |
-| 🔴 Hoog | A.8.5 | Voeg sessievalidatie toe of documenteer expliciet welke platformconfiguratie vereist is voor NEN-7510-compliance |
-| 🟡 Middel | A.8.3 | Voeg privilege-checks toe op de REST-resource-laag als tweede verdedigingslinie (defense-in-depth) |
+| 🔴 Kritiek | A.8.5 | Verwijder hardcoded credentials uit `AppointmentActivator.java` en de Git-historie; verplaats naar OpenMRS Global Properties of externe secret-store |
+| 🔴 Kritiek | A.8.15 | Verwijder de PII-loggende methode `getAppointmentsForPatientWithLogging` of vervang door geheugen-veilige audit-logging |
+| 🔴 Hoog | A.8.3 | Verwijder of beveilig `searchAppointmentsByPatientName` — vervang HQL-concatenatie door geparametriseerde query en voeg `@Authorized` toe |
+| 🟠 Hoog | A.8.15 | Voeg audit-logging toe aan `saveAppointment()`, `voidAppointment()`, `purgeAppointment()` met minimaal: wie (gebruiker-ID), wat (actie), wanneer (timestamp), zonder PII |
+| 🟡 Middel | A.8.5 | Documenteer in `README.md` of `docs/` de minimale platformvereisten voor NEN-7510-compliance (sessietime-out, wachtwoordbeleid, MFA) |
+| 🟡 Middel | A.8.3 | Documenteer expliciet dat de DAO-laag niet direct aangeroepen mag worden buiten de service-laag om defense-in-depth te waarborgen |
