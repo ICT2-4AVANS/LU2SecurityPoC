@@ -16,14 +16,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4.2.2
 
-      - name: Set up Java 8
-        uses: actions/setup-java@v4
-        with:
-          java-version: "8"
-          distribution: temurin
-          cache: maven
-
       # Scant alle Maven dependencies op bekende CVE's
+      # Geen aparte Java setup nodig — OWASP action draait in eigen Docker container
       # --failOnCVSS 8  → pipeline faalt bij HIGH en CRITICAL
       # --enableRetired → pikt ook EOL/verouderde libraries op
       - name: Run OWASP Dependency-Check
