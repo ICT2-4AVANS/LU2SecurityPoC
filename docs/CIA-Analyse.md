@@ -4,7 +4,7 @@
 
 Voor dit project is gekozen voor de **OpenMRS Appointment Scheduling Module**. Deze module wordt gebruikt om patiëntafspraken te plannen en te beheren binnen OpenMRS. Volgens de README is de module bedoeld voor het plannen van patiëntafspraken, het beheren van roosters van zorgverleners en het beheren van de patient queue. [REF-01]
 
-De module verwerkt onder andere patiëntafspraken, zorgverlenersroosters, tijdsloten, afspraaktypes, locaties en afspraakstatussen. Dit blijkt uit de domeinklassen in de code, zoals `PatientAppointment`, `ProviderSchedule`, `TimeSlot`, `AppointmentBlock`, `AppointmentType` en `AppointmentStatusHistory`.
+De module verwerkt onder andere patiëntafspraken, zorgverlenersroosters, tijdsloten, afspraaktypes, locaties en afspraakstatussen. Dit blijkt uit de domeinklassen in de code, zoals `Appointment`, `ProviderSchedule`, `TimeSlot`, `AppointmentBlock`, `AppointmentType` en `AppointmentStatusHistory`.
 
 ![alt text](image.png)
 
