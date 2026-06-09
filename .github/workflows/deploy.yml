@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-24.04
     environment: test
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/checkout@v4.2.2
 
       # NOTE: deze job draait op een ephemere GitHub-hosted runner.
       # Voor een persistente testomgeving is een self-hosted runner of
@@ -28,7 +28,7 @@ jobs:
     needs: deploy-test
     environment: production
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/checkout@v4.2.2
 
       # NOTE: zie deploy-test — voor echte productie is een self-hosted runner
       # of externe deploy-target vereist. De handmatige goedkeuring via de
