@@ -25,7 +25,7 @@ jobs:
       # fail-build: false → pipeline stopt niet, maar bevindingen zijn wel zichtbaar
       # severity-cutoff: high → rapporteert alleen HIGH en CRITICAL
       - name: Scan SBOM op CVEs met Grype
-        uses: anchore/scan-action@v6
+        uses: anchore/scan-action@v6.1.0
         id: grype
         with:
           sbom: sbom.cyclonedx.json

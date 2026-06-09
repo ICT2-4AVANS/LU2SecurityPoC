@@ -13,7 +13,7 @@ jobs:
       - uses: actions/checkout@v4.2.2
 
       - name: Set up Java 8
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v4.7.1
         with:
           java-version: "8"
           distribution: temurin
@@ -23,7 +23,7 @@ jobs:
       # --severity-threshold=high → alleen HIGH en CRITICAL tonen
       # --all-projects → scant api/ en omod/ allebei
       - name: Snyk SCA — dependency scan
-        uses: snyk/actions/maven@master
+        uses: snyk/actions/maven@0.4.0
         continue-on-error: true
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
@@ -35,7 +35,7 @@ jobs:
 
       # SAST — scant broncode op CWE's (hardcoded credentials, XSS, etc.)
       - name: Snyk SAST — code scan
-        uses: snyk/actions/node@master
+        uses: snyk/actions/node@0.4.0
         continue-on-error: true
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
