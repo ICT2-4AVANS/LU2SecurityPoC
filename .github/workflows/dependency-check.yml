@@ -25,7 +25,7 @@ jobs:
         with:
           project: "openmrs-module-appointmentscheduling"
           path: "openmrs-module-appointmentscheduling/openmrs-module-appointmentscheduling"
-          format: "HTML,JSON"
+          format: "ALL"
           args: >
             --failOnCVSS 8
             --enableRetired
