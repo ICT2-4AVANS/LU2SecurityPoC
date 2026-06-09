@@ -1,0 +1,41 @@
+name: OWASP Dependency-Check (SCA)
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    # Draait elke maandag automatisch — pikt nieuwe CVE's op
+    # ook als er geen codewijziging is
+    - cron: "0 6 * * 1"
+
+jobs:
+  dependency-check:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4.2.2
+
+      # Scant alle Maven dependencies op bekende CVE's
+      # Geen aparte Java setup nodig — OWASP action draait in eigen Docker container
+      # --failOnCVSS 8  → pipeline faalt bij HIGH en CRITICAL
+      # --enableRetired → pikt ook EOL/verouderde libraries op
+      - name: Run OWASP Dependency-Check
+        uses: dependency-check/Dependency-Check_Action@1.1.0
+        with:
+          project: "openmrs-module-appointmentscheduling"
+          path: "openmrs-module-appointmentscheduling/openmrs-module-appointmentscheduling"
+          format: "ALL"
+          args: >
+            --failOnCVSS 8
+            --enableRetired
+            --nvdApiDelay 6000
+
+      # Rapport altijd uploaden ook als pipeline faalt
+      # Download via Actions → dependency-check-rapport
+      - name: Upload rapport
+        uses: actions/upload-artifact@v4.6.2
+        if: always()
+        with:
+          name: dependency-check-rapport
+          path: reports/
