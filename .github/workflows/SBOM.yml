@@ -20,3 +20,22 @@ jobs:
         with:
           name: sbom
           path: sbom.cyclonedx.json
+
+      # Grype scant het gegenereerde SBOM bestand op CVE's
+      # fail-build: false → pipeline stopt niet, maar bevindingen zijn wel zichtbaar
+      # severity-cutoff: high → rapporteert alleen HIGH en CRITICAL
+      - name: Scan SBOM op CVEs met Grype
+        uses: anchore/scan-action@v6
+        id: grype
+        with:
+          sbom: sbom.cyclonedx.json
+          fail-build: false
+          severity-cutoff: high
+          output-format: sarif
+
+      # SARIF formaat zodat bevindingen zichtbaar zijn in GitHub Security tab
+      - name: Upload Grype resultaten naar GitHub Security
+        uses: github/codeql-action/upload-sarif@v3.28.18
+        if: always()
+        with:
+          sarif_file: ${{ steps.grype.outputs.sarif }}
