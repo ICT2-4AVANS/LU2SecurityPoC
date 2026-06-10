@@ -4,7 +4,7 @@
 
 **Naam:** Appointment Scheduling Module
 **Repository:** openmrs-module-appointmentscheduling
-**Versie:** 2.0.0
+**Versie:** 1.17.0-SNAPSHOT
 **Broncode:** https://github.com/openmrs/openmrs-module-appointmentscheduling
 
 ---

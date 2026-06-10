@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | **Norm** | NEN-7510:2024-2 — control 8.15 (Logging and monitoring activities) |
-| **Module** | openmrs-module-appointmentscheduling v2.0.0 |
+| **Module** | openmrs-module-appointmentscheduling 1.17.0-SNAPSHOT |
 | **Datum** | 2026-06-09 |
 | **Auteur** | Enes |
 
