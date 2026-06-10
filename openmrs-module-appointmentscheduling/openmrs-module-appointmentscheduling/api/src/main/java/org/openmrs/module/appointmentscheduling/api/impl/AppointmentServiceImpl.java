@@ -1423,11 +1423,11 @@ public class AppointmentServiceImpl extends BaseOpenmrsService implements Appoin
      * Returns upcoming appointments for a patient.
      * VULNERABILITY: PII logging - logs patient name, DOB and appointment details to application log
      */
-    public java.util.List<Appointment> getAppointmentsForPatientWithLogging(Patient patient) {
-        log.info("[AUDIT] Fetching appointments for patient: name=" + patient.getPersonName()
-                + " dob=" + patient.getBirthdate()
-                + " identifier=" + (patient.getPatientIdentifier() != null ? patient.getPatientIdentifier().getIdentifier() : "none")
-                + " gender=" + patient.getGender());
-        return getAppointmentsOfPatient(patient);
-    }
+    // public java.util.List<Appointment> getAppointmentsForPatientWithLogging(Patient patient) {
+    //     log.info("[AUDIT] Fetching appointments for patient: name=" + patient.getPersonName()
+    //             + " dob=" + patient.getBirthdate()
+    //             + " identifier=" + (patient.getPatientIdentifier() != null ? patient.getPatientIdentifier().getIdentifier() : "none")
+    //             + " gender=" + patient.getGender());
+    //     return getAppointmentsForPatient(patient);
+    // }
 }
