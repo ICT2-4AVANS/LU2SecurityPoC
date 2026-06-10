@@ -2,9 +2,9 @@ name: OWASP Dependency-Check (SCA)
 
 on:
   push:
-    branches: [main]
+    branches: [main, dev]
   pull_request:
-    branches: [main]
+    branches: [main, dev]
   schedule:
     # Draait elke maandag automatisch — pikt nieuwe CVE's op
     # ook als er geen codewijziging is
