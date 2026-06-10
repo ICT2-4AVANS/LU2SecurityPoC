@@ -8,10 +8,10 @@
 
 **Klaar als:**
 
-- [ ] `docs/module-keuze.md` bestaat in de repository
-- [ ] Het document bevat de naam, versie en een directe link naar de broncode van de gekozen module
-- [ ] De keuze is gemotiveerd op basis van minimaal drie criteria (bijv. complexiteit, scope, kritieke functionaliteit)
-- [ ] Het document is leesbaar en bevat geen lege secties
+- [x] `docs/module-keuze.md` bestaat in de repository
+- [x] Het document bevat de naam, versie en een directe link naar de broncode van de gekozen module
+- [x] De keuze is gemotiveerd op basis van minimaal drie criteria (bijv. complexiteit, scope, kritieke functionaliteit)
+- [x] Het document is leesbaar en bevat geen lege secties
 
 ---
 
@@ -19,11 +19,11 @@
 
 **Klaar als:**
 
-- [ ] Branch protection is actief op `main` (directe pushes zijn geblokkeerd, pull request vereist)
-- [ ] Alle teamleden hebben MFA ingeschakeld op hun GitHub-account
-- [ ] Dependabot alerts zijn ingeschakeld en zichtbaar onder Security → Dependabot
-- [ ] De CodeQL-workflow is actief en heeft minimaal één succesvolle run voltooid
-- [ ] De GitHub Security-tab toont geen onopgeloste configuratiefouten
+- [x] Branch protection is actief op `main` (directe pushes zijn geblokkeerd, pull request vereist)
+- [x] Alle teamleden hebben MFA ingeschakeld op hun GitHub-account
+- [x] Dependabot alerts zijn ingeschakeld en zichtbaar onder Security → Dependabot
+- [x] De CodeQL-workflow is actief en heeft minimaal één succesvolle run voltooid
+- [x] De GitHub Security-tab toont geen onopgeloste configuratiefouten
 
 ---
 
@@ -31,9 +31,9 @@
 
 **Klaar als:**
 
-- [ ] Er zijn drie aparte `docker-compose`-bestanden aanwezig: `docker-compose.dev.yml`, `docker-compose.test.yml` en `docker-compose.prod.yml`
-- [ ] Elke omgeving heeft een eigen configuratie (poorten, volumes of omgevingsvariabelen verschillen per omgeving)
-- [ ] GitHub Environments zijn geconfigureerd met protection rules voor minimaal de productieomgeving
+- [x] Er zijn drie aparte `docker-compose`-bestanden aanwezig: `docker-compose.dev.yml`, `docker-compose.test.yml` en `docker-compose.prod.yml`
+- [x] Elke omgeving heeft een eigen configuratie (poorten, volumes of omgevingsvariabelen verschillen per omgeving)
+- [x] GitHub Environments zijn geconfigureerd met protection rules voor minimaal de productieomgeving
 
 ---
 
@@ -41,10 +41,10 @@
 
 **Klaar als:**
 
-- [ ] Er is een SBOM-bestand aanwezig in CycloneDX JSON-formaat
-- [ ] Het SBOM-bestand wordt automatisch gegenereerd als CI-artifact via GitHub Actions
-- [ ] Het gegenereerde bestand is downloadbaar vanuit de Actions-tab
-- [ ] Het SBOM-bestand bevat alle directe afhankelijkheden van de module
+- [x] Er is een SBOM-bestand aanwezig in CycloneDX JSON-formaat
+- [x] Het SBOM-bestand wordt automatisch gegenereerd als CI-artifact via GitHub Actions
+- [x] Het gegenereerde bestand is downloadbaar vanuit de Actions-tab
+- [x] Het SBOM-bestand bevat alle directe afhankelijkheden van de module
 
 ---
 
@@ -52,12 +52,12 @@
 
 **Klaar als:**
 
-- [ ] `docs/auditreport/01-gap-analyse.md` bestaat in de repository
-- [ ] De analyse dekt minimaal drie NEN-7510:2024-2 controls: A.8.3, A.8.5 en A.8.15
-- [ ] Elke control heeft een expliciete status: `aanwezig`, `gedeeltelijk` of `afwezig`
-- [ ] Elke status is onderbouwd met minimaal één bewijs (coderegel met regelnummer of screenshot)
-- [ ] De analyse bevat een samenvattingstabel met alle controls, statussen en voornaamste gaps
-- [ ] De analyse bevat aanbevelingen per gevonden gap
+- [x] `docs/auditreport/01-gap-analyse.md` bestaat in de repository
+- [x] De analyse dekt minimaal drie NEN-7510:2024-2 controls: A.8.3, A.8.5 en A.8.15
+- [x] Elke control heeft een expliciete status: `aanwezig`, `gedeeltelijk` of `afwezig`
+- [x] Elke status is onderbouwd met minimaal één bewijs (coderegel met regelnummer of screenshot)
+- [x] De analyse bevat een samenvattingstabel met alle controls, statussen en voornaamste gaps
+- [x] De analyse bevat aanbevelingen per gevonden gap
 
 ---
 
@@ -65,10 +65,10 @@
 
 **Klaar als:**
 
-- [ ] `docs/auditreport/02-pipeline-compliance.md` bestaat in de repository
-- [ ] Het document bevat een tabel met per NEN-7510 control: de bijbehorende pipeline-maatregel én het bewijs
-- [ ] Elke pipeline-maatregel is aantoonbaar actief in de repository (link naar workflow of screenshot)
-- [ ] Het document dekt minimaal dezelfde controls als de gap-analyse (A.8.3, A.8.5, A.8.15)
+- [x] `docs/auditreport/02-pipeline-compliance.md` bestaat in de repository
+- [x] Het document bevat een tabel met per NEN-7510 control: de bijbehorende pipeline-maatregel én het bewijs
+- [x] Elke pipeline-maatregel is aantoonbaar actief in de repository (link naar workflow of screenshot)
+- [x] Het document dekt minimaal dezelfde controls als de gap-analyse (A.8.3, A.8.5, A.8.15)
 
 ---
 
@@ -76,9 +76,9 @@
 
 **Klaar als:**
 
-- [ ] De kwaliteitseisen voor security en maintainability zijn schriftelijk vastgelegd
-- [ ] De eisen zijn concreet en meetbaar (geen vage omschrijvingen)
-- [ ] De eisen zijn gedocumenteerd in de repository zodat het hele team ze kan raadplegen
+- [x] De kwaliteitseisen voor security en maintainability zijn schriftelijk vastgelegd
+- [x] De eisen zijn concreet en meetbaar (geen vage omschrijvingen)
+- [x] De eisen zijn gedocumenteerd in de repository zodat het hele team ze kan raadplegen
 
 ---
 
@@ -86,10 +86,10 @@
 
 **Klaar als:**
 
-- [ ] De CodeQL-workflow is actief en draait automatisch bij een pull request naar `main`
-- [ ] CodeQL-bevindingen zijn zichtbaar onder Security → Code scanning op GitHub
-- [ ] Er is vastgelegd dat geen nieuwe `HIGH` of `CRITICAL` CodeQL-bevindingen mogen worden geïntroduceerd bij een pull request naar `main`
-- [ ] De statische code-analyse is gekoppeld aan de gap-analyse als aanvullend bewijs voor minimaal één NEN-7510 control
+- [x] De CodeQL-workflow is actief en draait automatisch bij een pull request naar `main`
+- [x] CodeQL-bevindingen zijn zichtbaar onder Security → Code scanning op GitHub
+- [x] Er is vastgelegd dat geen nieuwe `HIGH` of `CRITICAL` CodeQL-bevindingen mogen worden geïntroduceerd bij een pull request naar `main`
+- [x] De statische code-analyse is gekoppeld aan de gap-analyse als aanvullend bewijs voor minimaal één NEN-7510 control
 
 ---
 
@@ -97,8 +97,8 @@
 
 **De sprint is klaar als alle onderstaande punten zijn afgevinkt:**
 
-- [ ] GitHub-repository heeft branch protection en Dependabot actief
-- [ ] SBOM-bestand wordt als CI-artifact aangemaakt in Actions
-- [ ] Gap-analyse dekt minimaal drie NEN-7510 controls met bewijs
-- [ ] Alle teamleden hebben minimaal één commit bijgedragen
-- [ ] Er zijn geen openstaande `HIGH` of `CRITICAL` CodeQL-bevindingen op `main`
+- [x] GitHub-repository heeft branch protection en Dependabot actief
+- [x] SBOM-bestand wordt als CI-artifact aangemaakt in Actions
+- [x] Gap-analyse dekt minimaal drie NEN-7510 controls met bewijs
+- [x] Alle teamleden hebben minimaal één commit bijgedragen
+- [x] Er zijn geen openstaande `HIGH` of `CRITICAL` CodeQL-bevindingen op `main`

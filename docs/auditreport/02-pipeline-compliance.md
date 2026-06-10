@@ -4,7 +4,7 @@
 |---|---|
 | **Norm** | NEN-7510:2024-2 |
 | **Module** | openmrs-module-appointmentscheduling 1.17.0-SNAPSHOT |
-| **Datum** | 2026-06-08 |
+| **Datum** | 2026-06-09 |
 
 ---
 
@@ -18,12 +18,18 @@ Dit document beschrijft hoe de CI/CD-pipeline maatregelen implementeert die aans
 
 | NEN-7510:2024-2 Control | Onderwerp | Pipeline-maatregel | Workflow | Status |
 |---|---|---|---|---|
-| A.8.3 | Toegangsbeveiliging | Dependency review blokkeert `HIGH`/`CRITICAL` CVE's | `dependency-review.yml` | ✅ Actief |
-| A.8.5 | Authenticatie | CodeQL detecteert authenticatiegerelateerde kwetsbaarheden | `codeql.yml` | ✅ Actief |
-| A.8.15 | Logging en monitoring | CodeQL detecteert onveilige loggingpatronen; SBOM identificeert kwetsbare logging-libraries | `codeql.yml`, `SBOM.yml` | ✅ Actief |
-| — | Integriteit supply chain | SBOM gegenereerd in CycloneDX-formaat | `SBOM.yml` | ✅ Actief |
-| — | Veilig ontwikkelproces | Branch protection + PR-vereiste op `main` | GitHub branch rules | ✅ Actief |
-| — | Omgevingsscheiding | Gescheiden GitHub Environments (`test`, `production`) | `deploy.yml` | ✅ Actief |
+| A.8.3 | Toegangsbeveiliging | Dependency review blokkeert `HIGH`/`CRITICAL` CVE's in nieuwe afhankelijkheden bij PR | `dependency-review.yml` | ✅ Actief |
+| A.8.5 | Authenticatie | CodeQL (SAST) detecteert authenticatiegerelateerde kwetsbaarheden zoals hardcoded credentials | `codeql.yml` | ✅ Actief |
+| A.8.8 | Kwetsbaarhedenbeheer | OWASP Dependency-Check (SCA) scant alle Maven dependencies op CVE's | `dependency-check.yml` | ✅ Actief |
+| A.8.8 | Kwetsbaarhedenbeheer | Snyk (SAST + SCA) scant code en dependencies op CVE's en CWE's | `snyk.yml` | ✅ Actief |
+| A.8.8 | Kwetsbaarhedenbeheer | Grype scant het gegenereerde SBOM op bekende CVE's | `SBOM.yml` | ✅ Actief |
+| A.8.15 | Logging en monitoring | CodeQL detecteert onveilig gebruik van credentials/sessies en kwetsbare logging-libraries via SBOM | `codeql.yml`, `SBOM.yml` | ✅ Actief |
+| A.8.29 | Beveiligingstesten | Meerdere SAST/SCA-tools actief in CI per push en PR — gestructureerd false-positives-beleid | `03-false-positives-beleid.md` | ✅ Actief |
+| — | Integriteit supply chain | SBOM gegenereerd in CycloneDX-formaat als CI-artifact | `SBOM.yml` | ✅ Actief |
+| — | Veilig ontwikkelproces | Branch protection + PR-vereiste op `main` + 1 reviewer | GitHub branch rules | ✅ Actief |
+| — | Omgevingsscheiding | Gescheiden GitHub Environments (`test`, `production`) met aparte secrets | `deploy.yml` | ✅ Actief |
+
+> **Let op:** CodeQL detecteert wel patterns zoals het loggen van bekende variabelen die op PII lijken, maar detecteert geen *ontbrekende* audit-logs. Het volledig sluiten van de A.8.15 gap vereist code-aanpassingen in de module zelf (Sprint 3).
 
 ---
 
