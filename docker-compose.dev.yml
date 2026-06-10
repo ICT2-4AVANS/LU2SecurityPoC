@@ -9,6 +9,7 @@ services:
       - "8082:8080"
     volumes:
       - openmrs_dev_data:/usr/local/tomcat/.OpenMRS
+      - ./openmrs-module-appointmentscheduling/openmrs-module-appointmentscheduling/omod/target/appointmentscheduling-1.17.0-SNAPSHOT.omod:/usr/local/tomcat/.OpenMRS/modules/appointmentscheduling-1.17.0-SNAPSHOT.omod:ro
   db:
     # MySQL 5.7 is EOL maar vereist door OpenMRS 1.x — upgrade naar 8.x wordt
     # geblokkeerd door platformcompatibiliteit. Zie docs/non-functional-requirements.md.
