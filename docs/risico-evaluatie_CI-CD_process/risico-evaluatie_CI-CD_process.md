@@ -77,7 +77,7 @@ Daarom krijgt dit risico een score van **16** en valt het in het niveau **Kritie
 
 ## 6. Bow-tie analyse voor CI/CD-R2 - Kwetsbaarheden blokkeren niet altijd de pipeline
 
-
+<img src="./img/bow-tie_CI-CD_risico.png" alt="Bow-tie_CI-CD_risico" style="max-width:100%; height:auto;" />
 
 ---
 
