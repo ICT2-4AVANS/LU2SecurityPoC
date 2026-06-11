@@ -253,6 +253,3 @@ De belangrijkste risico’s zijn:
 5. Misbruik van settings, bulk-acties of overbooking.
 
 Deze bevindingen zijn verwerkt in het bijgewerkte threat model.
-
-**Documentversie:** 1.0
-**Status:** Gereed voor WS05 / input voor WS06
