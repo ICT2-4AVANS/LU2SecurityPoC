@@ -252,6 +252,21 @@ Door de attack surface mapping zijn de volgende wijzigingen toegevoegd aan het t
 
 ---
 
+## 12. Aanbevolen maatregelen
+
+| Prioriteit | Maatregel                                                                     |
+| ---------- | ----------------------------------------------------------------------------- |
+| Kritiek    | Voeg expliciete privilegechecks toe op high risk POST/PUT/DELETE-acties       |
+| Kritiek    | Voeg object-level autorisatie toe voor patiënt, afspraak, provider en locatie |
+| Hoog       | Voeg auditlogging toe voor create/update/delete/settings-acties               |
+| Hoog       | Valideer alle input server-side                                               |
+| Hoog       | Beperk bulk-acties en voeg limieten toe                                       |
+| Middel     | Controleer dependencies met SCA en SBOM                                       |
+| Middel     | Controleer dat database en adminfuncties niet extern bereikbaar zijn          |
+| Middel     | Test high risk entry points met unit tests en security tests                  |
+
+---
+
 ## 13. Conclusie
 
 De grootste attack surface van de Appointment Scheduling Module zit bij de REST API, webformulieren en instellingenpagina’s. Vooral acties waarmee afspraken worden bekeken, aangemaakt, gewijzigd of geannuleerd zijn high risk, omdat ze patiëntgegevens verwerken en direct invloed hebben op het zorgproces.
