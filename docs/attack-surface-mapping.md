@@ -58,27 +58,29 @@ Base path:
 
 `/rest/v1/appointmentscheduling/*`
 
-| #   | Endpoint                        | Acties                 | Belangrijke input                               | Gevoeligheid | Risico  |
-| --- | ------------------------------- | ---------------------- | ----------------------------------------------- | ------------ | ------- |
-| 1   | `/appointment`                  | GET, POST, PUT, DELETE | patient, timeSlot, status, reason, cancelReason | Hoog         | Kritiek |
-| 2   | `/appointmentallowingoverbook`  | POST/CRUD              | afspraakdata + overbooking                      | Hoog         | Kritiek |
-| 3   | `/createappointment`            | POST                   | patient, appointmentType, provider, timeSlot    | Hoog         | Kritiek |
-| 4   | `/appointmentrequest`           | GET, POST, PUT, DELETE | patient, requestedBy, notes, status             | Hoog         | Kritiek |
-| 5   | `/appointmentstatushistory`     | GET                    | appointment/status history                      | Hoog         | Hoog    |
-| 6   | `/appointmentblock`             | GET, POST, PUT, DELETE | startDate, endDate, provider, location          | Middel       | Hoog    |
-| 7   | `/appointmentblockwithtimeslot` | GET, POST, PUT, DELETE | block + timeslot data                           | Middel       | Hoog    |
-| 8   | `/providerschedule`             | GET, POST, PUT, DELETE | provider, location, date/time                   | Middel       | Hoog    |
-| 9   | `/timeslot`                     | GET, POST, PUT, DELETE | startDate, endDate, appointmentBlock            | Middel       | Middel  |
-| 10  | `/appointmenttype`              | GET, POST, PUT, DELETE | name, duration, description                     | Laag/Middel  | Middel  |
-| 11  | `/dailyappointmentcount`        | GET                    | date, provider, location, status                | Middel       | Middel  |
-| 12  | `/appointmentstatus`            | GET                    | enum/status                                     | Laag         | Laag    |
-| 13  | `/appointmentstatustype`        | GET                    | enum/status type                                | Laag         | Laag    |
-| 14  | `/appointmentrequeststatus`     | GET                    | enum/request status                             | Laag         | Laag    |
-| 15  | `/timeframeunits`               | GET                    | enum/timeframe units                            | Laag         | Laag    |
+| #   | Endpoint                        | Acties                 | Belangrijke input                               | Vereiste privilege             | Inputvalidatie aanwezig? | Autorisatiecheck aanwezig?  | Risico  |
+| --- | ------------------------------- | ---------------------- | ----------------------------------------------- | ------------------------------ | ------------------------ | --------------------------- | ------- |
+| 1   | `/appointment`                  | GET, POST, PUT, DELETE | patient, timeSlot, status, reason, cancelReason | View/Schedule Appointments     | Deels / controleren      | Service-layer / controleren | Kritiek |
+| 2   | `/appointmentallowingoverbook`  | POST/CRUD              | afspraakdata + overbooking                      | Schedule Appointments          | Deels / controleren      | Service-layer / controleren | Kritiek |
+| 3   | `/createappointment`            | POST                   | patient, appointmentType, provider, timeSlot    | Schedule Appointments          | Deels / controleren      | Service-layer / controleren | Kritiek |
+| 4   | `/appointmentrequest`           | GET, POST, PUT, DELETE | patient, requestedBy, notes, status             | Request Appointments           | Deels / controleren      | Service-layer / controleren | Kritiek |
+| 5   | `/appointmentstatushistory`     | GET                    | appointment/status history                      | View Appointments              | n.v.t. / beperkt         | Service-layer / controleren | Hoog    |
+| 6   | `/appointmentblock`             | GET, POST, PUT, DELETE | startDate, endDate, provider, location          | Manage Appointment Blocks      | Deels / controleren      | Service-layer / controleren | Hoog    |
+| 7   | `/appointmentblockwithtimeslot` | GET, POST, PUT, DELETE | block + timeslot data                           | Manage Appointment Blocks      | Deels / controleren      | Service-layer / controleren | Hoog    |
+| 8   | `/providerschedule`             | GET, POST, PUT, DELETE | provider, location, date/time                   | Manage Provider Schedules      | Deels / controleren      | Service-layer / controleren | Hoog    |
+| 9   | `/timeslot`                     | GET, POST, PUT, DELETE | startDate, endDate, appointmentBlock            | View/Manage Appointment Blocks | Deels / controleren      | Service-layer / controleren | Middel  |
+| 10  | `/appointmenttype`              | GET, POST, PUT, DELETE | name, duration, description                     | Manage Appointment Types       | Deels / controleren      | Service-layer / controleren | Middel  |
+| 11  | `/dailyappointmentcount`        | GET                    | date, provider, location, status                | View Appointments              | Deels / controleren      | Controleren                 | Middel  |
+| 12  | `/appointmentstatus`            | GET                    | enum/status                                     | View Appointments              | n.v.t.                   | Controleren                 | Laag    |
+| 13  | `/appointmentstatustype`        | GET                    | enum/status type                                | View Appointments              | n.v.t.                   | Controleren                 | Laag    |
+| 14  | `/appointmentrequeststatus`     | GET                    | enum/request status                             | Request/View Appointments      | n.v.t.                   | Controleren                 | Laag    |
+| 15  | `/timeframeunits`               | GET                    | enum/timeframe units                            | View Appointments              | n.v.t.                   | Controleren                 | Laag    |
 
 ### Bevinding REST API
 
-Er zijn geen duidelijke endpoint-level autorisatiechecks zoals `@PreAuthorize` zichtbaar in de REST-laag. De module lijkt vooral te vertrouwen op OpenMRS-authenticatie en service-layer privileges. Dit is niet automatisch fout, maar moet gecontroleerd worden. Vooral bij POST, PUT en DELETE is expliciete privilegecontrole belangrijk.
+De REST API bevat meerdere high risk endpoints, vooral bij `POST`, `PUT` en `DELETE`. Deze endpoints verwerken patiëntafspraken, afspraakverzoeken, tijdsloten en roosters. Er is geen duidelijke endpoint-level autorisatie zoals `@PreAuthorize` zichtbaar in de REST-laag. De module lijkt vooral te vertrouwen op OpenMRS-authenticatie en service-layer privileges.
+
+Dit is niet automatisch fout, maar moet wel gecontroleerd worden. Vooral bij patiëntgegevens is naast een algemene privilegecheck ook **object-level autorisatie** nodig. Een gebruiker met afspraakrechten mag niet automatisch elke afspraak of elke patiënt bekijken of wijzigen.
 
 ---
 
@@ -88,30 +90,40 @@ Base path:
 
 `/module/appointmentscheduling/*`
 
-| #   | Endpoint                               | Methode | Functie                             | Risico  |
-| --- | -------------------------------------- | ------- | ----------------------------------- | ------- |
-| 1   | `/appointmentForm`                     | GET     | Afspraakformulier laden             | Middel  |
-| 2   | `/appointmentForm`                     | POST    | Afspraak opslaan/wijzigen           | Kritiek |
-| 3   | `/appointmentList`                     | GET     | Afspraken tonen                     | Hoog    |
-| 4   | `/appointmentList`                     | POST    | Bulk-acties op afspraken            | Hoog    |
-| 5   | `/appointmentBlockForm`                | GET     | Blokformulier laden                 | Middel  |
-| 6   | `/appointmentBlockForm`                | POST    | Blok opslaan/wijzigen               | Hoog    |
-| 7   | `/appointmentBlockList`                | GET     | Blokken tonen                       | Middel  |
-| 8   | `/appointmentBlockList`                | POST    | Bulk-acties op blokken              | Hoog    |
-| 9   | `/appointmentBlockCalendar`            | GET     | Kalender tonen                      | Middel  |
-| 10  | `/appointmentBlockCalendar`            | POST    | Kalender/blokken aanpassen          | Hoog    |
-| 11  | `/appointmentTypeForm`                 | GET     | Afspraaktypeformulier laden         | Laag    |
-| 12  | `/appointmentTypeForm`                 | POST    | Afspraaktype opslaan/wijzigen       | Hoog    |
-| 13  | `/appointmentTypeList`                 | GET     | Afspraaktypes tonen                 | Laag    |
-| 14  | `/appointmentSettingsForm`             | GET     | Instellingen tonen                  | Hoog    |
-| 15  | `/appointmentSettingsForm`             | POST    | Instellingen wijzigen               | Kritiek |
-| 16  | `/appointmentStatisticsForm`           | GET     | Statistieken tonen                  | Middel  |
-| 17  | `/appointmentStatisticsForm`           | POST    | Statistieken filteren               | Middel  |
-| 18  | `/patientDashboardAppointmentExt.form` | GET     | Afspraken op patiëntdashboard tonen | Hoog    |
+| #   | Endpoint                               | Methode | Functie                             | Vereiste privilege                  | Inputvalidatie aanwezig? | Autorisatiecheck aanwezig?                | Risico  |
+| --- | -------------------------------------- | ------- | ----------------------------------- | ----------------------------------- | ------------------------ | ----------------------------------------- | ------- |
+| 1   | `/appointmentForm`                     | GET     | Afspraakformulier laden             | View Appointments                   | Beperkt                  | `Context.isAuthenticated()` / controleren | Middel  |
+| 2   | `/appointmentForm`                     | POST    | Afspraak opslaan/wijzigen           | Schedule Appointments               | Deels / controleren      | `Context.isAuthenticated()` / controleren | Kritiek |
+| 3   | `/appointmentList`                     | GET     | Afspraken tonen                     | View Appointments                   | Beperkt                  | `Context.isAuthenticated()` / controleren | Hoog    |
+| 4   | `/appointmentList`                     | POST    | Bulk-acties op afspraken            | Schedule Appointments               | Deels / controleren      | `Context.isAuthenticated()` / controleren | Hoog    |
+| 5   | `/appointmentBlockForm`                | GET     | Blokformulier laden                 | View Appointment Blocks             | Beperkt                  | `Context.isAuthenticated()` / controleren | Middel  |
+| 6   | `/appointmentBlockForm`                | POST    | Blok opslaan/wijzigen               | Manage Appointment Blocks           | Deels / controleren      | `Context.isAuthenticated()` / controleren | Hoog    |
+| 7   | `/appointmentBlockList`                | GET     | Blokken tonen                       | View Appointment Blocks             | Beperkt                  | `Context.isAuthenticated()` / controleren | Middel  |
+| 8   | `/appointmentBlockList`                | POST    | Bulk-acties op blokken              | Manage Appointment Blocks           | Deels / controleren      | `Context.isAuthenticated()` / controleren | Hoog    |
+| 9   | `/appointmentBlockCalendar`            | GET     | Kalender tonen                      | View Appointment Blocks             | Beperkt                  | `Context.isAuthenticated()` / controleren | Middel  |
+| 10  | `/appointmentBlockCalendar`            | POST    | Kalender/blokken aanpassen          | Manage Appointment Blocks           | Deels / controleren      | `Context.isAuthenticated()` / controleren | Hoog    |
+| 11  | `/appointmentTypeForm`                 | GET     | Afspraaktypeformulier laden         | Manage Appointment Types            | Beperkt                  | `Context.isAuthenticated()` / controleren | Laag    |
+| 12  | `/appointmentTypeForm`                 | POST    | Afspraaktype opslaan/wijzigen       | Manage Appointment Types            | Deels / controleren      | `Context.isAuthenticated()` / controleren | Hoog    |
+| 13  | `/appointmentTypeList`                 | GET     | Afspraaktypes tonen                 | View Appointment Types              | n.v.t. / beperkt         | `Context.isAuthenticated()` / controleren | Laag    |
+| 14  | `/appointmentSettingsForm`             | GET     | Instellingen tonen                  | Manage Appointment Settings / Admin | Beperkt                  | `Context.isAuthenticated()` / controleren | Hoog    |
+| 15  | `/appointmentSettingsForm`             | POST    | Instellingen wijzigen               | Manage Appointment Settings / Admin | Deels / controleren      | `Context.isAuthenticated()` / controleren | Kritiek |
+| 16  | `/appointmentStatisticsForm`           | GET     | Statistieken tonen                  | View Appointment Statistics         | Beperkt                  | `Context.isAuthenticated()` / controleren | Middel  |
+| 17  | `/appointmentStatisticsForm`           | POST    | Statistieken filteren               | View Appointment Statistics         | Deels / controleren      | `Context.isAuthenticated()` / controleren | Middel  |
+| 18  | `/patientDashboardAppointmentExt.form` | GET     | Afspraken op patiëntdashboard tonen | View Appointments                   | Beperkt                  | `Context.isAuthenticated()` / controleren | Hoog    |
 
 ### Bevinding Web UI
 
-De webcontrollers verwerken veel gebruikersinput via formulieren. Vooral POST-acties zijn high risk, omdat hiermee afspraken, blokken, afspraaktypes of instellingen gewijzigd kunnen worden. Voor deze acties moet duidelijk zijn welke OpenMRS privilege nodig is en of de gebruiker toegang heeft tot de specifieke patiënt, afspraak, provider of locatie.
+De webcontrollers verwerken veel gebruikersinput via formulieren. Vooral POST-acties zijn high risk, omdat hiermee afspraken, blokken, afspraaktypes of instellingen gewijzigd kunnen worden. Bij meerdere controllers lijkt minimaal authenticatie aanwezig te zijn, maar het moet per controller gecontroleerd worden of ook de juiste OpenMRS privilege wordt afgedwongen.
+
+De belangrijkste aandachtspunten zijn:
+
+1. **`POST /appointmentForm`**: afspraak aanmaken of wijzigen.
+2. **`POST /appointmentSettingsForm`**: globale module-instellingen wijzigen.
+3. **`POST /appointmentBlockForm`**: beschikbaarheid van zorgverleners aanpassen.
+4. **`GET /patientDashboardAppointmentExt.form`**: patiëntafspraken tonen.
+5. **Bulk-acties** op afspraken of blokken.
+
+Voor deze endpoints is object-level autorisatie nodig. De module moet controleren of de gebruiker toegang heeft tot de specifieke patiënt, afspraak, provider of locatie.
 
 ---
 
