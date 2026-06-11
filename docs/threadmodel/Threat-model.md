@@ -170,8 +170,127 @@ Deze threats hebben prioriteit omdat ze direct invloed kunnen hebben op patiënt
 
 ---
 
-## 9. Conclusie
+## 9. Attack Surface & Entry Points Analysis (NEW)
 
-Met Microsoft Threat Modeling Tool 2016 zijn op basis van Level 0 en Level 1 DFD’s meerdere threats gegenereerd. Niet alle threats zijn uitgewerkt; de 8 belangrijkste threats zijn geselecteerd op relevantie voor de Appointment Scheduling Module.
+### 9.1 Gevonden Entry Points – Inventory
 
-De belangrijkste aandachtspunten zijn onbevoegde toegang, SQL Injection, sessiemisbruik, weak credential transit en overbelasting van de API of database. Deze threats raken direct aan vertrouwelijkheid, integriteit en beschikbaarheid van patiëntafspraken.
+Een gedetailleerde analyse van de attack surface heeft **33 entry points** geïdentificeerd:
+
+- **15 REST API endpoints** (`/rest/v1/appointmentscheduling/*`)
+- **18 Web Controller endpoints** (`/module/appointmentscheduling/*`)
+
+**Kritieke Bevinding:** Geen van de REST endpoints of Web controllers hebben `@PreAuthorize` autorisatiecontroles. Ze verlaten zich volledig op backend service-level @Authorized decorators, wat kan worden omzeild.
+
+### 9.2 HIGH RISK Entry Points (Top 10)
+
+Geïdentificeerde kritieke zwaktes per entry point:
+
+| #   | Endpoint                              | Risk        | Threat Coupling                               | Fix                                       |
+| --- | ------------------------------------- | ----------- | --------------------------------------------- | ----------------------------------------- |
+| 1   | **POST /appointment**                 | 🔴 CRITICAL | Spoofing (T1), Tampering (L1-T2)              | Add @PreAuthorize("hasRole('CLINICIAN')") |
+| 2   | **PUT /appointment**                  | 🔴 CRITICAL | Elevation (L1-T1), Repudiation (L0-T2)        | Add authorization check                   |
+| 3   | **POST /appointmentSettingsForm**     | 🔴 CRITICAL | Elevation (all admins), DoS (L1-T3)           | Add @PreAuthorize("hasRole('ADMIN')")     |
+| 4   | **POST /appointmentblock**            | 🔴 CRITICAL | Tampering (L1-T2), Elevation                  | Add privilege check                       |
+| 5   | **POST /appointmentrequest**          | 🔴 CRITICAL | Spoofing (T1), Information Disclosure         | Add patient context check                 |
+| 6   | **DELETE /appointment**               | 🔴 CRITICAL | Tampering (L1-T2), Repudiation (L0-T2, L1-T4) | Ensure audit trail                        |
+| 7   | **GET /appointment?patient=X**        | 🔴 HOOG     | Information Disclosure (L1-T5, T8)            | Add row-level security                    |
+| 8   | **POST /appointmenttype**             | 🟠 HOOG     | Elevation, System misconfiguration            | Add role check                            |
+| 9   | **POST /providerschedule**            | 🟠 HOOG     | Tampering, Elevation                          | Add authorization                         |
+| 10  | **POST /appointmentallowingoverbook** | 🟠 HOOG     | Denial of Service (L1-T3, L1-T6)              | Add rate limiting                         |
+
+### 9.3 Trust Boundary Violations
+
+**2 Critical Trust Boundaries Broken:**
+
+1. **REST Layer Authorization Missing**
+   - Assumption: REST controllers enforce privileges
+   - Reality: ❌ NO @PreAuthorize annotations
+   - Impact: Any authenticated user can POST/PUT/DELETE appointments
+   - Maps to: T1 (Spoofing), L1-T1 (Browser spoofing)
+
+2. **Web Controller Privilege Checks Missing**
+   - Assumption: AppointmentSettingsForm checks admin privileges
+   - Reality: ❌ Only checks `Context.isAuthenticated()`
+   - Impact: Clinicians can modify global module settings
+   - Maps to: L1-T1 (Elevation of Privilege)
+
+### 9.4 Input Validation Gaps
+
+- ❌ **No @Valid annotations** on REST RequestBody parameters
+- ❌ **AppointmentSettingsForm** relies on client-side validation only
+- ⚠️ **Date parameters** - parsed but not range-validated
+- ⚠️ **Status enums** - only validated by Java enum check
+
+### 9.5 Audit Logging Deficiency
+
+- ✅ **DELETE operations** - logged via voidAppointment()
+- ✅ **Status changes** - tracked in AppointmentStatusHistory
+- ❌ **Settings mutations** - **NO AUDIT TRAIL**
+- ⚠️ **CREATE/UPDATE operations** - audit level unclear
+
+Maps to: L0-T2, L1-T4 (Repudiation threats)
+
+---
+
+## 9. Attack Surface & Entry Points Analysis (NEW - WS05 Assignment)
+
+### 9.1 Gevonden Entry Points � Inventory
+
+Een gedetailleerde analyse van de attack surface heeft **33 entry points** ge�dentificeerd:
+
+- **15 REST API endpoints** (/rest/v1/appointmentscheduling/\*)
+- **18 Web Controller endpoints** (/module/appointmentscheduling/\*)
+
+**Kritieke Bevinding:** Geen van de REST endpoints of Web controllers hebben @PreAuthorize autorisatiecontroles. Ze verlaten zich volledig op backend service-level @Authorized decorators, wat kan worden omzeild.
+
+### 9.2 HIGH RISK Entry Points (Top 10)
+
+Ge�dentificeerde kritieke zwaktes per entry point die rechtstreeks koppelen aan de 8 threats:
+
+| Endpoint                          | Risk        | Threat Coupling                        | Mitigation                                |
+| --------------------------------- | ----------- | -------------------------------------- | ----------------------------------------- |
+| **POST /appointment**             | ?? CRITICAL | T1 (Spoofing), L1-T2 (Tampering)       | Add @PreAuthorize("hasRole('CLINICIAN')") |
+| **PUT /appointment**              | ?? CRITICAL | L1-T1 (Elevation), L0-T2 (Repudiation) | Add authorization check                   |
+| **POST /appointmentSettingsForm** | ?? CRITICAL | L1-T1 (Elevation), L1-T3 (DoS)         | Add @PreAuthorize("hasRole('ADMIN')")     |
+| **GET /appointment**              | ?? HOOG     | L1-T5 (Information Disclosure)         | Add row-level security                    |
+| **DELETE /appointment**           | ?? HOOG     | L0-T2, L1-T4 (Repudiation)             | Ensure audit trail                        |
+
+### 9.3 Correlatie Attack Surface ? 8 Belangrijkste Threats
+
+| Threat                      | Current Status | Enhanced Risk from Attack Surface       | Recommendation                   |
+| --------------------------- | -------------- | --------------------------------------- | -------------------------------- |
+| **T1** (Spoofing)           | Hoog (10)      | ?? **ELEVATED** � No REST auth          | Add endpoint-level authorization |
+| **T2** (Repudiation)        | Middel (9)     | ?? **ELEVATED** � No audit for settings | Add audit logging                |
+| **T3** (DoS)                | Middel (8)     | ?? **ELEVATED** � No rate limiting      | Implement rate limits            |
+| **T4** (Session misuse)     | Hoog (10)      | ?? **ELEVATED** � All endpoints exposed | Add @PreAuthorize globally       |
+| **T5** (SQL Injection)      | Hoog (15)      | ? **MITIGATED** � Hibernate ORM         | Keep as-is                       |
+| **T6** (API overload)       | Hoog (12)      | ?? **ELEVATED** � Bulk ops allowed      | Add resource limits              |
+| **T7** (Web UI repudiation) | Middel (9)     | ? **MITIGATED** � Spring logs           | Keep as-is                       |
+| **T8** (Credential transit) | Hoog (10)      | ?? **DEPENDS** � HTTPS config           | Verify server setup              |
+
+**Result:** 5 out of 8 threats now require ENHANCED PROTECTION based on attack surface findings.
+
+### 9.4 NEN-7510:2024-2 Compliance Mapping
+
+| Control                     | Current    | Gap                   | Priority    |
+| --------------------------- | ---------- | --------------------- | ----------- |
+| **8.25** (Security in SDLC) | ?? Partial | Authorization missing | ?? CRITICAL |
+| **8.28** (Secure coding)    | ?? Weak    | Input validation      | ?? CRITICAL |
+| **8.15** (Audit logging)    | ?? Partial | Settings not logged   | ?? HOOG     |
+| **8.1** (Confidentiality)   | ? No RLS   | Row-level security    | ?? HOOG     |
+
+---
+
+## 10. Remediation & Next Steps (WS06 Preparation)
+
+1. **Phase 1 (CRITICAL):** Implement @PreAuthorize on 15 REST endpoints
+2. **Phase 2 (HOOG):** Add input validation + audit logging
+3. **Phase 3 (MEDIUM):** Row-level security + security testing
+
+See: [docs/attack-surface-mapping.md](../attack-surface-mapping.md) for complete entry point inventory and remediation roadmap.
+
+---
+
+**Document Version:** 2.0 (Attack Surface Update for WS05)  
+**Last Updated:** June 11, 2026  
+**Status:** COMPLETE � Ready for WS05 Submission & WS06 Remediation Planning
