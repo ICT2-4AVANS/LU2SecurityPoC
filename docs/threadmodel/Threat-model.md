@@ -192,6 +192,3 @@ De attack surface mapping heeft vooral de risico’s rond **object-level autoris
 3. Log create/update/delete/settings-acties als audit events.
 4. Valideer input server-side.
 5. Beperk toegang tot database, instellingen en modulebeheer volgens least privilege.
-
-**Documentversie:** 2.0
-**Status:** Bijgewerkt met attack surface mapping
