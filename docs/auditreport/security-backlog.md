@@ -50,18 +50,18 @@ Risico = Kans × Impact
 
 ## 3. Risicoscores per bron
 
-### 3.1 Threat-model-threats (overgenomen uit Threat-model.md § 7)
+### 3.1 Threat-model-threats (overgenomen uit Threat-model.md § 8–9, definitieve nummering)
 
-| ID | Threat                                                        | Kans | Impact | Score | Niveau |
-| -- | ------------------------------------------------------------- | ---: | -----: | ----: | ------ |
-| T1 | Spoofing zorgmedewerker / arts / beheerder                    |    2 |      5 |    10 | Hoog   |
-| T2 | Wijzigingen aan afspraken zijn niet goed herleidbaar          |    3 |      3 |     9 | Middel |
-| T3 | Appointment Scheduling Module crasht of stopt                 |    2 |      4 |     8 | Middel |
-| T4 | Browser-/sessiemisbruik                                       |    2 |      5 |    10 | Hoog   |
-| T5 | SQL Injection richting OpenMRS Database                       |    3 |      5 |    15 | Hoog   |
-| T6 | API of database raakt overbelast                              |    3 |      4 |    12 | Hoog   |
-| T7 | Acties via OpenMRS Web UI niet herleidbaar                    |    3 |      3 |     9 | Middel |
-| T8 | Weak Credential Transit                                       |    2 |      5 |    10 | Hoog   |
+| ID | Threat                                     | Kans | Impact | Score | Niveau  |
+| -- | ------------------------------------------ | ---: | -----: | ----: | ------- |
+| T1 | Account- of sessiemisbruik                 |    3 |      5 |    15 | Hoog    |
+| T2 | Onbevoegde inzage in patiëntafspraken      |    4 |      5 |    20 | Kritiek |
+| T3 | Onbevoegd wijzigen/annuleren van afspraken |    4 |      5 |    20 | Kritiek |
+| T4 | Niet-admin wijzigt module-instellingen     |    3 |      5 |    15 | Hoog    |
+| T5 | Onvoldoende audit trail                    |    3 |      4 |    12 | Hoog    |
+| T6 | Overbelasting van API/database             |    3 |      4 |    12 | Hoog    |
+| T7 | Injection via zoek/filterinput             |    2 |      5 |    10 | Hoog    |
+| T8 | Kwetsbare dependency of module deployment  |    2 |      4 |     8 | Middel  |
 
 ### 3.2 Pentest-bevindingen (gescoord volgens CIA-criteria)
 
@@ -346,16 +346,16 @@ Als zorgmedewerker wil ik dat de Appointment Scheduling Module beschikbaar blijf
 
 | ID    | Requirement                                                | Bron(nen)            | Score | Niveau      | Prio  |
 | ----- | ---------------------------------------------------------- | -------------------- | ----: | ----------- | ----- |
-| SR-01 | Verwijder PII uit applicatie-/auditlogs                    | B-01                 | **20** | **Kritiek** | **P0** |
-| SR-02 | Bescherming tegen SQL Injection                            | T5                   | 15    | Hoog        | P1    |
-| SR-03 | Autorisatiecontrole (IDOR + privilege escalation)          | T1 + B-03 + B-04     | 15    | Hoog        | P1    |
+| SR-03 | Autorisatiecontrole (IDOR + privilege escalation)          | **T2 + T3 + B-03 + B-04** | **20** | **Kritiek** | **P0** |
+| SR-01 | Verwijder PII uit applicatie-/auditlogs                    | B-05                 | **20** | **Kritiek** | **P0** |
 | SR-04 | Sterke authenticatie + brute-force bescherming             | T1 + B-02            | 15    | Hoog        | P1    |
+| SR-08 | Audit logging van afspraakwijzigingen (zonder PII)         | T5                   | 12    | Hoog        | P1    |
 | SR-05 | Rate limiting & resource throttling                        | T6                   | 12    | Hoog        | P1    |
-| SR-06 | Sessiebeveiliging (CSRF, cookies, headers)                 | T4                   | 10    | Hoog        | P1    |
-| SR-07 | Beveiligd transport (TLS, HSTS, password hashing)          | T8                   | 10    | Hoog        | P1    |
-| SR-08 | Audit logging van afspraakwijzigingen (zonder PII)         | T2                   |  9    | Middel      | P2    |
-| SR-09 | Audit logging van acties via de Web UI                     | T7                   |  9    | Middel      | P2    |
-| SR-10 | Beschikbaarheid en herstelvermogen                         | T3                   |  8    | Middel      | P2    |
+| SR-02 | Bescherming tegen SQL Injection                            | T7 + B-01            | 10    | Hoog        | P1    |
+| SR-06 | Sessiebeveiliging (CSRF, cookies, headers)                 | T1                   | 15    | Hoog        | P1    |
+| SR-07 | Beveiligd transport (TLS, HSTS, password hashing)          | T1                   | 15    | Hoog        | P1    |
+| SR-09 | Audit logging van acties via de Web UI                     | T5                   | 12    | Hoog        | P1    |
+| SR-10 | Beschikbaarheid en herstelvermogen                         | T6                   | 12    | Hoog        | P1    |
 
 ---
 
