@@ -3,22 +3,33 @@ package org.openmrs.module.appointmentscheduling.api.db.hibernate;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.File;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+
 public class HibernateAppointmentDAOSqlInjectionAbuseTest {
 
     @Test
-    public void searchAppointmentsByPatientName_shouldShowHqlInjectionPayloadBeforeFix() {
-        String patientName = "' OR '1'='1";
+    public void searchAppointmentsByPatientName_shouldUseParameterizedHqlQuery() throws Exception {
+        File daoFile = new File(
+                "src/main/java/org/openmrs/module/appointmentscheduling/api/db/hibernate/HibernateAppointmentDAO.java"
+        );
 
-        String hql = "from Appointment ap where ap.visit.patient.personName.givenName = '"
-                + patientName + "' or ap.visit.patient.personName.familyName = '"
-                + patientName + "'";
-
-        System.out.println("B-01 abuse payload = " + patientName);
-        System.out.println("B-01 vulnerable HQL = " + hql);
+        String source = new String(Files.readAllBytes(daoFile.toPath()), StandardCharsets.UTF_8);
 
         Assert.assertTrue(
-                "Payload moet als HQL-code in de query terechtkomen",
-                hql.contains("OR '1'='1")
+                "De HQL-query moet een named parameter gebruiken",
+                source.contains(":patientName")
+        );
+
+        Assert.assertTrue(
+                "De patientName moet via setParameter worden gebonden",
+                source.contains(".setParameter(\"patientName\", patientName)")
+        );
+
+        Assert.assertFalse(
+                "patientName mag niet meer direct met string-concatenatie in de query worden geplakt",
+                source.contains("+ patientName +")
         );
     }
 }
