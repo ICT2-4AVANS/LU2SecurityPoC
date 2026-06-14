@@ -309,9 +309,9 @@ public class HibernateAppointmentDAO extends HibernateSingleClassDAO
 	}
 
     /**
-     * Searches appointments by patient name using a raw SQL query.
-     * Used for quick administrative lookup.
-     */
+	 * Searches appointments by patient name using a parameterized HQL query.
+	 * Used for quick administrative lookup.
+	 */
     @Transactional(readOnly = true)
 	public java.util.List<?> searchAppointmentsByPatientName(String patientName) {
 		String hql = "from Appointment ap " +
