@@ -13,6 +13,9 @@
  */
 package org.openmrs.module.appointmentscheduling.web.controller;
 
+import org.openmrs.annotation.Authorized;
+import org.openmrs.module.appointmentscheduling.AppointmentUtils;
+
 import java.util.List;
 import java.util.Map;
 
@@ -31,6 +34,7 @@ import org.springframework.web.bind.ServletRequestUtils;
 /**
  * Controller for editing appointment types.
  */
+@Authorized(AppointmentUtils.PRIV_VIEW_APPOINTMENT_HISTORY_TAB)
 @Controller
 public class AppointmentsPortletController extends PortletController {
 	

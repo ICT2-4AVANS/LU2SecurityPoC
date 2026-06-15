@@ -13,6 +13,8 @@
  */
 package org.openmrs.module.appointmentscheduling.web.controller;
 
+import org.openmrs.annotation.Authorized;
+
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -54,6 +56,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 /**
  * Controller for editing appointment types.
  */
+@Authorized(AppointmentUtils.PRIV_MANAGE_APPOINTMENT_BLOCKS)
 @Controller
 public class AppointmentBlockFormController {
 	

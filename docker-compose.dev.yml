@@ -1,24 +1,39 @@
-version: "3.8"
 services:
-  openmrs:
-    image: openmrs/openmrs-reference-application:2.13.0
-    environment:
-      DB_HOST: db
-      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
-    ports:
-      - "8082:8080"
-    volumes:
-      - openmrs_dev_data:/usr/local/tomcat/.OpenMRS
-      - ./openmrs-module-appointmentscheduling/openmrs-module-appointmentscheduling/omod/target/appointmentscheduling-1.17.0-SNAPSHOT.omod:/usr/local/tomcat/.OpenMRS/modules/appointmentscheduling-1.17.0-SNAPSHOT.omod:ro
   db:
     # MySQL 5.7 is EOL maar vereist door OpenMRS 1.x — upgrade naar 8.x wordt
     # geblokkeerd door platformcompatibiliteit. Zie docs/non-functional-requirements.md.
     image: mysql:5.7.44
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
-      MYSQL_DATABASE: openmrs_dev
+      MYSQL_DATABASE: openmrs
     volumes:
       - mysql_dev_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "--silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+
+  openmrs:
+    image: openmrs/openmrs-reference-application:2.13.0
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      OMRS_DB_HOSTNAME: db
+      OMRS_DB_NAME: openmrs
+      OMRS_DB_USERNAME: root
+      OMRS_DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+      OMRS_CREATE_TABLES: "true"
+      OMRS_HAS_CURRENT_OPENMRS_DATABASE: "true"
+      OMRS_AUTO_UPDATE_DATABASE: "true"
+      OMRS_ADMIN_USER_PASSWORD: Admin1234
+    ports:
+      - "8082:8080"
+    volumes:
+      - openmrs_dev_data:/openmrs/data
+      - ./openmrs-module-appointmentscheduling/openmrs-module-appointmentscheduling/omod/target/appointmentscheduling-1.17.0-SNAPSHOT.omod:/openmrs/distribution/openmrs_modules/appointmentscheduling-1.17.0-SNAPSHOT.omod:ro
 
 volumes:
   openmrs_dev_data:

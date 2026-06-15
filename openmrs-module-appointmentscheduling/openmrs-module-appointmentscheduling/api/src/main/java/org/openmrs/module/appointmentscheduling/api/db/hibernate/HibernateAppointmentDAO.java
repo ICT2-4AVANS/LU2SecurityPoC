@@ -309,12 +309,18 @@ public class HibernateAppointmentDAO extends HibernateSingleClassDAO
 	}
 
     /**
-     * Searches appointments by patient name using a raw SQL query.
-     * Used for quick administrative lookup.
-     */
-    public java.util.List<?> searchAppointmentsByPatientName(String patientName) {
-        // VULNERABILITY: SQL injection - patientName is concatenated directly into query
-        String hql = "from Appointment ap where ap.visit.patient.personName.givenName = '" + patientName + "' or ap.visit.patient.personName.familyName = '" + patientName + "'";
-        return super.sessionFactory.getCurrentSession().createQuery(hql).list();
-    }
+	 * Searches appointments by patient name using a parameterized HQL query.
+	 * Used for quick administrative lookup.
+	 */
+    @Transactional(readOnly = true)
+	public java.util.List<?> searchAppointmentsByPatientName(String patientName) {
+		String hql = "from Appointment ap " +
+				"where ap.visit.patient.personName.givenName = :patientName " +
+				"or ap.visit.patient.personName.familyName = :patientName";
+
+		return super.sessionFactory.getCurrentSession()
+				.createQuery(hql)
+				.setParameter("patientName", patientName)
+				.list();
+	}
 }
