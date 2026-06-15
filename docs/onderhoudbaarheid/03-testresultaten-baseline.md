@@ -117,39 +117,63 @@ Afgeleide totalen (zoals module-brede LINE-coverage) zijn met `python3` opgeteld
 
 ## 4. T3 — Mutation testing (PIT)
 
-> **Bron**: PIT stdout in raw output (regel 302-340), HTML-rapport in `target/pit-reports/`
+> **Bron**: PIT stdout in raw output (regel 302-340) + HTML/XML/CSV-rapport uit CI-run
 > **Scope**: `org.openmrs.module.appointmentscheduling.audit.*` (geconfigureerd in `api/pom.xml`)
 > **Reproducer**: `mvn -B org.pitest:pitest-maven:mutationCoverage`
 
-| Metriek                          | Waarde     | NFR-grens         | Status |
-|----------------------------------|-----------:|-------------------|:------:|
-| Mutaties gegenereerd             | **15**     | —                 | —      |
-| KILLED                           | **15**     | —                 | —      |
-| SURVIVED                         | **0**      | —                 | —      |
-| NO_COVERAGE                      | **0**      | —                 | —      |
-| TIMED_OUT                        | **0**      | —                 | —      |
-| **Mutation score**               | **100,0 %** | MNT-3c: ≥ 50 %   | ✅     |
-| Line coverage (PIT, mutated classes only) | **91 %** (21/23) | gate ≥ 50 % | ✅ |
-| Test strength                    | 100 %      | —                 | —      |
-| Tests gerund per mutatie         | 4,33       | —                 | —      |
-| Totale duur                      | ~1 s        | —                | —      |
+### 4.1 Twee runs vergeleken (Windows lokaal vs Ubuntu CI)
 
-### 4.1 Mutators uitgesplitst
+| Metriek                              | Lokaal (Windows + UTC+1) | CI (Ubuntu, UTC) | Toelichting |
+|--------------------------------------|-------------------------:|-----------------:|-------------|
+| Mutaties gegenereerd                 | 15                       | 15               | identiek    |
+| KILLED                               | 15                       | 14               | CI vindt 1 minder |
+| SURVIVED                             | 0                        | 1                | **zie §4.3** |
+| Mutation score                       | 100,0 %                  | **93,0 %**       | CI is autoritatief (deterministische omgeving) |
+| Line coverage (mutated classes only) | 91 %                     | 91 %             | identiek    |
+| Test strength                        | 100 %                    | 93 %             | bouwt op KILLED |
+| NFR MNT-3c (≥ 50 %)                  | ✅                       | ✅               | beide ruim boven grens |
 
-| Mutator                              | Generated | Killed | % |
-|--------------------------------------|----------:|-------:|--:|
-| `VoidMethodCallMutator`              | 1         | 1      | 100 |
-| `EmptyObjectReturnValsMutator`       | 2         | 2      | 100 |
-| `NegateConditionalsMutator`          | 12        | 12     | 100 |
-| **Totaal**                           | **15**    | **15** | **100** |
+> **Waarom telt CI als baseline?** Mutation testing is per definitie *omgevingsgevoelig*. Een CI-runner heeft een schone, gestandaardiseerde omgeving (clean checkout, UTC default-TZ, geen lokale state), wat de meting reproduceerbaar maakt. Voor het rubriek-criterium "reproduceerbaar" gebruiken we daarom de CI-uitkomst. De Windows-run blijft in het archief als referentiepunt.
 
-### 4.2 Interpretatie
+### 4.2 Mutators uitgesplitst (CI-run)
 
-**Sterk punt.** PIT genereerde 15 mutaties op het `audit`-pakket en *alle 15* werden door de bestaande `AuditLoggerTest` (16 tests) gedood. Geen mutaties overleefden — dat betekent dat de bestaande testset het audit-gedrag rond *Outcome*, *Channel* en de logger-flow daadwerkelijk toetst, niet alleen de methodes "aanraakt". Daarmee voldoet het audit-pakket aan een hard testkwaliteit-criterium dat puur op JaCoCo onzichtbaar blijft (een test zonder asserts geeft ook 100 % LINE-coverage maar 0 % mutation-score).
+| Mutator                              | Generated | Killed | Survived | % |
+|--------------------------------------|----------:|-------:|---------:|--:|
+| `VoidMethodCallMutator`              | 1         | 0      | **1**    | 0 |
+| `EmptyObjectReturnValsMutator`       | 2         | 2      | 0        | 100 |
+| `NegateConditionalsMutator`          | 12        | 12     | 0        | 100 |
+| **Totaal**                           | **15**    | **14** | **1**    | **93** |
 
-**Wat dit niet zegt.** Mutation-coverage is alleen gemeten op `audit/*` — niet op `AppointmentServiceImpl` of `HibernateAppointmentDAO`. Voor die hotspots is mutation-coverage niet ingericht; dat is een bewuste scoping-keuze (zie [`02-teststrategie.md`](./02-teststrategie.md) §2.1 "Mutation-scope alléén op `audit/`-pakket").
+### 4.3 De surviving mutation — wat zegt hij?
 
-**Aandachtspunt bij hergebruik.** De geparseerde samenvatting onderaan het raw-bestand meldt `(geen mutations geparseerd)` omdat PIT zijn XML-rapport bij deze versie elders schrijft dan het script verwachtte. De getallen hierboven komen uit de PIT-stdout zelf (regels 337-340 van de raw output), niet uit de parser. Dit wordt in een vervolgcommit opgelost door de parser naar `target/pit-reports/mutations.xml` te laten kijken via `find target -name mutations.xml`.
+```
+AuditLogger.java:87
+  fmt.setTimeZone(TimeZone.getTimeZone("UTC"));    // <-- regel verwijderd door PIT
+```
+
+**Mutator**: `VoidMethodCallMutator` (`removed call to java/text/SimpleDateFormat::setTimeZone`)
+**Killed by**: *niemand* (16 dekkende tests, geen daarvan faalde)
+
+**Diagnose.** De test `format_writesTimestampAsIso8601Utc` checkt dat de tijdstempel in ISO-8601 UTC-format wordt geschreven. Maar zonder de `setTimeZone(UTC)`-aanroep formatteert `SimpleDateFormat` met de **default JVM-TZ**.
+- Op Ubuntu CI is die default = `UTC` → output is gelijk → test slaagt → **mutation overleeft**.
+- Op de Windows-machine (UTC+1) verschilt de output → test faalt → mutation gedood.
+
+**Wat dit echt blootlegt.** De test is **niet robuust tegen environment-verschillen**. In productie kan de JVM op een server met `Europe/Amsterdam`-TZ draaien; als iemand per ongeluk de `setTimeZone(UTC)`-regel verwijdert, schrijft de auditlog vanaf dat moment in lokale tijd. **Geen enkele bestaande test zou dit op CI signaleren.**
+
+**Voorgestelde fix (input voor bulletpoint 3 en bulletpoint 6):**
+1. Test expliciet de JVM-TZ wijzigen vóór de assert, bv. via `@Before` met `TimeZone.setDefault(TimeZone.getTimeZone("America/New_York"))`.
+2. Test de string-output, niet alleen de parse-uitkomst.
+3. Daarna herhalen: PIT-score moet stijgen naar 15/15 = 100 %.
+
+> **Rubriek-waarde.** Dit is exact het soort bevinding dat de strategie uit `02-teststrategie.md` § 2.1 voorspelde: PIT bewijst meerwaarde boven JaCoCo door een test te identificeren die *coverage* haalt maar *geen gedrag bewaakt*.
+
+### 4.4 Interpretatie — sterk punt en aandachtspunt
+
+**Sterk**: 14 van 15 mutaties op het `audit/`-pakket worden door de bestaande `AuditLoggerTest` (16 tests) gedood. Mutation score van **93 %** zit ruim boven de gate van 50 % (MNT-3c) en bewijst dat de testset gedrag valideert, niet alleen methodes "aanraakt".
+
+**Aandachtspunt**: 1 omgevingsafhankelijke test (zie §4.3). Voor bulletpoint 3 prioritair op te lossen, want de test geeft *vals positief* op CI.
+
+**Buiten scope**: mutation-coverage is alleen gemeten op `audit/*` — niet op `AppointmentServiceImpl` of `HibernateAppointmentDAO`. Bewuste keuze (zie `02-teststrategie.md` § 2.1).
 
 ---
 
@@ -181,7 +205,7 @@ Afgeleide totalen (zoals module-brede LINE-coverage) zijn met `python3` opgeteld
 | MNT-3  | Line coverage module-breed                   | ≥ 60 %  | **72,7 %**  | ✅     |
 | MNT-3a | Line coverage audit-pakket                   | ≥ 90 %  | **92,6 %**  | ✅     |
 | MNT-3b | Branch coverage audit-pakket                 | ≥ 80 %  | **100,0 %** | ✅     |
-| MNT-3c | Mutation score audit-pakket                  | ≥ 50 %  | **100,0 %** | ✅     |
+| MNT-3c | Mutation score audit-pakket (CI-run)         | ≥ 50 %  | **93,0 %**  | ✅     |
 | MNT-4  | SonarCloud Quality Gate Passed               | Passed  | Not computed | ⚠    |
 
 > **Lezing.** Vijf van zes NFR's hard groen op de eerste meting. MNT-4 staat op ⚠ omdat de Quality Gate door SonarCloud zelf nog niet is uitgerekend (eerste analyse) — geen falen, maar nog niet bewezen. Komt na de eerste CI-run.
@@ -229,9 +253,69 @@ AUDIT  BRANCH 24/24     = 100.0%
 
 ---
 
-## 9. Bijlagen
+## 9. Hoe je de CI-artifacts leest en gebruikt
 
-- [`raw/tests/baseline-20260615-183459.txt`](./raw/tests/baseline-20260615-183459.txt) — volledige scriptuitvoer van deze run
+Bij elke groene run van `maintainability-tests.yml` plakt GitHub Actions onderaan de run-pagina **drie ZIP-bestanden** met de rapporten. Ze staan ook in dit repo gearchiveerd onder `raw/tests/ci-run-<datum>/`.
+
+### 9.1 `surefire-reports.zip` — Welke tests zijn gedraaid
+
+| Bestand                    | Waar gebruik je het voor                                                  |
+|----------------------------|---------------------------------------------------------------------------|
+| `TEST-*.xml`               | Machine-leesbare resultaten per testklasse. Import in IntelliJ: *Run → Import Test Results From XML*. |
+| `*.txt`                    | Mens-leesbare samenvatting per testklasse. Snel ogen op slagen/falen.     |
+
+> **Concreet gebruik**: snel zien welke testklasse bij een rode CI-run gefaald is, zonder het hele Action-log door te scrollen.
+
+### 9.2 `jacoco-report.zip` — Welke regels code worden door tests geraakt
+
+| Bestand            | Waar gebruik je het voor                                                                          |
+|--------------------|---------------------------------------------------------------------------------------------------|
+| `index.html`       | Open in browser. Klik door package → klasse → regels. **Groen** = gedekt, **rood** = niet gedekt. |
+| `jacoco.csv`       | Voor het script in `run-baseline.sh` § 3 om module-totalen op te tellen.                          |
+| `jacoco.xml`       | Voor SonarCloud-coverage-import (`sonar.coverage.jacoco.xmlReportPaths`).                          |
+
+> **Concreet gebruik**: open na elke verbetering `AppointmentServiceImpl.html` om te zien welke regels van de 412/451 nog ongeraakt zijn. Direct bruikbaar voor bulletpoint 3 (welke testen moeten erbij).
+
+### 9.3 `pit-report.zip` — Hoe goed de tests gedrag valideren
+
+| Bestand                                                                          | Waar gebruik je het voor                                                                         |
+|----------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------|
+| `index.html`                                                                     | Open in browser → projectsamenvatting (klassen, line/mutation coverage, test strength).          |
+| `org.openmrs.module.appointmentscheduling.audit/index.html`                      | Drill-down per package.                                                                          |
+| `org.openmrs.module.appointmentscheduling.audit/AuditLogger.java.html`           | Source-view met **groen** (mutatie gedood), **rood** (overleefd), **grijs** (niet bereikt). Hover voor uitleg per mutatie. |
+| `mutations.xml`                                                                  | Machine-leesbaar voor regressie-vergelijking in bulletpoint 6.                                   |
+| `mutations.csv`                                                                  | Compacte tabel; één regel per mutatie + killing-test. Handig voor `awk`/Python.                  |
+
+> **Concreet gebruik**: in `AuditLogger.java.html` zie je direct dat regel 87 (`setTimeZone(UTC)`) rood gekleurd is. Dat is de bevinding uit § 4.3, gevisualiseerd. Open het bestand zelf, screenshot het rood-omkaderde blok → leg het naast je verslag.
+
+### 9.4 Screenshots voor het verslag (placeholders)
+
+Onderstaande paden zijn naar de gearchiveerde CI-output van de run d.d. 2026-06-15.
+
+| Figuur | Bron-HTML                                                                                            | Knip wat je nodig hebt           |
+|--------|------------------------------------------------------------------------------------------------------|----------------------------------|
+| Fig. 1 | [`raw/tests/ci-run-2026-06-15/pit-report/index.html`](./raw/tests/ci-run-2026-06-15/pit-report/index.html) | Project Summary tabel (91 / 93 / 93 %) |
+| Fig. 2 | [`raw/tests/ci-run-2026-06-15/pit-report/org.openmrs.module.appointmentscheduling.audit/index.html`](./raw/tests/ci-run-2026-06-15/pit-report/org.openmrs.module.appointmentscheduling.audit/index.html) | Breakdown by Class (`AuditLogger.java` regel) |
+| Fig. 3 | [`raw/tests/ci-run-2026-06-15/pit-report/org.openmrs.module.appointmentscheduling.audit/AuditLogger.java.html`](./raw/tests/ci-run-2026-06-15/pit-report/org.openmrs.module.appointmentscheduling.audit/AuditLogger.java.html) | Regel 87 (rood gemarkeerde SURVIVED-mutatie) |
+
+> Voorgestelde plek in het rapport: §4.3 hier of als bijlage achter §10.
+
+### 9.5 Workflow voor bulletpoint 6 (regressie-toets)
+
+Bij elke volgende verbetering uit de PoC (bulletpoint 5) herhaal je:
+1. Push naar `dev` → CI draait automatisch.
+2. Download de drie ZIPs uit de nieuwe run.
+3. **Vergelijk** mutation-XML én jacoco-CSV met de baseline in `raw/tests/ci-run-2026-06-15/`.
+4. Bewijs dat coverage en mutation-score *niet zijn gedaald* (regressie-eis bulletpoint 6).
+
+> Tip: gebruik `diff` of `wdiff` op de CSV-bestanden voor een snelle delta. PIT's XML kun je met `xmllint --xpath` filteren op `status='SURVIVED'`.
+
+---
+
+## 10. Bijlagen
+
+- [`raw/tests/baseline-20260615-183459.txt`](./raw/tests/baseline-20260615-183459.txt) — lokale eerste run (Windows + Git Bash); referentie
+- [`raw/tests/ci-run-2026-06-15/pit-report/`](./raw/tests/ci-run-2026-06-15/pit-report/) — autoritatieve PIT-output uit CI (HTML/XML/CSV)
 - `.github/workflows/maintainability-tests.yml` — operationele invulling (E1/E2/E3); MNT-4 wordt na eerste CI-run gevuld
 - `scripts/run-baseline.sh` — single-command reproducer
 - [`02-teststrategie.md`](./02-teststrategie.md) — onderbouwing waarom we deze tests draaien
