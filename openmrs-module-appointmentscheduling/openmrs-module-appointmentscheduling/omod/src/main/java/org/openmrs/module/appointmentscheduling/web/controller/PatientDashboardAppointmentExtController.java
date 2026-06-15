@@ -17,7 +17,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-@Authorized(AppointmentUtils.PRIV_VIEW_APPOINTMENT_HISTORY_TAB)
+@Authorized(AppointmentUtils.PRIV_UPDATE_APPOINTMENT_STATES)
 @Controller
 public class PatientDashboardAppointmentExtController {
 	

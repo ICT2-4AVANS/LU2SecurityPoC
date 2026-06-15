@@ -228,6 +228,7 @@ public class AppointmentListController {
 	public void showForm(ModelMap model) {
 	}
 	
+	@Authorized(AppointmentUtils.PRIV_UPDATE_APPOINTMENT_STATES)
 	@RequestMapping(value = "/module/appointmentscheduling/appointmentList", method = RequestMethod.POST)
 	public String onSubmit(HttpServletRequest request, @ModelAttribute("appointmentList") List<Appointment> appointmentList,
 	        Errors errors, @RequestParam(value = "selectAppointment", required = false) Appointment selectedAppointment,
