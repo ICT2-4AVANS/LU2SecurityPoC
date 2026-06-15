@@ -13,6 +13,9 @@
  */
 package org.openmrs.module.appointmentscheduling.web.controller;
 
+import org.openmrs.annotation.Authorized;
+import org.openmrs.module.appointmentscheduling.AppointmentUtils;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Location;
@@ -45,7 +48,7 @@ public class AppointmentBlockCalendarController {
 	
 	/** Logger for this class and subclasses */
 	protected final Log log = LogFactory.getLog(getClass());
-	
+	@Authorized(AppointmentUtils.PRIV_VIEW_APPOINTMENT_BLOCKS)
 	@RequestMapping(value = "/module/appointmentscheduling/appointmentBlockCalendar", method = RequestMethod.GET)
 	public void showForm(HttpServletRequest request, ModelMap model) throws ParseException {
 		if (Context.isAuthenticated()) {
@@ -129,7 +132,7 @@ public class AppointmentBlockCalendarController {
 	public List<Provider> getProviderList() {
 		return Context.getService(AppointmentService.class).getAllProvidersSorted(false);
 	}
-	
+	@Authorized(AppointmentUtils.PRIV_MANAGE_APPOINTMENT_BLOCKS)
 	@RequestMapping(value = "/module/appointmentscheduling/appointmentBlockCalendar", method = RequestMethod.POST)
 	public String loadForm(HttpServletRequest request, ModelMap model,
 	        @RequestParam(value = "action", required = false) String action,
