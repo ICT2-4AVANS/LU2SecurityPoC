@@ -1,0 +1,131 @@
+name: maintainability-tests
+
+# Onderhoudbaarheids-testpijplijn (bulletpoint 2 van LU2).
+# Bewust gescheiden van de bestaande ci.yml zodat die voor andere
+# doeleinden kan blijven draaien op main.
+#
+# CI-implementatie van de teststrategie uit
+# docs/onderhoudbaarheid/02-teststrategie.md.
+#
+# E1: alle gekozen testtypen (T1 unit, T2 JaCoCo coverage, T3 PIT
+#     mutation, T4 SonarCloud Quality Gate) draaien hier.
+# E2: rapporten worden als artifact ge-upload (Surefire, JaCoCo, PIT).
+# E3: build faalt expliciet bij NFR-overtreding:
+#       - jacoco:check faalt onder de drempel (MNT-3 / MNT-3a/b)
+#       - pitest:mutationCoverage faalt onder mutation threshold (MNT-3c)
+#       - SonarCloud Quality Gate failure blokkeert merge (MNT-4)
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main, dev]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  build-test-coverage:
+    name: T1+T2+T3 — unit / coverage / mutation
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: openmrs-module-appointmentscheduling/openmrs-module-appointmentscheduling/api
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # Sonar heeft de volledige history nodig voor blame / new-code-detectie.
+          fetch-depth: 0
+
+      - name: Set up JDK 8
+        uses: actions/setup-java@v4
+        with:
+          # OpenMRS 1.9.9 = Java 8 source/target; nieuwere JDKs breken
+          # Hibernate 3-reflectie tijdens unit-tests.
+          distribution: temurin
+          java-version: 8
+
+      - name: Cache Maven repo
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2-
+
+      - name: T1+T2 — Surefire + JaCoCo (faalt bij coverage < drempel)
+        run: mvn -B clean verify
+
+      - name: T3 — PIT mutation testing (faalt bij mutation-score < 50%)
+        run: mvn -B org.pitest:pitest-maven:mutationCoverage
+
+      - name: Upload Surefire reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: surefire-reports
+          path: openmrs-module-appointmentscheduling/openmrs-module-appointmentscheduling/api/target/surefire-reports/
+          if-no-files-found: warn
+
+      - name: Upload JaCoCo report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-report
+          path: openmrs-module-appointmentscheduling/openmrs-module-appointmentscheduling/api/target/site/jacoco/
+          if-no-files-found: warn
+
+      - name: Upload PIT report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pit-report
+          path: openmrs-module-appointmentscheduling/openmrs-module-appointmentscheduling/api/target/pit-reports/
+          if-no-files-found: warn
+
+  sonarcloud:
+    name: T4 — SonarCloud Quality Gate (MNT-4)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: build-test-coverage
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          # SonarCloud-scanner zelf vereist JDK 17+. De analyse leest
+          # de gegenereerde target/-rapporten uit de vorige job en
+          # heeft geen relatie met de OpenMRS-runtime-JDK.
+          distribution: temurin
+          java-version: 17
+
+      - name: Download JaCoCo report
+        uses: actions/download-artifact@v4
+        with:
+          name: jacoco-report
+          path: openmrs-module-appointmentscheduling/openmrs-module-appointmentscheduling/api/target/site/jacoco/
+
+      - name: SonarCloud scan
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN:  ${{ secrets.SONAR_TOKEN }}
+        run: |
+          cd openmrs-module-appointmentscheduling/openmrs-module-appointmentscheduling
+          mvn -B \
+            org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+            -Dsonar.host.url=https://sonarcloud.io \
+            -Dsonar.organization=enest51 \
+            -Dsonar.projectKey=EnesT51_LU2-MaintainabilityPoC \
+            -Dsonar.coverage.jacoco.xmlReportPaths=api/target/site/jacoco/jacoco.xml \
+            -Dsonar.qualitygate.wait=true
+        # -Dsonar.qualitygate.wait=true zorgt voor E3: de step faalt
+        # wanneer de Quality Gate niet op Passed staat — daarmee blokt
+        # de PR/merge bij NFR MNT-4-overtreding.
