@@ -25,3 +25,7 @@ PS C:\Users\nickg\school\Lu2.4\LU2SecurityPoC> Select-String -Path "$controllerP
 > > Code = $\_.Line.Trim()
 > > }
 > > } | Format-Table -AutoSize -Wrap
+
+![b04-na-unit-test-build-succes](images/b04-na-unit-test-build-succes.png)
+
+![b04-na-controller-authorized-check](images/b04-na-controller-authorized-check.png)
