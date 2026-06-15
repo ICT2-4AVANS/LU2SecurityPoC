@@ -83,7 +83,7 @@ Voorbeelden van toegevoegde privileges:
 | `AppointmentTypeFormController`            | `PRIV_MANAGE_APPOINTMENT_TYPES`                                   |
 | `AppointmentSettingsFormController`        | `PRIV_MANAGE_APPOINTMENTS_SETTINGS`                               |
 | `AppointmentFormController`                | `PRIV_SCHEDULE_APPOINTMENTS`                                      |
-| `AppointmentListController`                | `PRIV_VIEW_APPOINTMENTS`                                          |
+| `AppointmentListController`                | `PRIV_VIEW_APPOINTMENTS` / `PRIV_UPDATE_APPOINTMENT_STATES`       |
 | `AppointmentBlockCalendarController`       | `PRIV_VIEW_APPOINTMENT_BLOCKS` / `PRIV_MANAGE_APPOINTMENT_BLOCKS` |
 | `AppointmentBlockFormController`           | `PRIV_MANAGE_APPOINTMENT_BLOCKS`                                  |
 | `AppointmentBlockListController`           | `PRIV_VIEW_APPOINTMENT_BLOCKS` / `PRIV_MANAGE_APPOINTMENT_BLOCKS` |
@@ -91,7 +91,7 @@ Voorbeelden van toegevoegde privileges:
 | `AppointmentDailyCountController`          | `PRIV_VIEW_APPOINTMENTS_STATISTICS`                               |
 | `AppointmentRequisitionController`         | `PRIV_REQUEST_APPOINTMENTS`                                       |
 | `AppointmentsPortletController`            | `PRIV_VIEW_APPOINTMENT_HISTORY_TAB`                               |
-| `PatientDashboardAppointmentExtController` | `PRIV_VIEW_APPOINTMENT_HISTORY_TAB`                               |
+| `PatientDashboardAppointmentExtController` | `PRIV_UPDATE_APPOINTMENT_STATES`                                  |
 
 Na de fix is opnieuw gecontroleerd hoeveel `@Authorized`-annotaties aanwezig zijn.
 

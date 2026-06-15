@@ -32,7 +32,7 @@ public class ControllerAuthorizationTest {
                 "AppointmentUtils.PRIV_SCHEDULE_APPOINTMENTS");
 
         assertControllerHasPrivilege("AppointmentListController.java",
-                "AppointmentUtils.PRIV_VIEW_APPOINTMENTS");
+                "AppointmentUtils.PRIV_VIEW_APPOINTMENTS", "AppointmentUtils.PRIV_UPDATE_APPOINTMENT_STATES");
 
         assertControllerHasPrivilege("AppointmentRequisitionController.java",
                 "AppointmentUtils.PRIV_REQUEST_APPOINTMENTS");
@@ -53,7 +53,7 @@ public class ControllerAuthorizationTest {
                 "AppointmentUtils.PRIV_VIEW_APPOINTMENT_TYPES");
 
         assertControllerHasPrivilege("PatientDashboardAppointmentExtController.java",
-                "AppointmentUtils.PRIV_VIEW_APPOINTMENT_HISTORY_TAB");
+                "AppointmentUtils.PRIV_UPDATE_APPOINTMENT_STATES");
     }
 
     private void assertControllerHasPrivilege(String controllerFile, String... expectedPrivileges) throws Exception {
