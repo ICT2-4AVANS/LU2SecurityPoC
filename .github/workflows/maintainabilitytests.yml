@@ -78,7 +78,7 @@ jobs:
           java-version: 17
 
       - name: T4 — SonarCloud Quality Gate (MNT-4)
-        working-directory: ${{ env.MODULE_DIR }}
+        working-directory: ${{ env.API_DIR }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN:  ${{ secrets.SONAR_TOKEN }}
@@ -88,17 +88,21 @@ jobs:
             -Dsonar.host.url=https://sonarcloud.io \
             -Dsonar.organization=ict2-4avans-1 \
             -Dsonar.projectKey=ICT2-4AVANS_LU2SecurityPoC \
-            -Dsonar.coverage.jacoco.xmlReportPaths=api/target/site/jacoco/jacoco.xml \
-            -Dsonar.java.binaries=api/target/classes,omod/target/classes \
-            -Dsonar.exclusions=omod/src/main/webapp/resources/** \
+            -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml \
             -Dsonar.qualitygate.wait=true
-        # -Dsonar.java.binaries: expliciet maakt foutmelding 'binaries empty' onmogelijk,
-        #   ook als één van de modules niet gecompileerd is (omod kan falen op de
-        #   maven-openmrs-plugin extensie; api compileert sowieso).
-        # -Dsonar.exclusions: vendored frontend-libs uit scope houden (bv. jquery.dataTables.js)
-        #   wat anders 90% van de smells oplevert (zie 01-systematische-analyse.md §4.2.2).
-        # -Dsonar.qualitygate.wait=true: E3 — faalt de step bij Quality Gate != Passed,
-        #   waardoor MNT-4-overtredingen de merge tegenhouden.
+        # Sonar draait bewust op de api-module (niet op de parent reactor):
+        #   - Onze teststrategie (02-teststrategie.md §1) heeft api als scope;
+        #     omod valt al buiten coverage- en mutation-toetsing.
+        #   - Single-module scan = target/classes wordt automatisch
+        #     gedetecteerd; geen sonar.java.binaries-override nodig en
+        #     geen multi-module pad-inheritance-problemen.
+        #   - Omod compileert alleen als de maven-openmrs-plugin-extensie
+        #     in CI binnenkomt; voor de NFR-gate (Java-laag) is dat niet
+        #     nodig. De historische full-project-scan blijft op SonarCloud
+        #     staan als baseline voor de JSP/JS-bevindingen uit
+        #     01-systematische-analyse.md §4.2.
+        # -Dsonar.qualitygate.wait=true: E3 — faalt de step bij Quality
+        #   Gate != Passed, waardoor MNT-4-overtredingen merges tegenhouden.
 
       - name: Upload Surefire reports
         if: always()
