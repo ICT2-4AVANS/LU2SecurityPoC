@@ -123,7 +123,7 @@ jobs:
             org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
             -Dsonar.host.url=https://sonarcloud.io \
             -Dsonar.organization=ict2-4avans-1 \
-            -Dsonar.projectKey=EnesT51_LU2SecurityPoC \
+            -Dsonar.projectKey=ICT2-4AVANS_LU2SecurityPoC \
             -Dsonar.coverage.jacoco.xmlReportPaths=api/target/site/jacoco/jacoco.xml \
             -Dsonar.qualitygate.wait=true
         # -Dsonar.qualitygate.wait=true zorgt voor E3: de step faalt
