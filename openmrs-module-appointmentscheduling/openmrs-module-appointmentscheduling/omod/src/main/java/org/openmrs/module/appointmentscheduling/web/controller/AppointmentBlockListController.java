@@ -13,6 +13,9 @@
  */
 package org.openmrs.module.appointmentscheduling.web.controller;
 
+import org.openmrs.annotation.Authorized;
+import org.openmrs.module.appointmentscheduling.AppointmentUtils;
+
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -54,7 +57,8 @@ public class AppointmentBlockListController {
 	
 	/** Logger for this class and subclasses */
 	protected final Log log = LogFactory.getLog(getClass());
-	
+
+	@Authorized(AppointmentUtils.PRIV_VIEW_APPOINTMENT_BLOCKS)
 	@RequestMapping(value = "/module/appointmentscheduling/appointmentBlockList", method = RequestMethod.GET)
 	public void showForm(HttpServletRequest request, ModelMap model) throws ParseException {
 		//Initializing the default properties of the appointment block list page.
@@ -130,7 +134,7 @@ public class AppointmentBlockListController {
 		else
 			return null;
 	}
-	
+	@Authorized(AppointmentUtils.PRIV_MANAGE_APPOINTMENT_BLOCKS)
 	@RequestMapping(value = "/module/appointmentscheduling/appointmentBlockList", method = RequestMethod.POST)
 	public String onSubmit(HttpServletRequest request, ModelMap model,
 	        @RequestParam(value = "fromDate", required = false) Date fromDate,

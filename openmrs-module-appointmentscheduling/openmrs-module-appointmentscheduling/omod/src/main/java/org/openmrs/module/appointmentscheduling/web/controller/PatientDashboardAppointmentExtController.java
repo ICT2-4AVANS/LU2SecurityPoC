@@ -4,6 +4,9 @@ import java.util.Date;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.openmrs.annotation.Authorized;
+import org.openmrs.module.appointmentscheduling.AppointmentUtils;
+
 import org.openmrs.Patient;
 import org.openmrs.Visit;
 import org.openmrs.api.context.Context;
@@ -14,6 +17,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+@Authorized(AppointmentUtils.PRIV_UPDATE_APPOINTMENT_STATES)
 @Controller
 public class PatientDashboardAppointmentExtController {
 	

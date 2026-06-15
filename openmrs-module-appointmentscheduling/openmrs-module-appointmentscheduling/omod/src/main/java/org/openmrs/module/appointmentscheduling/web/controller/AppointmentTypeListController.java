@@ -13,6 +13,9 @@
  */
 package org.openmrs.module.appointmentscheduling.web.controller;
 
+import org.openmrs.annotation.Authorized;
+import org.openmrs.module.appointmentscheduling.AppointmentUtils;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -29,6 +32,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 /**
  * Controller for listing appointment types.
  */
+@Authorized(AppointmentUtils.PRIV_VIEW_APPOINTMENT_TYPES)
 @Controller
 public class AppointmentTypeListController {
 	

@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.openmrs.annotation.Authorized;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
@@ -42,6 +44,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 /**
  * Controller for listing appointments.
  */
+@Authorized(AppointmentUtils.PRIV_VIEW_APPOINTMENTS)
 @Controller
 public class AppointmentListController {
 	
@@ -225,6 +228,7 @@ public class AppointmentListController {
 	public void showForm(ModelMap model) {
 	}
 	
+	@Authorized(AppointmentUtils.PRIV_UPDATE_APPOINTMENT_STATES)
 	@RequestMapping(value = "/module/appointmentscheduling/appointmentList", method = RequestMethod.POST)
 	public String onSubmit(HttpServletRequest request, @ModelAttribute("appointmentList") List<Appointment> appointmentList,
 	        Errors errors, @RequestParam(value = "selectAppointment", required = false) Appointment selectedAppointment,
