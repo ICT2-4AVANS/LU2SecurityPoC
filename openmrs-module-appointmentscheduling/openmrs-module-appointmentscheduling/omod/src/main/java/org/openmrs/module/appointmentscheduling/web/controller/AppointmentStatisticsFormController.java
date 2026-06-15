@@ -13,6 +13,9 @@
  */
 package org.openmrs.module.appointmentscheduling.web.controller;
 
+import org.openmrs.annotation.Authorized;
+import org.openmrs.module.appointmentscheduling.AppointmentUtils;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
@@ -26,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 /**
  * Controller for editing appointment types.
  */
+@Authorized(AppointmentUtils.PRIV_VIEW_APPOINTMENTS_STATISTICS)
 @Controller
 public class AppointmentStatisticsFormController {
 	
