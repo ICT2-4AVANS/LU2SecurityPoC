@@ -122,7 +122,7 @@ jobs:
           mvn -B \
             org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
             -Dsonar.host.url=https://sonarcloud.io \
-            -Dsonar.organization=ICT2-4AVANS \
+            -Dsonar.organization=ict2-4avans-1 \
             -Dsonar.projectKey=EnesT51_LU2SecurityPoC \
             -Dsonar.coverage.jacoco.xmlReportPaths=api/target/site/jacoco/jacoco.xml \
             -Dsonar.qualitygate.wait=true
