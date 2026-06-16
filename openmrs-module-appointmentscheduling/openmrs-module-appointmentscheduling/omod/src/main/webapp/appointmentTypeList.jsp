@@ -11,6 +11,7 @@
 	file="/moduleResources/appointmentscheduling/Styles/appointmentTypeList_jQueryDatatable.css" />
 <openmrs:htmlInclude
 	file="/moduleResources/appointmentscheduling/Styles/jQuerySmoothness/jquery-ui-1.9.2.custom.css" />
+<openmrs:htmlInclude file="/moduleResources/appointmentscheduling/Styles/appointmentscheduling-layout.css"/>
 
 <openmrs:require privilege="View Appointment Types" otherwise="/login.htm" redirect="/module/appointmentscheduling/appointmentTypeList.list" />
 
@@ -75,7 +76,7 @@
 		<tbody>
 			<c:forEach var="appointmentType" items="${appointmentTypeList}">
 				<tr>
-					<td valign="top"><openmrs:hasPrivilege privilege='Manage Appointment Types'><a
+					<td class="appt-valign-top"><openmrs:hasPrivilege privilege='Manage Appointment Types'><a
 						href="appointmentTypeForm.form?appointmentTypeId=${appointmentType.appointmentTypeId}"></openmrs:hasPrivilege>
 							<c:choose>
 								<c:when test="${appointmentType.retired == true}">
@@ -86,8 +87,8 @@
 							</c:otherwise>
 							</c:choose>
 					<openmrs:hasPrivilege privilege='Manage Appointment Types'></a></openmrs:hasPrivilege></td>
-					<td valign="top"><c:out value="${appointmentType.description}"/></td>
-					<td valign="top">${appointmentType.duration}</td>
+					<td class="appt-valign-top"><c:out value="${appointmentType.description}"/></td>
+					<td class="appt-valign-top">${appointmentType.duration}</td>
 				</tr>
 			</c:forEach>
 		</tbody>
