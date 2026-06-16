@@ -97,6 +97,27 @@
           </execution>
         </executions>
       </plugin>
+      <plugin>
+        <groupId>org.pitest</groupId>
+        <artifactId>pitest-maven</artifactId>
+        <version>1.17.0</version>
+        <configuration>
+          <targetClasses>
+            <param>org.openmrs.module.appointmentscheduling.audit.*</param>
+          </targetClasses>
+          <targetTests>
+            <param>org.openmrs.module.appointmentscheduling.audit.*</param>
+          </targetTests>
+          <outputFormats>
+            <outputFormat>HTML</outputFormat>
+            <outputFormat>XML</outputFormat>
+            <outputFormat>CSV</outputFormat>
+          </outputFormats>
+          <timestampedReports>false</timestampedReports>
+          <mutationThreshold>50</mutationThreshold>
+          <coverageThreshold>50</coverageThreshold>
+        </configuration>
+      </plugin>
     </plugins>
 		<resources>
 			<resource>
