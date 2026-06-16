@@ -10,3 +10,5 @@ Op onderstaande foto is te zien dat request-parameters zoals `locationId`, `chos
 ![b10-na-appointmentblocklist-validation](images/b10-na-appointmentblocklist-validation.png)
 ![b10-na-appointmentblocklist-helpermethods](images/b10-na-appointmentblocklist-helpermethods.png)
 ![b11-na-appointmentblockcalendar-validation](images/b11-na-appointmentblockcalendar-validation.png)
+![b10-b11-na-build-success.png](images/b10-b11-na-build-success.png.png)
+![b10-b11-na-unit-test-success](images/b10-b11-na-unit-test-success.png)
