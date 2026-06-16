@@ -15,6 +15,7 @@
 <openmrs:htmlInclude file="/scripts/timepicker/timepicker.js" />
 <openmrs:htmlInclude
 	file="/moduleResources/appointmentscheduling/Styles/jQuerySmoothness/jquery-ui-1.9.2.custom.css" />
+<openmrs:htmlInclude file="/moduleResources/appointmentscheduling/Styles/appointmentscheduling-layout.css"/>
 
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <openmrs:require privilege="Manage Provider Schedules" otherwise="/login.htm" redirect="/module/appointmentscheduling/appointmentBlockForm.form" />
@@ -55,12 +56,12 @@
 						dialogHeader += '<u><spring:message code="appointmentscheduling.AppointmentBlock.dialogHeader"/>:</u></br></br>';
 						//Table's header
 						dialogTableContent += '<thead><tr>';
-						dialogTableContent +='<th align="center"><b><spring:message code="appointmentscheduling.AppointmentBlock.dialogTable.openMrsId"/></b></th>';
-						dialogTableContent +='<th align="center"><b><spring:message code="appointmentscheduling.AppointmentBlock.dialogTable.name"/></b></th>';
-						dialogTableContent +='<th align="center"><b><spring:message code="appointmentscheduling.AppointmentBlock.dialogTable.time"/></b></th>';
-						dialogTableContent +='<th align="center"><b><spring:message code="appointmentscheduling.AppointmentBlock.dialogTable.type"/></b></th>';
-						dialogTableContent +='<th align="center"><b><spring:message code="appointmentscheduling.AppointmentBlock.dialogTable.phoneNumber"/></b></th>';
-						dialogTableContent +='<th align="center"><b><spring:message code="appointmentscheduling.AppointmentBlock.dialogTable.reason"/></b></th>';
+						dialogTableContent +='<th class="appt-align-center"><b><spring:message code="appointmentscheduling.AppointmentBlock.dialogTable.openMrsId"/></b></th>';
+						dialogTableContent +='<th class="appt-align-center"><b><spring:message code="appointmentscheduling.AppointmentBlock.dialogTable.name"/></b></th>';
+						dialogTableContent +='<th class="appt-align-center"><b><spring:message code="appointmentscheduling.AppointmentBlock.dialogTable.time"/></b></th>';
+						dialogTableContent +='<th class="appt-align-center"><b><spring:message code="appointmentscheduling.AppointmentBlock.dialogTable.type"/></b></th>';
+						dialogTableContent +='<th class="appt-align-center"><b><spring:message code="appointmentscheduling.AppointmentBlock.dialogTable.phoneNumber"/></b></th>';
+						dialogTableContent +='<th class="appt-align-center"><b><spring:message code="appointmentscheduling.AppointmentBlock.dialogTable.reason"/></b></th>';
 						dialogTableContent += '</tr></thead>';
 						//Table's body
 						dialogTableContent += '<tbody>';
@@ -320,7 +321,7 @@
 			<tr class="boxHeader steps"><td colspan="3"><spring:message code="appointmentscheduling.AppointmentBlock.steps.selectAppointmentTypes"/></td></tr>
 			<tr>
 				<td>
-					<fieldset align="center"><legend><spring:message code="appointmentscheduling.AppointmentBlock.availableTypes"/></legend>
+					<fieldset class="appt-align-center"><legend><spring:message code="appointmentscheduling.AppointmentBlock.availableTypes"/></legend>
 					<select multiple name="appointmentTypeSelect" ondblclick="updateAppointmentTypes(true)"
 						id="appointmentTypeSelect">
 							<c:forEach var="appointmentType" items="${appointmentTypeList}">
@@ -331,14 +332,14 @@
 				</td>
 				<td>
 				<table>
-				<tr><td align="center"><input type="button" class="appointmentBlockButton" id="addButton" value="->" onClick="updateAppointmentTypes(true)"></td></tr>
-				<tr><td align="center"><input type="button" class="appointmentBlockButton" id="removeButton" value="<-" onClick="updateAppointmentTypes(false)"></td></tr>
+				<tr><td class="appt-align-center"><input type="button" class="appointmentBlockButton" id="addButton" value="->" onClick="updateAppointmentTypes(true)"></td></tr>
+				<tr><td class="appt-align-center"><input type="button" class="appointmentBlockButton" id="removeButton" value="<-" onClick="updateAppointmentTypes(false)"></td></tr>
 				</table>
 				</td>
 				<td>
 
 				<spring:bind path="appointmentBlock.types">
-				<fieldset align="center"><legend><spring:message code="appointmentscheduling.AppointmentBlock.chosenTypes"/></legend>
+				<fieldset class="appt-align-center"><legend><spring:message code="appointmentscheduling.AppointmentBlock.chosenTypes"/></legend>
 				<select multiple name="${status.expression}" ondblclick="updateAppointmentTypes(false)" id="currentAppointmentTypes">
 						<c:forEach var="appointmentType" items="${appointmentBlock.types}">
 							<option value="${appointmentType.appointmentTypeId}"
@@ -358,7 +359,7 @@
 			<tr>
 				<td>
 					<spring:bind path="appointmentBlock.startDate">
-                    <fieldset align="center"><legend><spring:message code="appointmentscheduling.AppointmentBlock.startDate"/></legend>
+                    <fieldset class="appt-align-center"><legend><spring:message code="appointmentscheduling.AppointmentBlock.startDate"/></legend>
 					<input type="text" name="startDate" id="startDate" size="16" value="${status.value}"
 					onfocus="showDateTimePicker(this)"/> <img
 					src="${pageContext.request.contextPath}/moduleResources/appointmentscheduling/Images/calendarIcon.png"
@@ -371,7 +372,7 @@
 				<td></td>
 				<td>
 					<spring:bind path="appointmentBlock.endDate">
-                    <fieldset align="center"><legend><spring:message code="appointmentscheduling.AppointmentBlock.endDate"/></legend>
+                    <fieldset class="appt-align-center"><legend><spring:message code="appointmentscheduling.AppointmentBlock.endDate"/></legend>
 					<input type="text" name="endDate" id="endDate" size="16" value="${status.value}"
 					onfocus="updateToDate(this)" /> <img
 					src="${pageContext.request.contextPath}/moduleResources/appointmentscheduling/Images/calendarIcon.png"
@@ -391,7 +392,7 @@
 				<td><input type="submit" class="appointmentBlockButton" onClick="selectAllTypes()" value="<spring:message code="appointmentscheduling.AppointmentBlock.save"/>" name="save"></td>
 				<td></td>
 				<c:if test="${not empty appointmentBlock.appointmentBlockId}">
-				<td align="right"><input type="button" id="deleteBtn" class="appointmentBlockButton" value="<spring:message code="appointmentscheduling.AppointmentBlock.delete"/>" onclick="deleteFuncionality(this, event)"> </td>
+				<td class="appt-align-right"><input type="button" id="deleteBtn" class="appointmentBlockButton" value="<spring:message code="appointmentscheduling.AppointmentBlock.delete"/>" onclick="deleteFuncionality(this, event)"> </td>
 				</c:if>
 			</tr>
 		</table>
