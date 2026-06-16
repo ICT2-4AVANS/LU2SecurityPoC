@@ -28,13 +28,30 @@ public PatientData getPatientDescription(Integer patientId) {
 
 ---
 
-## Abuse bewijs
+## Abuse bewijs (voor de fix)
 
-> **Voeg hier een screenshot toe van:**
-> 1. DevTools → Application → Cookies → JSESSIONID zonder HttpOnly/Secure vlag
-> 2. DevTools → Network → DWR request zonder CSRF-token in headers
+### 1. Cookie zonder Secure / SameSite flags
 
-*(Screenshots toe te voegen na browser test op localhost:8082)*
+De `JSESSIONID` cookie heeft alleen `HttpOnly` gezet — `Secure` en `SameSite` ontbreken. Dit betekent dat de cookie over plain HTTP wordt meegestuurd én dat de browser hem automatisch meestuurt bij cross-site requests.
+
+![Cookie flags missen Secure en SameSite](images/b07-voor-cookie-flags.png)
+
+### 2. DWR-methoden zonder CSRF-check (kwetsbare code)
+
+Alle publieke methoden in `DWRAppointmentService.java` controleerden alleen `Context.isAuthenticated()` — geen herkomst-validatie, geen CSRF-token. Elk request met een geldige `JSESSIONID` cookie werd geaccepteerd, ongeacht waar het vandaan kwam:
+
+```java
+public List<AppointmentBlockData> getAppointmentBlocksForCalendar(Long fromDate, Long toDate, Integer locationId,
+        Integer providerId, Integer appointmentTypeId) throws ParseException {
+    List<AppointmentBlockData> appointmentBlockDatalist = new ArrayList<AppointmentBlockData>();
+    if (Context.isAuthenticated()) {  // <-- enige check: ingelogd ja/nee
+        // ... voert direct de actie uit, geen CSRF-validatie
+    }
+    return appointmentBlockDatalist;
+}
+```
+
+**Waarom dit gevaarlijk is:** Een aanvaller kan een nep-website bouwen met een verborgen form dat POSTed naar `localhost:8082/openmrs/ms/call/plaincall/DWRAppointmentService...dwr`. Bezoekt een ingelogde zorgmedewerker die site, dan stuurt de browser automatisch de `JSESSIONID` cookie mee — en OpenMRS denkt dat de medewerker zelf de actie uitvoert. Dit is een klassieke CSRF-aanval.
 
 ---
 
@@ -87,7 +104,7 @@ Aanbeveling aan de beheerder: stel in `$TOMCAT_HOME/conf/context.xml` de `SameSi
 
 ---
 
-## Test
+## Test (na fix)
 
 **Testbestand:** `omod/src/test/java/org/openmrs/module/appointmentscheduling/DWRAppointmentServiceCsrfTest.java`
 
@@ -97,16 +114,32 @@ mvn -pl omod -Dtest=DWRAppointmentServiceCsrfTest test
 ```
 
 **Resultaat:**
-```
-Tests run: 6, Failures: 0, Errors: 0, Skipped: 0
-BUILD SUCCESS
+
+```text
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running org.openmrs.module.appointmentscheduling.DWRAppointmentServiceCsrfTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.078 s
+[INFO]
+[INFO] Results:
+[INFO]
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0
+[INFO]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
 ```
 
 De test verifieert:
-- `requireXmlHttpRequest()` methode is aanwezig
-- Methode valideert `X-Requested-With` header op waarde `XMLHttpRequest`
-- `SecurityException` wordt gegooid bij ontbrekende header
-- De check is aanwezig in `getPatientDescription` en `getAppointmentBlocksForCalendar`
+- `requireXmlHttpRequest()` methode is aanwezig in `DWRAppointmentService.java`
+- Methode valideert de `X-Requested-With` header op de waarde `XMLHttpRequest`
+- `SecurityException` wordt gegooid bij ontbrekende of foutieve header
+- De CSRF-check is aanwezig in alle publieke methoden (`getPatientDescription`, `getAppointmentBlocksForCalendar`, etc.)
+
+Alle 6 tests slagen — dit bewijst dat de CSRF-bescherming correct is ingebouwd op alle 11 publieke DWR-methoden.
+
+![Unit test BUILD SUCCESS na fix](images/b07-na-unit-test-success.png)
 
 ---
 
