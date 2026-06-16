@@ -4,7 +4,7 @@
 | ------------ | -------------------------------------------------------- |
 | **Module**   | openmrs-module-appointmentscheduling 1.17.0-SNAPSHOT     |
 | **Datum**    | 2026-06-16                                               |
-| **Auteur**   | Enes T. (LU2-MaintainabilityPoC)                         |
+| **Auteur**   | Enes T. (ICT2-4AVANS LU2SecurityPoC)                     |
 | **Scope**    | Synthese van bulletpoint 1 (analyse) + bulletpoint 2 (testresultaten) → verbeterplan |
 | **Vervolg**  | Top-4 voedt direct het ontwerp (bulletpoint 4) en de PoC-realisatie (bulletpoint 5) |
 
