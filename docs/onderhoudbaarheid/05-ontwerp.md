@@ -1,11 +1,11 @@
-# Aangepast ontwerp — onderbouwing van de top-3 verbeteringen
+# Aangepast ontwerp — onderbouwing van de top-4 verbeteringen
 
 |              |                                                          |
 | ------------ | -------------------------------------------------------- |
 | **Module**   | openmrs-module-appointmentscheduling 1.17.0-SNAPSHOT     |
 | **Datum**    | 2026-06-16                                               |
 | **Auteur**   | Enes T. (LU2-MaintainabilityPoC)                         |
-| **Scope**    | Ontwerp voor de top-3 uit [`04-geprioriteerde-verbeteringen.md`](./04-geprioriteerde-verbeteringen.md) §5: **A1**, **C1**, **A2** |
+| **Scope**    | Ontwerp voor de top-4 uit [`04-geprioriteerde-verbeteringen.md`](./04-geprioriteerde-verbeteringen.md) §5: **A1**, **C1**, **A2**, **B1** |
 | **Voedt**    | De PoC-realisatie in bulletpoint 5                       |
 
 > Dit document maakt **geen code-wijzigingen** en geen nieuwe metingen. Het
@@ -275,18 +275,87 @@ Daarmee werkt ook een handmatige `mvn sonar:sonar`-call lokaal (zonder de CI-sta
 
 ---
 
-## 6. Samenvatting — NFR-impact van het gehele ontwerp
+## 6. Ontwerp B1 — Deprecated HTML4 `align`/`valign` vervangen door CSS-utility-classes
 
-Onderstaande tabel vat samen wat de **gecombineerde top-3 PoC** zal opleveren als de drie ontwerpen succesvol gerealiseerd worden. Vergelijk dit met bp1 §5 (de startsituatie):
+### 6.1 Probleemstelling
 
-| NFR     | Eis                                            | Grenswaarde  | Vóór PoC          | Na A1 + C1 + A2 (verwacht) |
-|---------|------------------------------------------------|--------------|-------------------|----------------------------|
-| MNT-1   | Cyclomatische complexiteit per methode         | ≤ 10         | ⚠ niet aantoonbaar | ✅ na A1 representatief    |
-| MNT-2   | Duplicaat-percentage                            | ≤ 5 %        | ✅ 1,2 %          | ✅                         |
-| MNT-3   | Line coverage module-breed                      | ≥ 60 %       | ⚠ alleen lokaal    | ✅ 72,7 % op dashboard     |
-| MNT-3a  | Line coverage audit-pakket                      | ≥ 90 %       | ✅ lokaal 92,6 %  | ✅                         |
-| MNT-3b  | Branch coverage audit-pakket                    | ≥ 80 %       | ✅ lokaal 100 %    | ✅                         |
-| MNT-3c  | Mutation score audit-pakket                     | ≥ 50 %       | ✅ 93 %           | ✅ 100 % na C1             |
+Uit `01-systematische-analyse.md` §4.2.3 (rule `Web:S1827`):
+
+- **33× `align="X"`** in projecteigen JSP-bestanden — Sonar markeert deze als deprecated. Naast de 33 die Sonar telt, zijn er **19 verwante `valign="X"`**-attributen die functioneel identiek deprecated zijn (HTML5 verwijderde beide). De PoC behandelt ze als één refactor: 52 attributen in 5 JSP's.
+- Concentratie: `appointmentBlockList.jsp` (24×), `appointmentBlockForm.jsp` (13×), `portlets/appointments.jsp` (8×), `appointmentTypeList.jsp` (3×), `appointmentTypeForm.jsp` (4×).
+
+Dit is de **enige verbetering in de top-4 die de eigenlijke module-code raakt**. Daarmee voldoet de PoC aan de opdrachtomschrijving *"verbeteringen doorvoeren in het OpenMRS project"* — A1/A2 (CI-config) en C1 (testcode) zijn waardevol maar zouden zonder B1 geen module-refactor zijn.
+
+### 6.2 Alternatieven afgewogen
+
+| # | Optie                                                                    | Voor                                                          | Tegen                                                                                          | Past bij PoC? |
+|---|--------------------------------------------------------------------------|---------------------------------------------------------------|------------------------------------------------------------------------------------------------|:--:|
+| A | CSS-utility-classes (`.appt-align-center`, `.appt-valign-top`, …) in een nieuwe stylesheet | Reusable, semantisch, conformeert aan moderne HTML5+CSS3, **Separation of Presentation and Structure** | Vereist één nieuw CSS-bestand + include-regel per JSP                                          | ✅ |
+| B | Inline `style="text-align: center"` per element                          | Geen extra bestand                                            | Verplaatst inline gedrag van HTML-attribuut naar HTML-style — dezelfde anti-pattern, andere syntax | ❌ |
+| C | Bestaande project-stylesheet (`AppointmentBlockStyle.css`) uitbreiden    | Geen extra include nodig                                      | Doet vervaging van scope; bestaande stylesheets zijn specifiek (per scherm), utility-classes zijn cross-cutting | ❌ |
+| D | Elk element een uniek, semantisch CSS-class geven (`.action-button-cell`, `.label-cell` etc.) | Meest semantisch, anti-utility                                | Vereist designer-input voor naming + dekt 52 attributen niet uniform; vergroot scope            | ❌ |
+
+### 6.3 Gekozen ontwerp — Optie A
+
+**Nieuw bestand**: `omod/src/main/webapp/resources/Styles/appointmentscheduling-layout.css`
+
+```css
+/* Class-prefix 'appt-' voorkomt naam-conflicten met OpenMRS-core
+ * CSS-classes of vendored libraries (bv. jQuery DataTables, jquery-ui).
+ */
+
+/* Horizontale tekstuitlijning (vervangt align="center|right|left") */
+.appt-align-center { text-align: center; }
+.appt-align-right  { text-align: right; }
+.appt-align-left   { text-align: left; }
+
+/* Verticale uitlijning (vervangt valign="top|middle|bottom") */
+.appt-valign-top    { vertical-align: top; }
+.appt-valign-middle { vertical-align: middle; }
+.appt-valign-bottom { vertical-align: bottom; }
+```
+
+**JSP-transformatie** (op alle 5 bestanden):
+- Standalone: `<td align="center">` → `<td class="appt-align-center">`
+- Met bestaande class: `<td align="center"><input class="btn">` blijft `<td class="appt-align-center"><input class="btn">` (align en class zaten op verschillende tags).
+- Class-merge waar nodig: `<td class="X" align="Y">` → `<td class="X appt-align-Y">`
+
+**CSS-include per JSP** wordt toegevoegd naast bestaande `<openmrs:htmlInclude file="…Styles/…css"/>`-regels.
+
+### 6.4 Toegepaste principes en patronen
+
+| Element                                                                                  | Toelichting                                                                                                              |
+|------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------|
+| **Separation of Concerns (presentation/structure)** (Dijkstra, 1974)                     | HTML beschrijft *wat* een element is; CSS beschrijft *hoe het eruitziet*. Het `align`-attribuut mixt beide en is daarom in HTML5 weggehaald (W3C Recommendation, 2014). |
+| **Refactor-pattern: "Replace Inline Style with CSS Class"** (Fowler-stijl, ook bekend in Front-end refactoring literatuur) | Verplaats presentation-properties van HTML naar een centrale stylesheet, zodat wijzigingen één plek hebben.              |
+| **DRY (Don't Repeat Yourself)** (Hunt & Thomas, *The Pragmatic Programmer*, 1999)        | 52 `align="center"`-strings worden vervangen door 1 CSS-rule. Toekomstige aanpassingen aan centering kosten één wijziging, niet 52. |
+| **Open/Closed-principe** (Meyer/Bertrand, 1988, ge-herschreven door Martin)              | Nieuwe utility-classes uitbreidbaar (`.appt-align-justify` toevoegen = trivial) zonder bestaande JSP's te raken.         |
+| **Convention over Configuration**                                                        | Het `appt-`-prefix is een conventie voor module-specifieke utilities. Nieuwe developers herkennen het patroon direct.    |
+
+### 6.5 Motivatie op kwaliteitseisen
+
+| NFR | Stand vóór B1                          | Stand verwacht na B1                                            |
+|-----|-----------------------------------------|------------------------------------------------------------------|
+| Smell-count eigen code                  | 89                                      | ~56 (33 deprecated `align`-attributen verwijderd)               |
+| ISO 25010 — Modifiability               | Inline HTML4-syntax: lokale, niet-uitbreidbare styling | Centrale CSS-utilities: één plek voor styling, makkelijk uit te breiden |
+| Toekomstige a11y-verbeteringen (B2)     | Inline `align` blokkeert semantische refactor | CSS-classes maken latere semantische upgrades (bv. ARIA-attributen) los van layout-fixes |
+
+**Hoofdmotivatie**: B1 is geen NFR-cel-verschuiving (de cellen MNT-1..4 blijven gelijk) maar een directe **smell-reductie van 37 %** op de projecteigen code. Bovendien is het het enige PoC-item dat de werkelijke module-code raakt — een opdrachtomschrijvings-eis die A1/C1/A2 niet alleen kunnen vervullen.
+
+---
+
+## 7. Samenvatting — NFR-impact van het gehele ontwerp
+
+Onderstaande tabel vat samen wat de **gecombineerde top-4 PoC** zal opleveren als de vier ontwerpen succesvol gerealiseerd worden. Vergelijk dit met bp1 §5 (de startsituatie):
+
+| NFR     | Eis                                            | Grenswaarde  | Vóór PoC          | Na A1 + C1 + A2 + B1 (verwacht) |
+|---------|------------------------------------------------|--------------|-------------------|---------------------------------|
+| MNT-1   | Cyclomatische complexiteit per methode         | ≤ 10         | ⚠ niet aantoonbaar | ✅ na A1 representatief         |
+| MNT-2   | Duplicaat-percentage                            | ≤ 5 %        | ✅ 1,2 %          | ✅                              |
+| MNT-3   | Line coverage module-breed                      | ≥ 60 %       | ⚠ alleen lokaal    | ✅ 72,7 % op dashboard          |
+| MNT-3a  | Line coverage audit-pakket                      | ≥ 90 %       | ✅ lokaal 92,6 %  | ✅                              |
+| MNT-3b  | Branch coverage audit-pakket                    | ≥ 80 %       | ✅ lokaal 100 %    | ✅                              |
+| MNT-3c  | Mutation score audit-pakket                     | ≥ 50 %       | ✅ 93 %           | ✅ 100 % na C1                  |
 | MNT-4   | Quality Gate Passed                             | Passed       | ❌ Not computed   | ⚠ wacht op A3 (na PoC)     |
 | REL-1   | Alle unit-tests slagen                          | 0 falende    | ✅ 0/182          | ✅ blijft 0 (alleen één strengere test) |
 
@@ -307,7 +376,10 @@ Onderstaande tabel vat samen wat de **gecombineerde top-3 PoC** zal opleveren al
 ### Externe bronnen (waar principes/patronen vandaan komen)
 
 - Dijkstra, E.W. (1974). *On the role of scientific thought*. In *Selected Writings on Computing*. — Separation of Concerns.
+- Meyer, B. (1988). *Object-Oriented Software Construction*. Prentice Hall. — Open/Closed-principe.
+- Hunt, A. & Thomas, D. (1999). *The Pragmatic Programmer*. Addison-Wesley. — DRY-principe.
 - Beck, K. (1999). *Extreme Programming Explained*. Addison-Wesley. — YAGNI.
+- W3C (2014). *HTML5 Recommendation*. — Verwijdering van `align`/`valign`-attributen uit HTML, motivatie achter §6 (B1).
 - Wake, W. (2001). *3A — Arrange, Act, Assert*. xp123.com.
 - Fowler, M. (2002). *Patterns of Enterprise Application Architecture*. Addison-Wesley. — Single Source of Truth.
 - Meszaros, G. (2007). *xUnit Test Patterns*. Addison-Wesley. — Setup/Teardown symmetrie.
