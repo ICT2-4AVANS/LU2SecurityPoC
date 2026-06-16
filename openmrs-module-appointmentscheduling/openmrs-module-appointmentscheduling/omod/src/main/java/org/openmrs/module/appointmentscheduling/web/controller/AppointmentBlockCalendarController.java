@@ -24,6 +24,7 @@ import org.openmrs.api.context.Context;
 import org.openmrs.module.appointmentscheduling.AppointmentType;
 import org.openmrs.module.appointmentscheduling.api.AppointmentService;
 import org.openmrs.util.OpenmrsUtil;
+import org.openmrs.web.WebConstants;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -143,14 +144,42 @@ public class AppointmentBlockCalendarController {
 	        @RequestParam(value = "toDate", required = false) Long toDate,
 	        @RequestParam(value = "appointmentBlockId", required = false) Integer appointmentBlockId) {
 		if (Context.isAuthenticated()) {
-			//Updating session variables
-			Calendar cal = OpenmrsUtil.getDateTimeFormat(Context.getLocale()).getCalendar();
+			HttpSession httpSession = request.getSession();
+			AppointmentService appointmentService = Context.getService(AppointmentService.class);
+
+			if (!isAllowedCalendarAction(action)) {
+					httpSession.setAttribute(WebConstants.OPENMRS_ERROR_ATTR, "error.general");
+					return null;
+			}
+
+			if (fromDate == null || toDate == null || fromDate < 0 || toDate < 0 || fromDate > toDate) {
+					httpSession.setAttribute(WebConstants.OPENMRS_ERROR_ATTR,
+						"appointmentscheduling.AppointmentBlock.error.InvalidDateInterval");
+					return null;
+			}
+
+			if ("editAppointmentBlock".equals(action) && appointmentBlockId == null) {
+					httpSession.setAttribute(WebConstants.OPENMRS_ERROR_ATTR,
+						"appointmentscheduling.AppointmentBlock.error.selectAppointmentBlock");
+					return null;
+			}
+
+			if (!isValidLocation(location) || !isValidProvider(providerId)
+					|| !isValidAppointmentType(appointmentService, appointmentTypeId)
+					|| !isValidAppointmentBlock(appointmentService, appointmentBlockId)) {
+					httpSession.setAttribute(WebConstants.OPENMRS_ERROR_ATTR, "error.general");
+					return null;
+			}
+
+			Location validatedLocation = getValidatedLocation(location);
+
+			Calendar cal = Calendar.getInstance();
 			cal.setTimeInMillis(fromDate);
 			Date fromDateAsDate = cal.getTime();
 			cal.setTimeInMillis(toDate);
 			Date toDateAsDate = cal.getTime();
-			HttpSession httpSession = request.getSession();
-			httpSession.setAttribute("chosenLocation", location);
+
+			httpSession.setAttribute("chosenLocation", validatedLocation);
 			httpSession.setAttribute("lastLocale", Context.getLocale());
 			httpSession.setAttribute("chosenProvider", providerId);
 			httpSession.setAttribute("chosenType", appointmentTypeId);
@@ -177,5 +206,52 @@ public class AppointmentBlockCalendarController {
 		}
 		
 		return null;
+	}
+	private boolean isAllowedCalendarAction(String action) {
+			return action == null
+					|| "addNewAppointmentBlock".equals(action)
+					|| "changeToTableView".equals(action)
+					|| "editAppointmentBlock".equals(action);
+	}
+
+	private boolean isValidLocation(Location location) {
+			if (location == null) {
+					return true;
+			}
+
+			return location.getLocationId() != null
+					&& Context.getLocationService().getLocation(location.getLocationId()) != null;
+	}
+
+	private Location getValidatedLocation(Location location) {
+			if (location == null) {
+					return null;
+			}
+
+			return Context.getLocationService().getLocation(location.getLocationId());
+	}
+
+	private boolean isValidProvider(Integer providerId) {
+			if (providerId == null) {
+					return true;
+			}
+
+			return providerId > 0 && Context.getProviderService().getProvider(providerId) != null;
+	}
+
+	private boolean isValidAppointmentType(AppointmentService appointmentService, Integer appointmentTypeId) {
+			if (appointmentTypeId == null) {
+					return true;
+			}
+
+			return appointmentTypeId > 0 && appointmentService.getAppointmentType(appointmentTypeId) != null;
+	}
+
+	private boolean isValidAppointmentBlock(AppointmentService appointmentService, Integer appointmentBlockId) {
+			if (appointmentBlockId == null) {
+					return true;
+			}
+
+			return appointmentBlockId > 0 && appointmentService.getAppointmentBlock(appointmentBlockId) != null;
 	}
 }
