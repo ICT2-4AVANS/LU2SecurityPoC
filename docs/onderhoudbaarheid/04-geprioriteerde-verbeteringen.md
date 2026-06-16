@@ -6,7 +6,7 @@
 | **Datum**    | 2026-06-16                                               |
 | **Auteur**   | Enes T. (ICT2-4AVANS_LU2SecurityPoC)                     |
 | **Scope**    | Synthese van bulletpoint 1 (analyse) + bulletpoint 2 (testresultaten) → verbeterplan |
-| **Vervolg**  | Top-3 voedt direct het ontwerp (bulletpoint 4) en de PoC-realisatie (bulletpoint 5) |
+| **Vervolg**  | Top-4 voedt direct het ontwerp (bulletpoint 4) en de PoC-realisatie (bulletpoint 5) |
 
 > Dit document maakt **geen nieuwe metingen**; het synthetiseert de cijfers uit
 > [`01-systematische-analyse.md`](./01-systematische-analyse.md) en
@@ -22,7 +22,7 @@ Drie vragen beantwoorden, in deze volgorde:
 
 1. **Waaraan moet gewerkt worden?** Welke verbeteringen vallen logisch uit de analyse en de baseline?
 2. **In welke volgorde?** Op basis van expliciete criteria, niet onderbuik.
-3. **Wat doen we als eerste (PoC)?** Een top-3 die binnen bulletpoint 5 reëel te realiseren is.
+3. **Wat doen we als eerste (PoC)?** Een top-4 die binnen bulletpoint 5 reëel te realiseren is en — in lijn met de opdrachtomschrijving — minstens één verbetering bevat aan de **eigenlijke module-code** (niet alleen meet-/CI-infrastructuur).
 
 Buiten scope hier: het *hoe* (ontwerp, design patterns, refactoring-patronen). Dat is bulletpoint 4.
 
@@ -132,9 +132,11 @@ Volledige tabel — alle 12 items met score en bronverwijzing. Sortering: score 
 
 ---
 
-## 5. Top-3 voor de PoC (bulletpoint 5)
+## 5. Top-4 voor de PoC (bulletpoint 5)
 
-De drie items waar bulletpoint 5 op landt:
+> **Aanpassing t.o.v. eerste prioritering**: oorspronkelijk landde de PoC op de top-3 (A1, C1, A2). Een herlezing van de opdrachtomschrijving *"verbeteringen doorvoeren in het OpenMRS project"* maakte duidelijk dat een PoC die uitsluitend uit Sonar-configuratie + één testfix bestaat onvoldoende werkelijke module-code raakt. **B1** is daarom toegevoegd als 4e PoC-item — de zuiverste vorm van "verbetering aan de module" met de hoogste score in de B-categorie.
+
+De vier items waar bulletpoint 5 op landt:
 
 ### Plek 1 — A1: Sonar-exclusions voor vendored libs
 
@@ -154,17 +156,26 @@ De drie items waar bulletpoint 5 op landt:
 
 **Bewijs uit data**: bp1 §3 toont "Coverage: niet gemeten" op het dashboard; bp2 §3.1 toont 72,7 % lokaal — die wil je in het dashboard zien om bp1's NFR-toets (§5) groen te krijgen.
 
-### 5.1 Wat de top-3 samen oplevert
+### Plek 4 — B1: Deprecated HTML4 `align`/`valign`-attributen vervangen door CSS-classes
 
-| NFR  | Stand voor PoC                                  | Stand na top-3 PoC (verwacht)                  |
+**Waarom #4.** Score 15, S effort, laag risico. **Belangrijker dan de score zegt**: dit is de enige verbetering in de top-4 die de **eigenlijke module-code** raakt (JSP's in `omod/`), en daarmee voldoet de PoC aan de opdrachtomschrijving *"verbeteringen doorvoeren in het OpenMRS project"*. Zonder B1 zou de PoC uitsluitend uit meet-/CI-correcties bestaan — formeel mooi maar niet wat de opdracht vraagt.
+
+Concrete scope: 33 `align="X"`-attributen (Sonar rule `Web:S1827`, zie bp1 §4.2.3) + de 19 verwante `valign="X"`-attributen die functioneel identiek deprecated zijn (HTML5 heeft beide verwijderd). Totaal 52 attribuut-instances in 5 JSP-bestanden vervangen door CSS-utility-classes.
+
+**Bewijs uit data**: bp1 §4.2.3 rangschikt `Web:S1827` als #1-rule onder de projecteigen 89 smells — 33 van de 89 = **37 % van alle eigen-smells in één refactor**. Bovendien dekt B1 daarmee een sub-attribuut van ISO 25010 *Modifiability* (legacy-syntax wordt vervangen door moderne, externaliseerbare styling).
+
+### 5.1 Wat de top-4 samen oplevert
+
+| NFR  | Stand voor PoC                                  | Stand na top-4 PoC (verwacht)                  |
 |------|-------------------------------------------------|------------------------------------------------|
 | MNT-1| ⚠ deels (geen overschrijdingen in eigen code)    | ✅ — A1 maakt meting representatief; mutation in vendored libs telt niet meer mee |
 | MNT-2| ✅ (1,2 % duplicates)                            | ✅                                              |
 | MNT-3| ⚠ (lokaal 72,7 %, niet in dashboard)             | ✅ — A2 brengt cijfer naar het dashboard       |
 | MNT-3c| ⚠ (93 % met 1 survivor)                         | ✅ — C1 maakt er 100 % van                     |
 | MNT-4| ❌ (Quality Gate Not computed)                   | ⚠ → wacht op A3 (volgt in bp5/bp6)             |
+| **Smell-count eigen code** | 89 smells                          | **~56 smells** (33 weg via B1)                  |
 
-Dus na de top-3 PoC: **4 van 5 onderhoudbaarheids-NFR's hard groen**, MNT-4 ligt klaar voor activering in A3.
+Dus na de top-4 PoC: **4 van 5 onderhoudbaarheids-NFR's hard groen** én een aantoonbare **37 %-reductie** in de eigen-code-smell-count. MNT-4 ligt klaar voor activering in A3.
 
 ---
 
@@ -175,7 +186,7 @@ Eerlijk: dit doen we niet in bulletpoint 5, en waarom niet.
 | Items niet in PoC          | Reden                                                                                       |
 |----------------------------|---------------------------------------------------------------------------------------------|
 | **A3 Quality Gate-koppeling** | Hoge score (25) maar vereist SonarCloud-UI-werk + token-flow. Past beter in een sprint na de PoC. Documentatief al voorbereid in `maintainability-tests.yml` (`qualitygate.wait=true`). |
-| **B1 + B3 + B4 + B5**       | Mechanische refactor-werk; geen onderbouwingsverhaal nodig. Doen we *na* de PoC, niet in de PoC zelf. Levert geen ontwerpprincipes/patronen op (rubriek-eis bp4). |
+| **B3 + B4 + B5**            | Mechanische refactor-werk; geen onderbouwingsverhaal nodig. Doen we *na* de PoC, niet in de PoC zelf. *(B1 is uit deze categorie gepromoveerd naar de top-4 — zie §5 Plek 4.)* |
 | **B2 A11y-cluster**         | Hoge waarde, maar het is een *frontend*-PoC die los zou staan van het maintainability-verhaal. Past beter bij een toegankelijkheids-LU. |
 | **C2 Coverage 0 %-klassen** | Effort = L (week+). Buiten PoC-budget. `StudentT` (137 niet-gedekte regels) is statistische helper — niet primair gebruikt in business-flow. |
 | **D1 jquery.dataTables**    | Score 1,56 — hoogste risico, langste duur. A1 maskeert het in het dashboard al. Niet doen in PoC. |
@@ -189,8 +200,8 @@ Eerlijk: dit doen we niet in bulletpoint 5, en waarom niet.
 
 | Bulletpoint | Wat                                                                                              |
 |-------------|--------------------------------------------------------------------------------------------------|
-| **4 — Ontwerp** | Voor de top-3 (A1, C1, A2): welke ontwerpprincipes, patronen, refactoring-patronen sturen de aanpak? Alternatieven afwegen. |
-| **5 — PoC**     | A1 + C1 + A2 daadwerkelijk implementeren op een feature-branch. AI-tooling-verantwoording.       |
+| **4 — Ontwerp** | Voor de top-4 (A1, C1, A2, B1): welke ontwerpprincipes, patronen, refactoring-patronen sturen de aanpak? Alternatieven afwegen. |
+| **5 — PoC**     | A1 + C1 + A2 + B1 daadwerkelijk implementeren op een feature-branch. AI-tooling-verantwoording.  |
 | **6 — Validatie** | Opnieuw de baseline-meting draaien; aantonen dat de scores ✅ zijn en er geen regressie is.    |
 
 ---
