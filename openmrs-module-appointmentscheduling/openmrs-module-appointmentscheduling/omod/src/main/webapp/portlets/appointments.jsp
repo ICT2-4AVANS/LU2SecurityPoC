@@ -5,6 +5,7 @@
 <openmrs:htmlInclude file="/moduleResources/appointmentscheduling/Styles/appointmentPortlet_jQueryDatatable.css"/>
 <openmrs:htmlInclude file="/moduleResources/appointmentscheduling/Styles/jQuerySmoothness/jquery-ui-1.9.2.custom.css"/>
 <openmrs:htmlInclude file="/moduleResources/appointmentscheduling/Styles/appointmentPortletStyle.css" />
+<openmrs:htmlInclude file="/moduleResources/appointmentscheduling/Styles/appointmentscheduling-layout.css"/>
  <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <script type="text/javascript" src='${pageContext.request.contextPath}/dwr/engine.js'></script>
@@ -96,14 +97,14 @@
 		        <table id="AppointmentsTable" cellspacing="0">
 		                <thead>
 		                    <tr>
-		                        <th align="center" style="display:none;">select</th>
-		                        <th align="center"><spring:message code='appointmentscheduling.Appointment.list.column.date'/></th>
-	                            <th align="center"><spring:message code='appointmentscheduling.Appointment.list.column.time'/></th>
-	                            <th align="center"><spring:message code='appointmentscheduling.Appointment.list.column.clinician'/></th>
-                        		<th align="center"><spring:message code='appointmentscheduling.Appointment.list.column.location'/></th>
-                     			<th align="center"><spring:message code='appointmentscheduling.Appointment.list.column.type'/></th>
-       							<th align="center"><spring:message code='appointmentscheduling.Appointment.list.column.status'/></th>
-		                        <th align="center">Hidden sortable dates</th>
+		                        <th class="appt-align-center" style="display:none;">select</th>
+		                        <th class="appt-align-center"><spring:message code='appointmentscheduling.Appointment.list.column.date'/></th>
+	                            <th class="appt-align-center"><spring:message code='appointmentscheduling.Appointment.list.column.time'/></th>
+	                            <th class="appt-align-center"><spring:message code='appointmentscheduling.Appointment.list.column.clinician'/></th>
+                        		<th class="appt-align-center"><spring:message code='appointmentscheduling.Appointment.list.column.location'/></th>
+                     			<th class="appt-align-center"><spring:message code='appointmentscheduling.Appointment.list.column.type'/></th>
+       							<th class="appt-align-center"><spring:message code='appointmentscheduling.Appointment.list.column.status'/></th>
+		                        <th class="appt-align-center">Hidden sortable dates</th>
 		                    </tr>
 		                </thead>
 								<tbody>

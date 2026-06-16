@@ -1,0 +1,25 @@
+/*
+ * appointmentscheduling-layout.css
+ *
+ * Vervangt deprecated HTML4 align-attributen (Sonar rule Web:S1827)
+ * door semantische CSS-utility-classes. Onderdeel van PoC-realisatie
+ * B1 (zie docs/onderhoudbaarheid/05-ontwerp.md §6 en
+ * docs/onderhoudbaarheid/06-poc-realisatie.md §2.4).
+ *
+ * Class-prefix 'appt-' voorkomt naam-conflicten met OpenMRS-core
+ * CSS-classes of vendored libraries (bv. jQuery DataTables, jquery-ui).
+ *
+ * Ontwerpprincipe: Separation of Concerns - structuur (HTML) en
+ * presentatie (CSS) gescheiden houden. Refactor-pattern: 'Replace
+ * Inline Style with CSS Class' (Fowler-stijl).
+ */
+
+/* Horizontale tekstuitlijning (vervangt align="center|right|left" op <td>, <th>, <tr>) */
+.appt-align-center { text-align: center; }
+.appt-align-right  { text-align: right; }
+.appt-align-left   { text-align: left; }
+
+/* Verticale uitlijning (vervangt align="top" op <td> dat als valign-vervanger werd misbruikt) */
+.appt-valign-top    { vertical-align: top; }
+.appt-valign-middle { vertical-align: middle; }
+.appt-valign-bottom { vertical-align: bottom; }

@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.TimeZone;
 
 import org.apache.commons.logging.Log;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -33,10 +34,31 @@ public class AuditLoggerTest {
 
     private AuditLogger auditLogger;
 
+    private TimeZone originalDefaultTimeZone;
+
     @Before
     public void setUp() {
         capturingLog = new CapturingLog();
         auditLogger = new AuditLogger(capturingLog);
+
+        // Force a non-UTC default time zone so that any test which
+        // implicitly relies on the JVM default (instead of the
+        // production code's explicit setTimeZone(UTC) call) will
+        // fail. Without this, the test 'format_writesTimestampAsIso8601Utc'
+        // passes on CI runners where the default already is UTC,
+        // letting a regression like the removal of
+        // AuditLogger.formatIso8601's setTimeZone(UTC) slip through
+        // (see docs/onderhoudbaarheid/03-testresultaten-baseline.md §4.3
+        // and docs/onderhoudbaarheid/05-ontwerp.md §4).
+        originalDefaultTimeZone = TimeZone.getDefault();
+        TimeZone.setDefault(TimeZone.getTimeZone("America/New_York"));
+    }
+
+    @After
+    public void tearDown() {
+        // Symmetric setup/teardown — restore the JVM default so we
+        // do not leak state into tests that run after this class.
+        TimeZone.setDefault(originalDefaultTimeZone);
     }
 
     // ------------------------------------------------------------------

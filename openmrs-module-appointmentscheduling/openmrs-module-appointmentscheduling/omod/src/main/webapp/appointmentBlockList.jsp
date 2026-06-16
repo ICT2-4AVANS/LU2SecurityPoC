@@ -14,6 +14,7 @@
 	file="/moduleResources/appointmentscheduling/TableTools/media/js/TableTools.js" />
 <openmrs:htmlInclude
 	file="/moduleResources/appointmentscheduling/TableTools/media/css/TableTools.css" />
+<openmrs:htmlInclude file="/moduleResources/appointmentscheduling/Styles/appointmentscheduling-layout.css"/>
 
 <openmrs:require privilege="View Provider Schedules" otherwise="/login.htm" redirect="/module/appointmentscheduling/appointmentBlockList.list" />
  <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
@@ -98,9 +99,9 @@
 				}
 				count++;
 				tableContent += '<tr class="notSelectedRow">';
-				tableContent += '<td align="center" style="display:none;">'+'<input type="radio" name="appointmentBlockRadios" value="'+appointmentBlocks[i].appointmentBlockId+'"/></td>';
-				tableContent += '<td align="center">'+appointmentBlocks[i].location+"</td>";
-				tableContent += '<td align="center">'+appointmentBlocks[i].provider+"</td>";
+				tableContent += '<td class="appt-align-center" style="display:none;">'+'<input type="radio" name="appointmentBlockRadios" value="'+appointmentBlocks[i].appointmentBlockId+'"/></td>';
+				tableContent += '<td class="appt-align-center">'+appointmentBlocks[i].location+"</td>";
+				tableContent += '<td class="appt-align-center">'+appointmentBlocks[i].provider+"</td>";
 				//Linking the appointment types in a string.
 				var appointmentTypes = "";
 				var appointmentTypesArray = appointmentBlocks[i].types;
@@ -111,16 +112,16 @@
 						appointmentTypes += ", ";
 					}
 				}
-				tableContent += '<td align="center">'+appointmentTypes+"</td>";
+				tableContent += '<td class="appt-align-center">'+appointmentTypes+"</td>";
 				var date = appointmentBlocks[i].date;
 				var startTime = appointmentBlocks[i].startTime;
 				var endTime = appointmentBlocks[i].endTime;
 				var startDate = appointmentBlocks[i].startDate;
-				tableContent += '<td align="center">'+date+'</td>';
-				tableContent += '<td align="center">'+startTime+'</td>';
-				tableContent += '<td align="center">'+endTime+'</td>';
-				tableContent += '<td align="center">'+appointmentBlocks[i].timeSlotLength+'</td>';
-				tableContent += '<td align="center">'+startDate+'</td>';
+				tableContent += '<td class="appt-align-center">'+date+'</td>';
+				tableContent += '<td class="appt-align-center">'+startTime+'</td>';
+				tableContent += '<td class="appt-align-center">'+endTime+'</td>';
+				tableContent += '<td class="appt-align-center">'+appointmentBlocks[i].timeSlotLength+'</td>';
+				tableContent += '<td class="appt-align-center">'+startDate+'</td>';
 				tableContent += "</tr>";
 				//If we got to the end
 				if(count == appointmentBlocks.length){
@@ -229,12 +230,12 @@
 						dialogHeader += '<u><spring:message code="appointmentscheduling.AppointmentBlock.dialogHeader"/>:</u></br></br>';
 						//Table's header
 						dialogTableContent += '<thead><tr>';
-						dialogTableContent +='<th align="center"><b><spring:message code="appointmentscheduling.AppointmentBlock.dialogTable.openMrsId"/></b></th>';
-						dialogTableContent +='<th align="center"><b><spring:message code="appointmentscheduling.AppointmentBlock.dialogTable.name"/></b></th>';
-						dialogTableContent +='<th align="center"><b><spring:message code="appointmentscheduling.AppointmentBlock.dialogTable.time"/></b></th>';
-						dialogTableContent +='<th align="center"><b><spring:message code="appointmentscheduling.AppointmentBlock.dialogTable.type"/></b></th>';
-						dialogTableContent +='<th align="center"><b><spring:message code="appointmentscheduling.AppointmentBlock.dialogTable.phoneNumber"/></b></th>';
-						dialogTableContent +='<th align="center"><b><spring:message code="appointmentscheduling.AppointmentBlock.dialogTable.reason"/></b></th>';
+						dialogTableContent +='<th class="appt-align-center"><b><spring:message code="appointmentscheduling.AppointmentBlock.dialogTable.openMrsId"/></b></th>';
+						dialogTableContent +='<th class="appt-align-center"><b><spring:message code="appointmentscheduling.AppointmentBlock.dialogTable.name"/></b></th>';
+						dialogTableContent +='<th class="appt-align-center"><b><spring:message code="appointmentscheduling.AppointmentBlock.dialogTable.time"/></b></th>';
+						dialogTableContent +='<th class="appt-align-center"><b><spring:message code="appointmentscheduling.AppointmentBlock.dialogTable.type"/></b></th>';
+						dialogTableContent +='<th class="appt-align-center"><b><spring:message code="appointmentscheduling.AppointmentBlock.dialogTable.phoneNumber"/></b></th>';
+						dialogTableContent +='<th class="appt-align-center"><b><spring:message code="appointmentscheduling.AppointmentBlock.dialogTable.reason"/></b></th>';
 						dialogTableContent += '</tr></thead>';
 						//Table's body
 						dialogTableContent += '<tbody>';
@@ -489,14 +490,14 @@
 	<table id="appointmentBlocksTable" cellspacing="0">
 			<thead>
 				<tr>
-					<th align="center" style="display:none;">select</th>
-					<th align="center"> <spring:message code="appointmentscheduling.AppointmentBlock.column.location"/> </th>
-					<th align="center"> <spring:message code="appointmentscheduling.AppointmentBlock.column.provider"/> </th>
-					<th align="center"> <spring:message code="appointmentscheduling.AppointmentBlock.column.appointmentTypes"/> </th>
-					<th align="center"> <spring:message code="appointmentscheduling.AppointmentBlock.column.date"/> </th>
-					<th align="center"> <spring:message code="appointmentscheduling.AppointmentBlock.column.startTime"/> </th>
-					<th align="center"> <spring:message code="appointmentscheduling.AppointmentBlock.column.endTime"/> </th>
-					<th align="center"> <spring:message code="appointmentscheduling.AppointmentBlock.slotLength"/> </th>
+					<th class="appt-align-center" style="display:none;">select</th>
+					<th class="appt-align-center"> <spring:message code="appointmentscheduling.AppointmentBlock.column.location"/> </th>
+					<th class="appt-align-center"> <spring:message code="appointmentscheduling.AppointmentBlock.column.provider"/> </th>
+					<th class="appt-align-center"> <spring:message code="appointmentscheduling.AppointmentBlock.column.appointmentTypes"/> </th>
+					<th class="appt-align-center"> <spring:message code="appointmentscheduling.AppointmentBlock.column.date"/> </th>
+					<th class="appt-align-center"> <spring:message code="appointmentscheduling.AppointmentBlock.column.startTime"/> </th>
+					<th class="appt-align-center"> <spring:message code="appointmentscheduling.AppointmentBlock.column.endTime"/> </th>
+					<th class="appt-align-center"> <spring:message code="appointmentscheduling.AppointmentBlock.slotLength"/> </th>
 					<th>Hidden sortable dates</th>
 				</tr>
 			</thead>
@@ -507,7 +508,7 @@
 	<input type="hidden" name="chosenProvider" id="chosenProvider" value="<c:out value="${chosenProvider}"/>" />
 	<input type="hidden" name="chosenType" id="chosenType" value="<c:out value="${chosenType}"/>" />
 	<openmrs:hasPrivilege privilege="Manage Provider Schedules">
-		<table id="managementButtonsTable" align="center">
+		<table id="managementButtonsTable" class="appt-align-center">
 				<tr>
 				<td><input type="submit" class="appointmentBlockButton" value="<spring:message code="appointmentscheduling.AppointmentBlock.add"/>" name="add"> </td>
 				<td><input type="submit" class="appointmentBlockButton" value="<spring:message code="appointmentscheduling.AppointmentBlock.edit"/>" name="edit"> </td>
