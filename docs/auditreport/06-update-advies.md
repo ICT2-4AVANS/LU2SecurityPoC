@@ -331,3 +331,59 @@ Voor de items die **niet** zonder platformupgrade fixbaar zijn (UA-01, UA-02, UA
 | GitHub Copilot / Claude | Initiële triage en formattering van bevindingen | **Alle CVSS-scores, CVE-ID's en aanbevolen versies zijn handmatig geverifieerd via [nvd.nist.gov](https://nvd.nist.gov/vuln) en de officiële release-notes van elk component.** AI-output is uitsluitend gebruikt voor structurering, niet voor het bepalen van de score. |
 
 Conform NEN-7510 8.29 en WS04A: AI-gebruik is gedocumenteerd, en élk inhoudelijk feit is met een bron buiten de AI om geverifieerd.
+
+---
+
+## 8. Uitvoering Dependabot updates (juni 2026)
+
+Op basis van het advies in §3–§5 is Dependabot ingezet om wekelijks update-PR's te genereren. Per PR is een **risico-gebaseerde beoordeling** uitgevoerd: kleine/patch bumps zijn na review gemerged, major bumps met platform-impact zijn afgewezen met onderbouwing en doorgeschoven naar de platform-migratie (UA-01 t/m UA-09, zie §6).
+
+### 8.1 Gemerged ✅
+
+| PR | Component | Van → Naar | Type | Onderbouwing |
+|---|---|---|---|---|
+| [#13](https://github.com/ICT2-4AVANS/LU2SecurityPoC/pull/13) | `anchore/sbom-action` | 0.18.0 → 0.24.0 | minor | Onderliggende Syft scanner v1.40 → v1.42.3 — accuratere CVE-detectie. Transitive `fast-xml-parser` patches. Node 16 (EOL) → Node 24. Versterkt §7 SBOM-pijplijn. |
+| [#56](https://github.com/ICT2-4AVANS/LU2SecurityPoC/pull/56) | `org.jacoco:jacoco-maven-plugin` | 0.8.12 → 0.8.15 | patch | Patch-bump binnen 0.8.x. Bugfixes in branch coverage rapportage en Java 21/22 bytecode support. Geen API-changes. Versterkt T2-pijplijn (MNT-3 coverage NFR). |
+| [#18](https://github.com/ICT2-4AVANS/LU2SecurityPoC/pull/18) | `joda-time:joda-time` | 2.2 → 2.14.2 | minor | 11 jaar TZDB updates — kritisch voor correcte appointment-tijden in medische context. Backwards compatible binnen 2.x. Patient safety relevant (NEN-7510). |
+
+### 8.2 Afgewezen — geaccepteerd risico ❌
+
+Deze PR's introduceren breaking changes die buiten de scope van LU2 vallen. Documentatie is opgenomen in §6 (restrisico). Migratie wordt geadviseerd richting OpenMRS Platform 2.x (deadline 2026-09-01).
+
+| PR | Component | Van → Naar | Reden afwijzing |
+|---|---|---|---|
+| [#21](https://github.com/ICT2-4AVANS/LU2SecurityPoC/pull/21) | `openMRSVersion` | 1.9.9 → 2.8.7 | **MAJOR** — module is ontworpen tegen OpenMRS Core 1.9 API. Upgrade naar 2.x vereist herontwerp van DAO/Service laag. Zie UA-01/UA-02 in §3. |
+| [#20](https://github.com/ICT2-4AVANS/LU2SecurityPoC/pull/20) | `reporting-api` | 0.9.2 → 2.1.0 | Major OpenMRS module-bump, alleen compatibel met Platform 2.x. Afhankelijk van #21. |
+| [#23](https://github.com/ICT2-4AVANS/LU2SecurityPoC/pull/23) | `calculation-api` | 1.0 → 2.0.0 | Major OpenMRS module-bump, breekt module-bootstrap op 1.9. |
+| [#22](https://github.com/ICT2-4AVANS/LU2SecurityPoC/pull/22) | `serialization.xstream-api` | 0.2.7 → 0.3.0 | Onderliggende XStream-versie heeft historisch deserialization CVE's (CVE-2021-39139 e.v.). Vereist gecoördineerde upgrade met OpenMRS Core. Zie UA-08. |
+| [#16](https://github.com/ICT2-4AVANS/LU2SecurityPoC/pull/16) | `webservicesRestVersion` | 2.5 → 3.5.0 | Major API-wijziging in REST-laag, vereist platform 2.x. |
+| [#19](https://github.com/ICT2-4AVANS/LU2SecurityPoC/pull/19) | `maven-dependency-plugin` | 2.4 → 3.11.0 | Major build-plugin bump — risico op build-instabiliteit. Geen security-noodzaak (geen CVE in 2.4 met impact op artefact). Doorschuiven naar platform-migratie. |
+| [#24](https://github.com/ICT2-4AVANS/LU2SecurityPoC/pull/24) | `maven-release-plugin` | 2.5 → 3.3.1 | Niet in gebruik in onze CI (wij gebruiken geen `mvn release`). Geen runtime-impact. Afwijzen om churn te beperken. |
+
+### 8.3 Major GitHub Actions bumps — nog te beoordelen 🟡
+
+Deze raken alleen de CI-pipeline (geen productie-artefact). Worden individueel getest voordat ze in dev gemerged worden:
+
+| PR | Component | Van → Naar | Status |
+|---|---|---|---|
+| [#12](https://github.com/ICT2-4AVANS/LU2SecurityPoC/pull/12) | `actions/checkout` | v4 → v6 | Beoordelen op breaking changes (sparse-checkout API) |
+| [#15](https://github.com/ICT2-4AVANS/LU2SecurityPoC/pull/15) | `actions/setup-java` | v4 → v5 | Distribution-cache API gewijzigd |
+| [#17](https://github.com/ICT2-4AVANS/LU2SecurityPoC/pull/17) | `actions/upload-artifact` | v4 → v7 | Major API change in v4→v5 (artifact merging). Vereist controle |
+| [#14](https://github.com/ICT2-4AVANS/LU2SecurityPoC/pull/14) | `actions/dependency-review-action` | 4.6.0 → 5.0.0 | Configuratie-formaat gewijzigd |
+
+### 8.4 Beperkingen vastgesteld tijdens uitvoering
+
+- **Dependabot secrets:** GitHub geeft uit veiligheidsoverwegingen **geen Actions-secrets door aan workflows op Dependabot PR's**. Hierdoor faalden SonarCloud en CodeQL-checks op deze PR's met "SONAR_TOKEN not authorized". Voor LU2-scope is dit geaccepteerd; de PR's zijn handmatig (admin-bypass) gemerged na inhoudelijke reviewbeoordeling. Structurele oplossing voor productie: `SONAR_TOKEN` en `SNYK_TOKEN` toevoegen aan **Settings → Secrets → Dependabot** (apart van Actions).
+- **Conclusie:** de risico-gebaseerde besluitvorming (patch/minor mergen, major op platform-migratie wachten) sluit aan op het advies in §3 en §6. Alle besluiten zijn vastgelegd in de PR-historie van de repository als auditspoor.
+
+---
+
+## 9. Aanvullende pipeline-audit — Zizmor
+
+Naast dependency-updates is de **GitHub Actions configuratie zelf** geaudit met [Zizmor](https://docs.zizmor.sh/) (statische SAST voor workflow YAML). De resultaten staan in [zizmor-pipeline-audit.md](zizmor-pipeline-audit.md). Belangrijkste fixes:
+
+- **Excessive permissions** opgelost in 9/9 workflows (`permissions: contents: read` als default)
+- **Artipacked / credential persistence** opgelost door `persist-credentials: false` op alle checkout-stappen
+- **Unpinned-uses** geaccepteerd met onderbouwing (tag-pinning voldoende voor LU2; commit-SHA pinning aanbevolen voor productie)
+
+Dit complementeert het update-advies door de **pipeline-integriteit** te borgen — een gecompromitteerde dependency-update kan dan minder schade aanrichten doordat de workflows least-privilege en credential-isolatie hanteren (NEN-7510 A.8.3, A.8.28).
