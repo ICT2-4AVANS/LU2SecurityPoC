@@ -5,11 +5,19 @@ on:
     branches: [main, dev]
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   sbom:
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      security-events: write
     steps:
       - uses: actions/checkout@v4.2.2
+        with:
+          persist-credentials: false
       - name: Generate SBOM
         uses: anchore/sbom-action@v0.18.0
         with:

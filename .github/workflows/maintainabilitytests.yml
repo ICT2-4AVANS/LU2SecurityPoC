@@ -47,6 +47,7 @@ jobs:
         with:
           # Sonar heeft de volledige history nodig voor blame / new-code-detectie.
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Set up JDK 8 (build)
         id: jdk8
