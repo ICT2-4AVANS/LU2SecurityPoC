@@ -1,0 +1,328 @@
+# Baseline-meting onderhoudbaarheid
+Datum: 2026-06-17T17:13:40Z
+Host:  MINGW64_NT-10.0-26200 3.4.10-87d57229.x86_64 x86_64
+Java:  java version "26.0.1" 2026-04-21
+Mvn:   Apache Maven 3.9.15 (98b2cdbfdb5f1ac8781f537ea9acccaed7922349)
+
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] ------------< org.openmrs.module:appointmentscheduling-api >------------
+[INFO] Building Appointment Scheduling Module API 1.17.0-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- clean:3.2.0:clean (default-clean) @ appointmentscheduling-api ---
+[INFO] Deleting C:\documenten\LU2SecurityPoC\openmrs-module-appointmentscheduling\openmrs-module-appointmentscheduling\api\target
+[INFO] 
+[INFO] --- jacoco:0.8.12:prepare-agent (jacoco-prepare-agent) @ appointmentscheduling-api ---
+[INFO] argLine set to -javaagent:C:\\Users\\EnesT\\.m2\\repository\\org\\jacoco\\org.jacoco.agent\\0.8.12\\org.jacoco.agent-0.8.12-runtime.jar=destfile=C:\\documenten\\LU2SecurityPoC\\openmrs-module-appointmentscheduling\\openmrs-module-appointmentscheduling\\api\\target\\jacoco.exec
+[INFO] 
+[INFO] --- resources:3.4.0:resources (default-resources) @ appointmentscheduling-api ---
+[INFO] Copying 10 resources from src\main\resources to target\classes
+[INFO] The encoding used to copy filtered properties files has not been set. This means that the same encoding will be used to copy filtered properties files as when copying other filtered resources. This might not be what you want! Run your build with --debug to see which files might be affected. Read more at https://maven.apache.org/plugins/maven-resources-plugin/examples/filtering-properties-files.html
+[INFO] 
+[INFO] --- compiler:3.15.0:compile (default-compile) @ appointmentscheduling-api ---
+[INFO] Recompiling the module because of changed source code.
+[INFO] Compiling 85 source files with javac [debug target 1.8] to target\classes
+[INFO] /C:/documenten/LU2SecurityPoC/openmrs-module-appointmentscheduling/openmrs-module-appointmentscheduling/api/src/main/java/org/openmrs/module/appointmentscheduling/api/impl/AppointmentServiceImpl.java: C:\documenten\LU2SecurityPoC\openmrs-module-appointmentscheduling\openmrs-module-appointmentscheduling\api\src\main\java\org\openmrs\module\appointmentscheduling\api\impl\AppointmentServiceImpl.java uses or overrides a deprecated API.
+[INFO] /C:/documenten/LU2SecurityPoC/openmrs-module-appointmentscheduling/openmrs-module-appointmentscheduling/api/src/main/java/org/openmrs/module/appointmentscheduling/api/impl/AppointmentServiceImpl.java: Recompile with -Xlint:deprecation for details.
+[INFO] /C:/documenten/LU2SecurityPoC/openmrs-module-appointmentscheduling/openmrs-module-appointmentscheduling/api/src/main/java/org/openmrs/module/appointmentscheduling/api/db/hibernate/HibernateAppointmentBlockDAO.java: Some input files use unchecked or unsafe operations.
+[INFO] /C:/documenten/LU2SecurityPoC/openmrs-module-appointmentscheduling/openmrs-module-appointmentscheduling/api/src/main/java/org/openmrs/module/appointmentscheduling/api/db/hibernate/HibernateAppointmentBlockDAO.java: Recompile with -Xlint:unchecked for details.
+[INFO] 
+[INFO] --- resources:3.4.0:testResources (default-testResources) @ appointmentscheduling-api ---
+[INFO] Copying 4 resources from src\test\resources to target\test-classes
+[INFO] 
+[INFO] --- compiler:3.15.0:testCompile (default-testCompile) @ appointmentscheduling-api ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 26 source files with javac [debug target 1.8] to target\test-classes
+[INFO] /C:/documenten/LU2SecurityPoC/openmrs-module-appointmentscheduling/openmrs-module-appointmentscheduling/api/src/test/java/org/openmrs/module/appointmentscheduling/api/AppointmentBlockServiceTest.java: Some input files use or override a deprecated API.
+[INFO] /C:/documenten/LU2SecurityPoC/openmrs-module-appointmentscheduling/openmrs-module-appointmentscheduling/api/src/test/java/org/openmrs/module/appointmentscheduling/api/AppointmentBlockServiceTest.java: Recompile with -Xlint:deprecation for details.
+[INFO] /C:/documenten/LU2SecurityPoC/openmrs-module-appointmentscheduling/openmrs-module-appointmentscheduling/api/src/test/java/org/openmrs/module/appointmentscheduling/validator/AppointmentBlockValidatorComponentTest.java: C:\documenten\LU2SecurityPoC\openmrs-module-appointmentscheduling\openmrs-module-appointmentscheduling\api\src\test\java\org\openmrs\module\appointmentscheduling\validator\AppointmentBlockValidatorComponentTest.java uses unchecked or unsafe operations.
+[INFO] /C:/documenten/LU2SecurityPoC/openmrs-module-appointmentscheduling/openmrs-module-appointmentscheduling/api/src/test/java/org/openmrs/module/appointmentscheduling/validator/AppointmentBlockValidatorComponentTest.java: Recompile with -Xlint:unchecked for details.
+[INFO] 
+[INFO] --- surefire:3.5.4:test (default-test) @ appointmentscheduling-api ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junit4.JUnit4Provider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running org.openmrs.module.appointmentscheduling.api.AppointmentBlockServiceTest
+[INFO] Tests run: 12, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 11.23 s -- in org.openmrs.module.appointmentscheduling.api.AppointmentBlockServiceTest
+[INFO] Running org.openmrs.module.appointmentscheduling.api.AppointmentRequestServiceTest
+[INFO] Tests run: 15, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.900 s -- in org.openmrs.module.appointmentscheduling.api.AppointmentRequestServiceTest
+[INFO] Running org.openmrs.module.appointmentscheduling.api.AppointmentServiceTest
+[INFO] Tests run: 36, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4.212 s -- in org.openmrs.module.appointmentscheduling.api.AppointmentServiceTest
+[INFO] Running org.openmrs.module.appointmentscheduling.api.AppointmentStatusHistoryServiceTest
+[INFO] Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.070 s -- in org.openmrs.module.appointmentscheduling.api.AppointmentStatusHistoryServiceTest
+[INFO] Running org.openmrs.module.appointmentscheduling.api.AppointmentTypeServiceTest
+[INFO] Tests run: 17, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.809 s -- in org.openmrs.module.appointmentscheduling.api.AppointmentTypeServiceTest
+[INFO] Running org.openmrs.module.appointmentscheduling.api.AppointmentUtilityTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.344 s -- in org.openmrs.module.appointmentscheduling.api.AppointmentUtilityTest
+[INFO] Running org.openmrs.module.appointmentscheduling.api.db.hibernate.HibernateAppointmentDAOSqlInjectionAbuseTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s -- in org.openmrs.module.appointmentscheduling.api.db.hibernate.HibernateAppointmentDAOSqlInjectionAbuseTest
+[INFO] Running org.openmrs.module.appointmentscheduling.api.ProviderScheduleServiceTest
+[INFO] Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.052 s -- in org.openmrs.module.appointmentscheduling.api.ProviderScheduleServiceTest
+[INFO] Running org.openmrs.module.appointmentscheduling.api.TimeSlotServiceTest
+[INFO] Tests run: 24, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.438 s -- in org.openmrs.module.appointmentscheduling.api.TimeSlotServiceTest
+[INFO] Running org.openmrs.module.appointmentscheduling.AppointmentTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 s -- in org.openmrs.module.appointmentscheduling.AppointmentTest
+[INFO] Running org.openmrs.module.appointmentscheduling.audit.AuditLoggerTest
+[INFO] Tests run: 16, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s -- in org.openmrs.module.appointmentscheduling.audit.AuditLoggerTest
+[INFO] Running org.openmrs.module.appointmentscheduling.reporting.data.evaluator.AppointmentCancelReasonDataEvaluatorTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.099 s -- in org.openmrs.module.appointmentscheduling.reporting.data.evaluator.AppointmentCancelReasonDataEvaluatorTest
+[INFO] Running org.openmrs.module.appointmentscheduling.reporting.data.evaluator.AppointmentEndDateDataEvaluatorTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.105 s -- in org.openmrs.module.appointmentscheduling.reporting.data.evaluator.AppointmentEndDateDataEvaluatorTest
+[INFO] Running org.openmrs.module.appointmentscheduling.reporting.data.evaluator.AppointmentLocationDataEvaluatorTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.099 s -- in org.openmrs.module.appointmentscheduling.reporting.data.evaluator.AppointmentLocationDataEvaluatorTest
+[INFO] Running org.openmrs.module.appointmentscheduling.reporting.data.evaluator.AppointmentProviderDataEvaluatorTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.113 s -- in org.openmrs.module.appointmentscheduling.reporting.data.evaluator.AppointmentProviderDataEvaluatorTest
+[INFO] Running org.openmrs.module.appointmentscheduling.reporting.data.evaluator.AppointmentReasonDataEvaluatorTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.111 s -- in org.openmrs.module.appointmentscheduling.reporting.data.evaluator.AppointmentReasonDataEvaluatorTest
+[INFO] Running org.openmrs.module.appointmentscheduling.reporting.data.evaluator.AppointmentStartDateDataEvaluatorTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.100 s -- in org.openmrs.module.appointmentscheduling.reporting.data.evaluator.AppointmentStartDateDataEvaluatorTest
+[INFO] Running org.openmrs.module.appointmentscheduling.reporting.data.evaluator.AppointmentStatusDataEvaluatorTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.088 s -- in org.openmrs.module.appointmentscheduling.reporting.data.evaluator.AppointmentStatusDataEvaluatorTest
+[INFO] Running org.openmrs.module.appointmentscheduling.reporting.data.evaluator.AppointmentTypeDataEvaluatorTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.112 s -- in org.openmrs.module.appointmentscheduling.reporting.data.evaluator.AppointmentTypeDataEvaluatorTest
+[INFO] Running org.openmrs.module.appointmentscheduling.reporting.data.evaluator.PatientToAppointmentDataEvaluatorTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.843 s -- in org.openmrs.module.appointmentscheduling.reporting.data.evaluator.PatientToAppointmentDataEvaluatorTest
+[INFO] Running org.openmrs.module.appointmentscheduling.reporting.data.evaluator.PersonToAppointmentDataEvaluatorTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.641 s -- in org.openmrs.module.appointmentscheduling.reporting.data.evaluator.PersonToAppointmentDataEvaluatorTest
+[INFO] Running org.openmrs.module.appointmentscheduling.reporting.dataset.evaluator.AppointmentDataSetEvaluatorTest
+Appointment Start Date	Appointment End Date 	Appointment Status            	Appointment Reason	
+----------------------	---------------------	------------------------------	------------------	
+2006-01-01 00:00:00.0 	2006-01-01 01:00:00.0	Scheduled                     	                  	
+2006-01-01 00:00:00.1 	2006-01-01 01:00:00.1	Missed                        	scheduled checkup 	
+2007-01-01 00:00:00.2 	2007-01-01 00:00:00.5	Scheduled                     	                  	
+2005-01-02 00:00:00.0 	2005-01-02 01:00:00.0	Missed                        	                  	
+2005-01-03 00:00:00.0 	2005-01-03 00:30:00.0	Rescheduled                   	                  	
+2014-01-02 00:00:00.0 	2014-01-02 12:00:00.0	Scheduled                     	                  	
+2014-01-02 00:00:00.0 	2014-01-02 12:00:00.0	Cancelled                     	                  	
+2014-01-02 00:00:00.0 	2014-01-02 12:00:00.0	Cancelled and Needs Reschedule	                  	
+2014-01-02 00:00:00.0 	2014-01-02 12:00:00.0	Walk-In                       	                  	
+2014-01-02 00:00:00.0 	2014-01-02 12:00:00.0	Walk-In                       	                  	
+2005-01-02 00:00:00.0 	2005-01-02 01:00:00.0	Completed                     	                  	
+2005-01-02 00:00:00.0 	2005-01-02 01:00:00.0	Completed                     	                  	
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.160 s -- in org.openmrs.module.appointmentscheduling.reporting.dataset.evaluator.AppointmentDataSetEvaluatorTest
+[INFO] Running org.openmrs.module.appointmentscheduling.reporting.query.evaluator.BasicAppointmentQueryEvaluatorTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.542 s -- in org.openmrs.module.appointmentscheduling.reporting.query.evaluator.BasicAppointmentQueryEvaluatorTest
+[INFO] Running org.openmrs.module.appointmentscheduling.task.CleanOpenAppointmentsTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.260 s -- in org.openmrs.module.appointmentscheduling.task.CleanOpenAppointmentsTest
+[INFO] Running org.openmrs.module.appointmentscheduling.validator.AppointmentBlockValidatorComponentTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.552 s -- in org.openmrs.module.appointmentscheduling.validator.AppointmentBlockValidatorComponentTest
+[INFO] Running org.openmrs.module.appointmentscheduling.validator.AppointmentTypeValidatorTest
+[INFO] Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.263 s -- in org.openmrs.module.appointmentscheduling.validator.AppointmentTypeValidatorTest
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 182, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] 
+[INFO] --- jar:3.5.0:jar (default-jar) @ appointmentscheduling-api ---
+[INFO] Building jar: C:\documenten\LU2SecurityPoC\openmrs-module-appointmentscheduling\openmrs-module-appointmentscheduling\api\target\appointmentscheduling-api-1.17.0-SNAPSHOT.jar
+[INFO] 
+[INFO] --- jacoco:0.8.12:report (jacoco-report) @ appointmentscheduling-api ---
+[INFO] Loading execution data file C:\documenten\LU2SecurityPoC\openmrs-module-appointmentscheduling\openmrs-module-appointmentscheduling\api\target\jacoco.exec
+[INFO] Analyzed bundle 'Appointment Scheduling Module API' with 77 classes
+[INFO] 
+[INFO] --- jacoco:0.8.12:check (jacoco-check) @ appointmentscheduling-api ---
+[INFO] Loading execution data file C:\documenten\LU2SecurityPoC\openmrs-module-appointmentscheduling\openmrs-module-appointmentscheduling\api\target\jacoco.exec
+[INFO] Analyzed bundle 'appointmentscheduling-api' with 77 classes
+[INFO] All coverage checks have been met.
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  41.703 s
+[INFO] Finished at: 2026-06-17T19:14:24+02:00
+[INFO] ------------------------------------------------------------------------
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] ------------< org.openmrs.module:appointmentscheduling-api >------------
+[INFO] Building Appointment Scheduling Module API 1.17.0-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- pitest:1.17.0:mutationCoverage (default-cli) @ appointmentscheduling-api ---
+[INFO] Root dir is : C:\documenten\LU2SecurityPoC\openmrs-module-appointmentscheduling\openmrs-module-appointmentscheduling\api
+[INFO] Found plugin : Default csv report plugin
+[INFO] Found plugin : Default xml report plugin
+[INFO] Found plugin : Default html report plugin
+[INFO] Found plugin : Static initializer code detector plugin
+[INFO] Found plugin : Excluded annotations plugin
+[INFO] Found plugin : Try with resources filter
+[INFO] Found plugin : Inlined finally block filter plugin
+[INFO] Found plugin : Implicit null check filter
+[INFO] Found plugin : Method reference null check filter
+[INFO] Found plugin : For each loop filter
+[INFO] Found plugin : Enum junk filter
+[INFO] Found plugin : Record junk mutation filter
+[INFO] Found plugin : String switch filter
+[INFO] Found plugin : Assertions filter
+[INFO] Found plugin : Enum switch filter
+[INFO] Found plugin : Logging calls filter
+[INFO] Found plugin : Infinite for loop filter
+[INFO] Found plugin : Long running iterator loop filter
+[INFO] Found plugin : For loop counter filter
+[INFO] Found plugin : Kotlin junk mutations filter
+[INFO] Found plugin : Groovy junk mutations filter
+[INFO] Found plugin : Max mutations per class limit
+[INFO] Found plugin : Equals shortcut equivalent mutant filter
+[INFO] Found plugin : Trivial return vals equivalence filter
+[INFO] Found plugin : Filters mutants with line number <= 1
+[INFO] Found plugin : Division by one equivalent mutant filter
+[INFO] Found plugin : Lombok junk mutations filter
+[INFO] Found plugin : Filter mutations to defensive wrappers such as unmodifiableCollection on return or field write
+[INFO] Found plugin : Mutant export plugin
+[INFO] Found plugin : Auto add java.awt.headless=true to keep keyboard focus on Mac OS
+[INFO] Found plugin : Auto set number of threads based on machine
+[INFO] Found plugin : Automatically add -ea to launch args to enable assertions
+[INFO] Found plugin : Default build verifier
+[INFO] Found plugin : Detect missing JUnit5 plugin
+[INFO] Found plugin : Detect missing TestNG plugin
+[INFO] Found plugin : Detect missing kotlin plugin
+[INFO] Found plugin : Detect missing spring plugin
+[INFO] Found plugin : Default coverage exporter
+[INFO] Found shared classpath plugin : Default mutation engine
+[INFO] Found shared classpath plugin : JUnit plugin
+[INFO] Found shared classpath plugin : Support for mocking frameworks using javassist
+[INFO] Found shared classpath plugin : Reset environment for javassist
+[INFO] Available mutators : EXPERIMENTAL_ARGUMENT_PROPAGATION,FALSE_RETURNS,TRUE_RETURNS,CONDITIONALS_BOUNDARY,CONSTRUCTOR_CALLS,EMPTY_RETURNS,INCREMENTS,INLINE_CONSTS,INVERT_NEGS,MATH,NEGATE_CONDITIONALS,NON_VOID_METHOD_CALLS,NULL_RETURNS,PRIMITIVE_RETURNS,REMOVE_CONDITIONALS_EQUAL_IF,REMOVE_CONDITIONALS_EQUAL_ELSE,REMOVE_CONDITIONALS_ORDER_IF,REMOVE_CONDITIONALS_ORDER_ELSE,VOID_METHOD_CALLS,EXPERIMENTAL_BIG_DECIMAL,EXPERIMENTAL_BIG_INTEGER,EXPERIMENTAL_MEMBER_VARIABLE,EXPERIMENTAL_NAKED_RECEIVER,REMOVE_INCREMENTS,EXPERIMENTAL_SWITCH
+[INFO] Adding org.pitest:pitest to SUT classpath
+[INFO] Mutating from C:\documenten\LU2SecurityPoC\openmrs-module-appointmentscheduling\openmrs-module-appointmentscheduling\api\target\classes
+/-\|/-\|/-\|/-\|/================================================================================
+- Mutators
+================================================================================
+> org.pitest.mutationtest.engine.gregor.mutators.VoidMethodCallMutator
+>> Generated 1 Killed 1 (100%)
+> KILLED 1 SURVIVED 0 TIMED_OUT 0 NON_VIABLE 0 
+> MEMORY_ERROR 0 NOT_STARTED 0 STARTED 0 RUN_ERROR 0 
+> NO_COVERAGE 0 
+--------------------------------------------------------------------------------
+> org.pitest.mutationtest.engine.gregor.mutators.returns.EmptyObjectReturnValsMutator
+>> Generated 2 Killed 2 (100%)
+> KILLED 2 SURVIVED 0 TIMED_OUT 0 NON_VIABLE 0 
+> MEMORY_ERROR 0 NOT_STARTED 0 STARTED 0 RUN_ERROR 0 
+> NO_COVERAGE 0 
+--------------------------------------------------------------------------------
+> org.pitest.mutationtest.engine.gregor.mutators.NegateConditionalsMutator
+>> Generated 12 Killed 12 (100%)
+> KILLED 12 SURVIVED 0 TIMED_OUT 0 NON_VIABLE 0 
+> MEMORY_ERROR 0 NOT_STARTED 0 STARTED 0 RUN_ERROR 0 
+> NO_COVERAGE 0 
+--------------------------------------------------------------------------------
+================================================================================
+- Timings
+================================================================================
+> pre-scan for mutations : < 1 second
+> scan classpath : < 1 second
+> coverage and dependency analysis : < 1 second
+> build mutation tests : < 1 second
+> run mutation analysis : < 1 second
+--------------------------------------------------------------------------------
+> Total  : 1 seconds
+--------------------------------------------------------------------------------
+================================================================================
+- Statistics
+================================================================================
+>> Line Coverage (for mutated classes only): 21/23 (91%)
+>> Generated 15 mutations Killed 15 (100%)
+>> Mutations with no coverage 0. Test strength 100%
+>> Ran 71 tests (4.73 tests per mutation)
+Enhanced functionality available at https://www.arcmutate.com/
+
+Build messages:- 
+* Project uses Spring, but the Arcmutate Spring plugin is not present. (https://docs.arcmutate.com/docs/spring.html)
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  5.008 s
+[INFO] Finished at: 2026-06-17T19:14:31+02:00
+[INFO] ------------------------------------------------------------------------
+
+# --- Samenvatting (geparseerd) ---
+
+## Unit tests (Surefire)
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd" version="3.0.2" name="org.openmrs.module.appointmentscheduling.AppointmentTest" time="0.0" tests="3" errors="0" skipped="0" failures="0">
+
+## Coverage (JaCoCo)
+Per package (LINE_COVERED, LINE_MISSED, BRANCH_COVERED, BRANCH_MISSED):
+  org.openmrs.module.appointmentscheduling.exception/TimeSlotFullException LINE 2/4  BRANCH 0/0
+  org.openmrs.module.appointmentscheduling.reporting.query.evaluator/BasicAppointmentQueryEvaluator LINE 14/14  BRANCH 1/2
+  org.openmrs.module.appointmentscheduling.api.db.hibernate/HibernateTimeSlotDAO LINE 23/24  BRANCH 19/20
+  org.openmrs.module.appointmentscheduling.api.db.hibernate/HibernateSingleClassDAO LINE 18/24  BRANCH 4/4
+  org.openmrs.module.appointmentscheduling.api.db.hibernate/HibernateAppointmentDAO LINE 86/134  BRANCH 42/70
+  org.openmrs.module.appointmentscheduling.api.db.hibernate/HibernateProviderScheduleDAO LINE 22/26  BRANCH 13/18
+  org.openmrs.module.appointmentscheduling.api.db.hibernate/HibernateAppointmentBlockDAO LINE 51/52  BRANCH 21/26
+  org.openmrs.module.appointmentscheduling.api.db.hibernate/HibernateAppointmentTypeDAO LINE 17/17  BRANCH 4/4
+  org.openmrs.module.appointmentscheduling.api.db.hibernate/HibernateAppointmentRequestDAO LINE 13/13  BRANCH 8/8
+  org.openmrs.module.appointmentscheduling.api.db.hibernate/HibernateAppointmentStatusHistoryDAO LINE 28/29  BRANCH 7/10
+  org.openmrs.module.appointmentscheduling.reporting.query.definition/BasicAppointmentQuery LINE 10/10  BRANCH 0/0
+  org.openmrs.module.appointmentscheduling.reporting.dataset.definition/AppointmentDataSetDefinition LINE 11/32  BRANCH 4/10
+  org.openmrs.module.appointmentscheduling.reporting.data.definition/AppointmentStatusDataDefinition LINE 3/5  BRANCH 0/0
+  org.openmrs.module.appointmentscheduling.reporting.data.definition/PersonToAppointmentDataDefinition LINE 4/7  BRANCH 0/0
+  org.openmrs.module.appointmentscheduling.reporting.data.definition/AppointmentTypeDataDefinition LINE 2/5  BRANCH 0/0
+  org.openmrs.module.appointmentscheduling.reporting.data.definition/AppointmentEndDateDataDefinition LINE 3/5  BRANCH 0/0
+  org.openmrs.module.appointmentscheduling.reporting.data.definition/AppointmentStartDateDataDefinition LINE 3/5  BRANCH 0/0
+  org.openmrs.module.appointmentscheduling.reporting.data.definition/AppointmentCancelReasonDataDefinition LINE 2/5  BRANCH 0/0
+  org.openmrs.module.appointmentscheduling.reporting.data.definition/AppointmentCreatorDataDefinition LINE 0/5  BRANCH 0/0
+  org.openmrs.module.appointmentscheduling.reporting.data.definition/AppointmentProviderDataDefinition LINE 2/5  BRANCH 0/0
+  org.openmrs.module.appointmentscheduling.reporting.data.definition/AppointmentReasonDataDefinition LINE 3/5  BRANCH 0/0
+  org.openmrs.module.appointmentscheduling.reporting.data.definition/AppointmentLocationDataDefinition LINE 2/5  BRANCH 0/0
+  org.openmrs.module.appointmentscheduling.reporting.data.definition/PatientToAppointmentDataDefinition LINE 4/7  BRANCH 0/0
+  org.openmrs.module.appointmentscheduling.reporting.data.service/AppointmentDataServiceImpl LINE 4/6  BRANCH 1/4
+  org.openmrs.module.appointmentscheduling.serialize/AppointmentStatusSerializer LINE 0/10  BRANCH 0/0
+  org.openmrs.module.appointmentscheduling.reporting.query.service/AppointmentQueryServiceImpl LINE 2/4  BRANCH 0/0
+  org.openmrs.module.appointmentscheduling.reporting.context/AppointmentEvaluationContext LINE 13/19  BRANCH 0/2
+  org.openmrs.module.appointmentscheduling.reporting.query/AppointmentQueryResult LINE 4/12  BRANCH 0/0
+  org.openmrs.module.appointmentscheduling.reporting.query/AppointmentIdSet LINE 8/11  BRANCH 0/0
+  org.openmrs.module.appointmentscheduling.validator/ProviderScheduleValidator LINE 13/15  BRANCH 2/4
+  org.openmrs.module.appointmentscheduling.validator/AppointmentValidator LINE 13/17  BRANCH 5/10
+  org.openmrs.module.appointmentscheduling.validator/TimeSlotValidator LINE 9/10  BRANCH 1/2
+  org.openmrs.module.appointmentscheduling.validator/AppointmentTypeValidator LINE 35/37  BRANCH 25/26
+  org.openmrs.module.appointmentscheduling.validator/AppointmentBlockValidator LINE 20/22  BRANCH 12/14
+  org.openmrs.module.appointmentscheduling.validator/AppointmentStatusHistoryValidator LINE 6/7  BRANCH 1/2
+  org.openmrs.module.appointmentscheduling.validator/AppointmentRequestValidator LINE 10/11  BRANCH 1/2
+  org.openmrs.module.appointmentscheduling.reporting.data/AppointmentDataUtil LINE 19/22  BRANCH 16/20
+  org.openmrs.module.appointmentscheduling.reporting.data/EvaluatedAppointmentData LINE 4/12  BRANCH 0/0
+  org.openmrs.module.appointmentscheduling.reporting.data/AppointmentData LINE 2/2  BRANCH 0/0
+  org.openmrs.module.appointmentscheduling.task/AppointmentSchedulerSetup LINE 0/26  BRANCH 0/6
+  org.openmrs.module.appointmentscheduling.task/CleanOpenAppointmentsTask LINE 4/4  BRANCH 0/0
+  org.openmrs.module.appointmentscheduling.api.impl/AppointmentServiceImpl LINE 412/451  BRANCH 118/149
+  org.openmrs.module.appointmentscheduling.api.impl/AppointmentServiceImpl.new Comparator() {...} LINE 3/3  BRANCH 0/0
+  org.openmrs.module.appointmentscheduling.api.impl/AppointmentServiceImpl.new Comparator() {...} LINE 3/3  BRANCH 0/0
+  org.openmrs.module.appointmentscheduling.reporting.dataset.evaluator/AppointmentDataSetEvaluator LINE 29/37  BRANCH 9/14
+  org.openmrs.module.appointmentscheduling/Appointment.AppointmentStatusType LINE 2/2  BRANCH 0/0
+  org.openmrs.module.appointmentscheduling/AppointmentActivator LINE 0/17  BRANCH 0/2
+  org.openmrs.module.appointmentscheduling/AppointmentRequest.AppointmentRequestStatus LINE 1/1  BRANCH 0/0
+  org.openmrs.module.appointmentscheduling/AppointmentDailyCount LINE 0/12  BRANCH 0/0
+  org.openmrs.module.appointmentscheduling/ProviderSchedule    LINE 36/39  BRANCH 0/0
+  org.openmrs.module.appointmentscheduling/AppointmentRequisition LINE 0/32  BRANCH 0/0
+  org.openmrs.module.appointmentscheduling/AppointmentRequest  LINE 38/40  BRANCH 0/0
+  org.openmrs.module.appointmentscheduling/TimeFrameUnits      LINE 2/2  BRANCH 0/0
+  org.openmrs.module.appointmentscheduling/AppointmentBlock    LINE 28/33  BRANCH 0/0
+  org.openmrs.module.appointmentscheduling/AppointmentStatusHistory LINE 23/26  BRANCH 0/0
+  org.openmrs.module.appointmentscheduling/AppointmentType     LINE 21/33  BRANCH 0/0
+  org.openmrs.module.appointmentscheduling/Appointment         LINE 34/39  BRANCH 0/0
+  org.openmrs.module.appointmentscheduling/StudentT            LINE 0/137  BRANCH 0/74
+  org.openmrs.module.appointmentscheduling/TimeSlot            LINE 19/25  BRANCH 0/0
+  org.openmrs.module.appointmentscheduling/Appointment.AppointmentStatus LINE 26/27  BRANCH 4/4
+  org.openmrs.module.appointmentscheduling/AppointmentSchedulingConstants LINE 0/1  BRANCH 0/0
+  org.openmrs.module.appointmentscheduling/AppointmentUtils    LINE 0/1  BRANCH 0/0
+  org.openmrs.module.appointmentscheduling.audit/AuditLogger.Outcome LINE 2/2  BRANCH 0/0
+  org.openmrs.module.appointmentscheduling.audit/AuditLogger.Channel LINE 2/2  BRANCH 0/0
+  org.openmrs.module.appointmentscheduling.audit/AuditLogger   LINE 21/23  BRANCH 24/24
+  org.openmrs.module.appointmentscheduling.reporting.data.evaluator/AppointmentTypeDataEvaluator LINE 2/2  BRANCH 0/0
+  org.openmrs.module.appointmentscheduling.reporting.data.evaluator/AppointmentEndDateDataEvaluator LINE 2/2  BRANCH 0/0
+  org.openmrs.module.appointmentscheduling.reporting.data.evaluator/AppointmentReasonDataEvaluator LINE 2/2  BRANCH 0/0
+  org.openmrs.module.appointmentscheduling.reporting.data.evaluator/AppointmentStartDateDataEvaluator LINE 2/2  BRANCH 0/0
+  org.openmrs.module.appointmentscheduling.reporting.data.evaluator/AppointmentProviderDataEvaluator LINE 2/2  BRANCH 0/0
+  org.openmrs.module.appointmentscheduling.reporting.data.evaluator/PersonToAppointmentDataEvaluator LINE 33/33  BRANCH 12/14
+  org.openmrs.module.appointmentscheduling.reporting.data.evaluator/AppointmentCreatorDataEvaluator LINE 1/2  BRANCH 0/0
+  org.openmrs.module.appointmentscheduling.reporting.data.evaluator/AppointmentCancelReasonDataEvaluator LINE 2/2  BRANCH 0/0
+  org.openmrs.module.appointmentscheduling.reporting.data.evaluator/AppointmentPropertyDataEvaluator LINE 11/11  BRANCH 1/2
+  org.openmrs.module.appointmentscheduling.reporting.data.evaluator/AppointmentStatusDataEvaluator LINE 2/2  BRANCH 0/0
+  org.openmrs.module.appointmentscheduling.reporting.data.evaluator/PatientToAppointmentDataEvaluator LINE 32/32  BRANCH 12/14
+  org.openmrs.module.appointmentscheduling.reporting.data.evaluator/AppointmentLocationDataEvaluator LINE 2/2  BRANCH 0/0
+
+## Mutation testing (PIT)
+(geen mutations geparseerd)
