@@ -31,7 +31,7 @@ services:
       OMRS_CREATE_TABLES: "true"
       OMRS_HAS_CURRENT_OPENMRS_DATABASE: "true"
       OMRS_AUTO_UPDATE_DATABASE: "true"
-      OMRS_ADMIN_USER_PASSWORD: Admin1234
+      OMRS_ADMIN_USER_PASSWORD: ${OMRS_ADMIN_PASSWORD:?OMRS_ADMIN_PASSWORD is required}
     ports:
       - "8082:8080"
     volumes:

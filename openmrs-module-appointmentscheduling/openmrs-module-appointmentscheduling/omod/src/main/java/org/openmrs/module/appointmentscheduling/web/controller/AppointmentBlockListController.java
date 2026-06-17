@@ -146,19 +146,36 @@ public class AppointmentBlockListController {
 	        @RequestParam(value = "action", required = false) String action) throws Exception {
 		AppointmentBlock appointmentBlock = null;
 		if (Context.isAuthenticated()) {
-			HttpSession httpSession = request.getSession();
-			if (!fromDate.before(toDate)) {
-				httpSession.setAttribute(WebConstants.OPENMRS_ERROR_ATTR,
-				    "appointmentscheduling.AppointmentBlock.error.InvalidDateInterval");
-			}
-			// save details from the appointment block list page using http session
-			httpSession.setAttribute("chosenLocation", location);
-			httpSession.setAttribute("fromDate", Context.getDateTimeFormat().format(fromDate).toString());
-			httpSession.setAttribute("toDate", Context.getDateTimeFormat().format(toDate).toString());
-			httpSession.setAttribute("lastLocale", Context.getLocale());
-			httpSession.setAttribute("chosenProvider", providerId);
-			httpSession.setAttribute("chosenType", appointmentTypeId);
-			AppointmentService appointmentService = Context.getService(AppointmentService.class);
+				HttpSession httpSession = request.getSession();
+				AppointmentService appointmentService = Context.getService(AppointmentService.class);
+
+				if (!isAllowedListAction(action)) {
+						httpSession.setAttribute(WebConstants.OPENMRS_ERROR_ATTR, "error.general");
+						return null;
+				}
+
+				if (fromDate == null || toDate == null || !fromDate.before(toDate)) {
+						httpSession.setAttribute(WebConstants.OPENMRS_ERROR_ATTR,
+							"appointmentscheduling.AppointmentBlock.error.InvalidDateInterval");
+						return null;
+				}
+
+				if (!isValidLocation(location) || !isValidProvider(providerId)
+						|| !isValidAppointmentType(appointmentService, appointmentTypeId)
+						|| !isValidAppointmentBlock(appointmentService, appointmentBlockId)) {
+						httpSession.setAttribute(WebConstants.OPENMRS_ERROR_ATTR, "error.general");
+						return null;
+				}
+
+				Location validatedLocation = getValidatedLocation(location);
+
+				// save validated details from the appointment block list page using http session
+				httpSession.setAttribute("chosenLocation", validatedLocation);
+				httpSession.setAttribute("fromDate", Context.getDateTimeFormat().format(fromDate).toString());
+				httpSession.setAttribute("toDate", Context.getDateTimeFormat().format(toDate).toString());
+				httpSession.setAttribute("lastLocale", Context.getLocale());
+				httpSession.setAttribute("chosenProvider", providerId);
+				httpSession.setAttribute("chosenType", appointmentTypeId);
 			//if the user is adding a new AppointmentBlock
 			if (request.getParameter("add") != null) {
 				return "redirect:appointmentBlockForm.form" + "?redirectedFrom=appointmentBlockList.list";
@@ -275,5 +292,52 @@ public class AppointmentBlockListController {
 			}
 		} // Context authentication.
 		return null;
+	}
+	private boolean isAllowedListAction(String action) {
+        return action == null
+                || "changeToCalendarView".equals(action)
+                || "void".equals(action)
+                || "purge".equals(action);
+	}
+
+	private boolean isValidLocation(Location location) {
+			if (location == null) {
+					return true;
+			}
+
+			return location.getLocationId() != null
+					&& Context.getLocationService().getLocation(location.getLocationId()) != null;
+	}
+
+	private Location getValidatedLocation(Location location) {
+			if (location == null) {
+					return null;
+			}
+
+			return Context.getLocationService().getLocation(location.getLocationId());
+	}
+
+	private boolean isValidProvider(Integer providerId) {
+			if (providerId == null) {
+					return true;
+			}
+
+			return providerId > 0 && Context.getProviderService().getProvider(providerId) != null;
+	}
+
+	private boolean isValidAppointmentType(AppointmentService appointmentService, Integer appointmentTypeId) {
+			if (appointmentTypeId == null) {
+					return true;
+			}
+
+			return appointmentTypeId > 0 && appointmentService.getAppointmentType(appointmentTypeId) != null;
+	}
+
+	private boolean isValidAppointmentBlock(AppointmentService appointmentService, Integer appointmentBlockId) {
+			if (appointmentBlockId == null) {
+					return true;
+			}
+
+			return appointmentBlockId > 0 && appointmentService.getAppointmentBlock(appointmentBlockId) != null;
 	}
 }
