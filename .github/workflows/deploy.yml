@@ -4,13 +4,20 @@ on:
   push:
     branches: [main]
 
+permissions:
+  contents: read
+
 jobs:
   deploy-test:
     name: Deploy to test
     runs-on: ubuntu-24.04
     environment: test
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4.2.2
+        with:
+          persist-credentials: false
 
       # NOTE: deze job draait op een ephemere GitHub-hosted runner.
       # Voor een persistente testomgeving is een self-hosted runner of
@@ -27,8 +34,12 @@ jobs:
     runs-on: ubuntu-24.04
     needs: deploy-test
     environment: production
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4.2.2
+        with:
+          persist-credentials: false
 
       # NOTE: zie deploy-test — voor echte productie is een self-hosted runner
       # of externe deploy-target vereist. De handmatige goedkeuring via de

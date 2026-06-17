@@ -6,11 +6,18 @@ on:
   pull_request:
     branches: [main, dev]
 
+permissions:
+  contents: read
+
 jobs:
   snyk:
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4.2.2
+        with:
+          persist-credentials: false
 
       - name: Set up Java 8
         uses: actions/setup-java@v4.7.1

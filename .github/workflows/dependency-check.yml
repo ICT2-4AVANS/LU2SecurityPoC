@@ -10,11 +10,18 @@ on:
     # ook als er geen codewijziging is
     - cron: "0 6 * * 1"
 
+permissions:
+  contents: read
+
 jobs:
   dependency-check:
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4.2.2
+        with:
+          persist-credentials: false
 
       # Scant alle Maven dependencies op bekende CVE's
       # Geen aparte Java setup nodig — OWASP action draait in eigen Docker container
