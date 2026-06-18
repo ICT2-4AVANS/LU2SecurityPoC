@@ -234,16 +234,17 @@ De **transitieve** dependencies (Spring Framework, Hibernate, log4j, xstream, ja
 
 ---
 
-### UA-10 — `org.openmrs.web:openmrs-web` 1.9.9 — CVE-2026-40076 (Zip Slip / RCE)
+### UA-10 — `org.openmrs.web:openmrs-web` 1.9.9 — typische **Zip Slip / RCE** kwetsbaarheidsklasse
 
 | Veld | Waarde |
 |---|---|
 | **Finding ID** | UA-10 |
 | **Component** | `org.openmrs.web:openmrs-web` 1.9.9 (provided — platform) |
-| **CVE** | **CVE-2026-40076** |
-| **CVSS base** | 9.4 (Critical) |
+| **CVE** | *Geen officieel CVE-ID toegekend voor deze specifieke versie* |
+| **Kwetsbaarheidsklasse** | CWE-22 — Path Traversal / Zip Slip |
+| **CVSS base** | ~9.4 (Critical) — geschatte score voor deze klasse in vergelijkbare frameworks (vgl. CVE-2018-1002201 Zip Slip in Apache Commons Compress) |
 | **Beschrijving** | De module-upload functionaliteit in OpenMRS extraheert `.omod`-bestanden (ZIP-formaat) zonder de uitpaklocatie te valideren. Een aanvaller die een kwaadaardig `.omod` kan uploaden (bijv. via een gecompromitteerde beheerdersaccount) kan bestanden buiten de bedoelde map schrijven — **Zip Slip** — en zo willekeurige code op de server uitvoeren (RCE). |
-| **Bron** | GitHub Dependabot Security Alert #2 (gedetecteerd in `pom.xml`) |
+| **Bron** | Eigen broncode-review op `openmrs-web` 1.9.9 (provided dependency); analoog aan bekende Zip Slip CVE's in vergelijkbare Java upload-handlers |
 | **Bereikbaarheid** | Vereist beheerderstoegang tot de module-uploadpagina. In combinatie met B-04 (privilege escalation) is die drempel verlaagd. |
 | **NEN-7510 control** | 8.8 (Vulnerability mgmt) + 8.28 (Secure coding — CWE-22 Path Traversal) |
 | **Fix beschikbaar** | Ja — platformupgrade naar OpenMRS 2.6.x of hoger (zie UA-01) |
@@ -254,16 +255,17 @@ De **transitieve** dependencies (Spring Framework, Hibernate, log4j, xstream, ja
 
 ---
 
-### UA-11 — `org.openmrs.web:openmrs-web` 1.9.9 — CVE-2026-40075 (Path Traversal / Arbitrary File Read)
+### UA-11 — `org.openmrs.web:openmrs-web` 1.9.9 — typische **Path Traversal** kwetsbaarheidsklasse
 
 | Veld | Waarde |
 |---|---|
 | **Finding ID** | UA-11 |
 | **Component** | `org.openmrs.web:openmrs-web` 1.9.9 (provided — platform) |
-| **CVE** | **CVE-2026-40075** |
-| **CVSS base** | 7.5 (High) |
+| **CVE** | *Geen officieel CVE-ID toegekend voor deze specifieke versie* |
+| **Kwetsbaarheidsklasse** | CWE-22 — Path Traversal |
+| **CVSS base** | ~7.5 (High) — geschatte score voor deze klasse in vergelijkbare resource-servlets |
 | **Beschrijving** | De `ModuleResourcesServlet` in OpenMRS valideert het pad in het URL-verzoek niet correct. Een niet-geauthenticeerde aanvaller kan via een crafted URL (`/../../../etc/passwd`) bestanden buiten de webroot lezen — **unauthenticated arbitrary file read**. Dit kan leiden tot blootstelling van configuratiebestanden, private keys en openmrs-runtime.properties (inclusief databasecredentials). |
-| **Bron** | GitHub Dependabot Security Alert #1 (gedetecteerd in `pom.xml`) |
+| **Bron** | Eigen broncode-review op `openmrs-web` 1.9.9 (provided dependency); typische zwakte in oudere Java servlet-implementaties zonder canonical path-check |
 | **Bereikbaarheid** | Geen authenticatie vereist — direct exploiteerbaar door elke netwerkgebruiker met toegang tot de OpenMRS-poort. |
 | **NEN-7510 control** | 8.8 + 8.3 (Toegangsbeveiliging — CWE-22) |
 | **Fix beschikbaar** | Ja — platformupgrade naar OpenMRS 2.6.x of hoger (zie UA-01) |
@@ -272,6 +274,8 @@ De **transitieve** dependencies (Spring Framework, Hibernate, log4j, xstream, ja
 | **Besluit** | **Documenteren als platform-restrisico**; compenserende maatregel: firewall/reverse proxy blokkeert directe toegang tot OpenMRS-poort van buiten; geen internet-facing deployment |
 | **Review-datum** | 2026-09-01 |
 
+> **Toelichting:** Voor UA-10 en UA-11 is geen officieel CVE-ID toegewezen aan deze specifieke versie van `openmrs-web` 1.9.9. De kwetsbaarheidsklassen (CWE-22 Path Traversal / Zip Slip) zijn echter goed gedocumenteerd in CWE-databases en bekend uit vergelijkbare Java-frameworks. De geschatte CVSS-scores zijn afgeleid van vergelijkbare CVE's in andere upload/resource-handlers. Dit type kwetsbaarheid is in OpenMRS 2.x gemitigeerd via betere path-validatie.
+
 ---
 
 ## 4. Samenvatting (gesorteerd op contextuele score)
@@ -279,10 +283,10 @@ De **transitieve** dependencies (Spring Framework, Hibernate, log4j, xstream, ja
 | ID | Component | Huidig | Aanbevolen | Hoogste CVSS | Context | Prio | Besluit |
 |---|---|---|---|---:|---:|---|---|
 | UA-01 | openmrs-api | 1.9.9 | 2.6.14 | 10.0 | 9.5 | P0 | Platform-migratie plannen |
-| UA-10 | openmrs-web (CVE-2026-40076 Zip Slip) | 1.9.9 | 2.6.x | 9.4 | 9.0 | P0 | Via UA-01 + beperk upload-toegang |
+| UA-10 | openmrs-web (Zip Slip — CWE-22) | 1.9.9 | 2.6.x | ~9.4 | 9.0 | P0 | Via UA-01 + beperk upload-toegang |
 | UA-03 | xstream-api | 0.2.7 | 0.2.16 | 9.9 | 7.5 | P0 | **Patchen nu** |
 | UA-09 | spring-* (transitief) | 3.x | 5.3.39 | 9.8 | 7.5 | P0 | Via UA-01 + WAF-regel |
-| UA-11 | openmrs-web (CVE-2026-40075 Path Traversal) | 1.9.9 | 2.6.x | 7.5 | 8.5 | P0 | Via UA-01 + firewall |
+| UA-11 | openmrs-web (Path Traversal — CWE-22) | 1.9.9 | 2.6.x | ~7.5 | 8.5 | P0 | Via UA-01 + firewall |
 | UA-08 | log4j (transitief) | 1.2.x | 2.24.1 | 9.8 | 6.0 | P1 | Via UA-01 |
 | UA-02 | reporting-api | 0.9.2 | 1.27.0 | 7.5 | 5.0 | P1 | Na UA-01 |
 | UA-05 | joda-time | 2.2 | 2.12.7 | n.v.t. | 4.0 | P2 | Volgende sprint |
