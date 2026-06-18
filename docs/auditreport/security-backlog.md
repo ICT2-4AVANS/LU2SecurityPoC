@@ -5,7 +5,7 @@
 Dit document bevat de **geprioriteerde security requirements** (security backlog) voor de OpenMRS Appointment Scheduling Module. De backlog is samengesteld uit twee bronnen:
 
 1. **Threat model** – [`docs/threadmodel/Threat-model.md`](../threadmodel/Threat-model.md) – 8 geselecteerde threats (T1–T8) op basis van STRIDE.
-2. **Pentest-bevindingen** – [`docs/auditreport/05-pentest-bevindingen.md`](../auditreport/05-pentest-bevindingen.md) – bevindingen B-01 t/m B-04 (OWASP Testing Guide v4 + NEN-7510:2024-2).
+2. **Pentest-bevindingen** – [`docs/auditreport/05-pentest-bevindingen.md`](../auditreport/05-pentest-bevindingen.md) – bevindingen B-01 t/m B-11 (OWASP Testing Guide v4 + NEN-7510:2024-2 + CodeQL SAST + Dependabot security alerts).
 
 De **prioritering** is volledig gebaseerd op de **risicocriteria uit de CIA/BIV-analyse** ([`docs/CIA/CIA-analyse.md`](../CIA/CIA-analyse.md), § 4 en § 5).
 
@@ -65,12 +65,21 @@ Risico = Kans × Impact
 
 ### 3.2 Pentest-bevindingen (gescoord volgens CIA-criteria)
 
-| ID    | Bevinding                                  | Kans | Onderbouwing kans                                                                     | Impact | Onderbouwing impact (CIA)                                                                                       | Score | Niveau      |
-| ----- | ------------------------------------------ | ---: | ------------------------------------------------------------------------------------- | -----: | --------------------------------------------------------------------------------------------------------------- | ----: | ----------- |
-| B-01  | PII in audit log (BEVESTIGD)               |    4 | Code-bewijs aanwezig; elke `getAppointmentsForPatientWithLogging`-aanroep produceert PII | 5      | Vier directe PII-velden naar logs → ernstige privacy-impact (AVG bijzondere persoonsgegevens)                   | **20** | **Kritiek** |
-| B-02  | Geen brute-force-bescherming op login      |    3 | Realistisch mogelijk; OpenMRS lockout is niet standaard aan                          | 5      | Account-overname → toegang tot patiëntafspraken                                                                  | **15** | **Hoog**    |
-| B-03  | IDOR op afspraken                          |    3 | Triviaal te proberen (ID in URL aanpassen)                                            | 5      | Vertrouwelijkheid + integriteit van patiëntafspraken; kroonjuweel "Patiëntafspraken" geraakt                    | **15** | **Hoog**    |
-| B-04  | Privilege escalation via directe URL       |    3 | Realistisch mogelijk wanneer `@Authorized` op controllers ontbreekt                  | 5      | Gewone gebruiker krijgt beheerrechten → volledige integriteit van afsprakenmodule geraakt                       | **15** | **Hoog**    |
+> **Let op — definitieve nummering:** B-nummers volgen de actuele lijst in `05-pentest-bevindingen.md`. Een eerdere versie van dit document gebruikte een andere mapping (waar B-01 nog "PII in audit log" was). Die mapping is hier gecorrigeerd.
+
+| ID    | Bevinding                                                   | Kans | Onderbouwing kans                                                                       | Impact | Onderbouwing impact (CIA)                                                                                       | Score | Niveau      |
+| ----- | ----------------------------------------------------------- | ---: | --------------------------------------------------------------------------------------- | -----: | --------------------------------------------------------------------------------------------------------------- | ----: | ----------- |
+| B-03  | IDOR op afspraken                                           |    4 | Triviaal te proberen (`appointmentId` in URL aanpassen)                                 |     5 | Vertrouwelijkheid + integriteit van patiëntafspraken; kroonjuweel "Patiëntafspraken" geraakt                    | **20** | **Kritiek** |
+| B-04  | Privilege escalation via directe URL                        |    4 | Realistisch mogelijk wanneer `@Authorized` op alle 13 controllers ontbreekt             |     5 | Gewone gebruiker krijgt beheerrechten → volledige integriteit van afsprakenmodule geraakt                       | **20** | **Kritiek** |
+| B-05  | PII gelogd in audit log                                     |    4 | Code-bewijs aanwezig; elke `getAppointmentsForPatientWithLogging`-aanroep produceert PII |     5 | Vier directe PII-velden naar logs → ernstige privacy-impact (AVG bijzondere persoonsgegevens)                   | **20** | **Kritiek** |
+| B-02  | Hardcoded credentials in broncode                           |    3 | Plaintext wachtwoord aanwezig in `AppointmentActivator.java` en in volledige git-historie |   5 | Directe schending van NEN-7510 A.8.5; databasetoegang HL7-rapportagesysteem gecompromitteerd                     | **15** | **Hoog**    |
+| B-07  | Ontbrekende CSRF-beveiliging en sessie-hardening            |    3 | DWR-laag heeft geen CSRF-token; cookie-flags ontbreken                                  |     5 | Sessiekaping → namens zorgmedewerker afspraken muteren                                                          | **15** | **Hoog**    |
+| B-10  | Trust boundary violation — AppointmentBlockListController   |    3 | CodeQL Security Alert #1: input uit `HttpServletRequest` zonder validatie naar sessie    |    5 | Manipulatie van sessiestatus / injectie in interne laag                                                          | **15** | **Hoog**    |
+| B-11  | Trust boundary violation — AppointmentBlockCalendarController |  3 | CodeQL Security Alert #2: zelfde patroon, structureel probleem                          |     5 | Idem B-10                                                                                                        | **15** | **Hoog**    |
+| B-06  | Ontbrekende logging van auth-events                         |    3 | Gap-analyse: 0 `log.warn`/`log.error` in controllers en service                          |    4 | Forensisch verlies bij incident; misbruik niet reconstrueerbaar                                                   | **12** | **Hoog**    |
+| B-08  | PII-lek via debug-logging in DataSetEvaluator               |    3 | Treedt op als loglevel per ongeluk op `DEBUG` staat in productie                         |    4 | Indirect PII-lek (rapportage-parameters) via logbestand                                                          | **12** | **Hoog**    |
+| B-01  | SQL Injection in zoekfunctie                                |    2 | DAO-methode `searchAppointmentsByPatientName` is dode code, geen externe entry point     |    5 | Bij bereikbaarheid → volledige database-leak / -manipulatie                                                      | **10** | **Hoog**    |
+| B-09  | XSS via eval-achtige DOM-functie (CodeQL)                   |    2 | CodeQL Note-level; 1 instantie in JS-laag; exploitatie vereist gebruikersinput in DOM-flow |   3 | Sessiediefstal / kwaadaardige scripts in browser zorgmedewerker                                                  | **6**  | **Middel**  |
 
 ---
 
@@ -84,7 +93,7 @@ Risico = Kans × Impact
 
 | Veld                  | Waarde                                                                 |
 | --------------------- | ---------------------------------------------------------------------- |
-| Bron                  | **B-01** (Pentest, ⚠️ Open, bevestigd via code review)                  |
+| Bron                  | **B-05** + **B-08** (Pentest, ⚠️ Open, bevestigd via code review)        |
 | Kans × Impact = Score | **4 × 5 = 20**                                                         |
 | Niveau                | **Kritiek**                                                            |
 | Prioriteit            | **P0 – Critical**                                                      |
@@ -98,7 +107,8 @@ Als beheerder wil ik dat applicatielogs geen direct herleidbare patiëntgegevens
 
 **Acceptatiecriteria**
 
-- Het log-statement in `AppointmentServiceImpl.getAppointmentsForPatientWithLogging` (regel ~1427) logt geen `personName`, `birthdate`, `patientIdentifier` of `gender` meer; alleen de interne `patientId`.
+- Het log-statement in `AppointmentServiceImpl.getAppointmentsForPatientWithLogging` (regel ~1427) logt geen `personName`, `birthdate`, `patientIdentifier` of `gender` meer; alleen de interne `patientId`. — **(B-05)**
+- Debug-statements in `AppointmentDataSetEvaluator.java` regels 72–75 bevatten geen indirect PII via parameter-mappings. Default loglevel productie = `INFO`. — **(B-08)**
 - Grep over de module-codebase op `log\.(info|debug|warn|error).*(getPersonName|getBirthdate|getPatientIdentifier)` levert geen treffers meer op.
 - Indien de methode dode code is, wordt deze in plaats van gepatcht **verwijderd**.
 - Een testcase verifieert dat een audit-log-regel voor een afspraak geen plain-text PII bevat (regex-check op test-output).
@@ -113,8 +123,8 @@ Als beheerder wil ik dat applicatielogs geen direct herleidbare patiëntgegevens
 
 | Veld                  | Waarde                                          |
 | --------------------- | ----------------------------------------------- |
-| Bron                  | **T5** (Threat model)                           |
-| Kans × Impact = Score | **3 × 5 = 15**                                  |
+| Bron                  | **T7** (Threat model) + **B-01** (Pentest)      |
+| Kans × Impact = Score | **2 × 5 = 10**                                  |
 | Niveau                | **Hoog**                                        |
 | Prioriteit            | **P1 – Must**                                   |
 | STRIDE                | Tampering / Information Disclosure              |
@@ -138,10 +148,10 @@ Als beheerder wil ik dat alle database-queries veilig zijn tegen SQL Injection, 
 
 | Veld                  | Waarde                                                                                                |
 | --------------------- | ----------------------------------------------------------------------------------------------------- |
-| Bron                  | **T1** (Threat, 10) + **B-03** (Pentest, 15) + **B-04** (Pentest, 15)                                  |
-| Kans × Impact = Score | **3 × 5 = 15** (hoogste van bronnen)                                                                  |
-| Niveau                | **Hoog**                                                                                              |
-| Prioriteit            | **P1 – Must**                                                                                         |
+| Bron                  | **T2** (20) + **T3** (20) + **B-03** (20) + **B-04** (20) + **B-10** (15) + **B-11** (15)             |
+| Kans × Impact = Score | **4 × 5 = 20** (hoogste van bronnen)                                                                  |
+| Niveau                | **Kritiek**                                                                                           |
+| Prioriteit            | **P0 – Critical**                                                                                     |
 | STRIDE                | Spoofing / Elevation of Privilege                                                                     |
 | OWASP                 | A01 – Broken Access Control                                                                           |
 | NEN-7510              | A.8.3 – Toegangsbeveiliging                                                                           |
@@ -156,7 +166,8 @@ Als zorgmedewerker wil ik dat alleen geautoriseerde gebruikers afspraken en behe
 - In de servicelaag (`AppointmentServiceImpl`) wordt vóór het retourneren van een `Appointment` gecontroleerd of de huidige gebruiker rechten heeft op die patiënt; zo niet → `APIAuthenticationException`.
 - **TC-02 (B-03)**: aanpassen van `appointmentId` in de URL door een gewone gebruiker resulteert in HTTP 403/redirect.
 - **TC-03 (B-04)**: directe URL-toegang tot `/openmrs/admin/` of `module/appointmentscheduling/appointmentType/list.form` als gewone gebruiker resulteert in HTTP 403/redirect.
-- B-03 en B-04 in `05-pentest-bevindingen.md` krijgen status ✅ Opgelost.
+- Input uit `HttpServletRequest` wordt in `AppointmentBlockListController` (regel 151) en `AppointmentBlockCalendarController` (regel 150) gevalideerd vóór doorgifte aan de sessie — CodeQL trust-boundary alerts gesloten. **(B-10 + B-11)**
+- B-03, B-04, B-10 en B-11 in `05-pentest-bevindingen.md` krijgen status ✅ Opgelost.
 
 ---
 
@@ -164,8 +175,8 @@ Als zorgmedewerker wil ik dat alleen geautoriseerde gebruikers afspraken en behe
 
 | Veld                  | Waarde                                                  |
 | --------------------- | ------------------------------------------------------- |
-| Bron                  | **T1** (Threat, 10) + **B-02** (Pentest, 15)            |
-| Kans × Impact = Score | **3 × 5 = 15** (hoogste van bronnen)                    |
+| Bron                  | **T1** (Threat model)                                   |
+| Kans × Impact = Score | **3 × 5 = 15**                                          |
 | Niveau                | **Hoog**                                                |
 | Prioriteit            | **P1 – Must**                                           |
 | STRIDE                | Spoofing                                                |
@@ -182,7 +193,32 @@ Als beheerder wil ik dat de loginpagina beschermd is tegen brute-force-aanvallen
 - Wachtwoorden voldoen aan een wachtwoordbeleid (minimaal 12 tekens, complexiteit).
 - Anonieme toegang tot module-endpoints wordt geweigerd (HTTP 401).
 - **MFA** is beschikbaar voor accounts met beheerrechten.
-- **TC-01 (B-02)**: na 25 mislukte logins is het account geblokkeerd of het responstijdgedrag toont rate limiting; resultaat vastgelegd in B-02.
+
+---
+
+#### SR-11 – Geen hardcoded credentials in broncode
+
+| Veld                  | Waarde                                                  |
+| --------------------- | ------------------------------------------------------- |
+| Bron                  | **B-02** (Pentest, ⚠️ Open, bevestigd via code review)   |
+| Kans × Impact = Score | **3 × 5 = 15**                                          |
+| Niveau                | **Hoog**                                                |
+| Prioriteit            | **P1 – Must**                                           |
+| STRIDE                | Information Disclosure                                  |
+| OWASP                 | A07 – Identification and Authentication Failures        |
+| NEN-7510              | A.8.5 – Authenticatie + A.8.24 – Sleutelbeheer          |
+| CIA/BIV-impact        | Vertrouwelijkheid                                       |
+
+**Requirement**
+Als beheerder wil ik dat geen enkele credential in de broncode of git-historie staat, zodat geen onbevoegde via repo-toegang databasecredentials kan bemachtigen.
+
+**Acceptatiecriteria**
+
+- `AppointmentActivator.java` bevat geen plaintext wachtwoord meer; credentials worden gelezen uit OpenMRS Global Properties of environment variables.
+- Git-historie is geschoond (`git filter-repo` of BFG) zodat het wachtwoord `Appt@Export2021!` nergens meer voorkomt.
+- Wachtwoord van het HL7-rapportagesysteem is **geroteerd**.
+- Een SAST/secret-scan (Gitleaks of TruffleHog) in CI detecteert geen nieuwe hardcoded secrets.
+- B-02 in `05-pentest-bevindingen.md` krijgt status ✅ Opgelost.
 
 ---
 
@@ -215,8 +251,8 @@ Als beheerder wil ik dat de Appointment Scheduling API en de onderliggende datab
 
 | Veld                  | Waarde                                                  |
 | --------------------- | ------------------------------------------------------- |
-| Bron                  | **T4** (Threat model)                                   |
-| Kans × Impact = Score | **2 × 5 = 10**                                          |
+| Bron                  | **T1** (Threat, 15) + **B-07** (Pentest, 15)            |
+| Kans × Impact = Score | **3 × 5 = 15** (hoogste van bronnen)                    |
 | Niveau                | **Hoog**                                                |
 | Prioriteit            | **P1 – Must**                                           |
 | STRIDE                | Spoofing                                                |
@@ -241,8 +277,8 @@ Als gebruiker wil ik dat mijn sessie niet kan worden gekaapt of hergebruikt door
 
 | Veld                  | Waarde                                                  |
 | --------------------- | ------------------------------------------------------- |
-| Bron                  | **T8** (Threat model)                                   |
-| Kans × Impact = Score | **2 × 5 = 10**                                          |
+| Bron                  | **T1** (Threat model) – compenserend bij sessiekaping   |
+| Kans × Impact = Score | **3 × 5 = 15**                                          |
 | Niveau                | **Hoog**                                                |
 | Prioriteit            | **P1 – Must**                                           |
 | STRIDE                | Information Disclosure                                  |
@@ -267,14 +303,41 @@ Als gebruiker wil ik dat mijn inloggegevens en afspraakgegevens versleuteld over
 
 ---
 
+#### SR-12 – Bescherming tegen XSS in de webclient
+
+| Veld                  | Waarde                                                  |
+| --------------------- | ------------------------------------------------------- |
+| Bron                  | **B-09** (Pentest / CodeQL SAST)                        |
+| Kans × Impact = Score | **2 × 3 = 6**                                           |
+| Niveau                | **Middel**                                              |
+| Prioriteit            | **P2 – Should**                                         |
+| STRIDE                | Tampering                                               |
+| OWASP                 | A03 – Injection (XSS)                                   |
+| NEN-7510              | A.8.28 – Beveiligd coderen                              |
+| CIA/BIV-impact        | Vertrouwelijkheid + Integriteit                         |
+
+**Requirement**
+Als gebruiker wil ik dat gebruikersinput nooit als JavaScript wordt uitgevoerd in mijn browser, zodat aanvallers geen scripts kunnen injecteren via afsprakennamen of andere invoer.
+
+**Acceptatiecriteria**
+
+- Eval-achtige DOM-functie (`innerHTML`, `eval`, `document.write`) in de JS-laag van de module is vervangen door veilige equivalenten (`textContent`, DOM-builder, sanitizer).
+- CodeQL Note "Call to eval-like DOM function" is gesloten op `dev`.
+- Een `Content-Security-Policy` header blokkeert inline scripts en `eval`.
+- B-09 in `05-pentest-bevindingen.md` krijgt status ✅ Opgelost.
+
+---
+
+---
+
 #### SR-08 – Audit logging van afspraakwijzigingen (zonder PII)
 
 | Veld                  | Waarde                                                                       |
 | --------------------- | ---------------------------------------------------------------------------- |
-| Bron                  | **T2** (Threat model) – consistent met SR-01                                 |
-| Kans × Impact = Score | **3 × 3 = 9**                                                                |
-| Niveau                | **Middel**                                                                   |
-| Prioriteit            | **P2 – Should**                                                              |
+| Bron                  | **T5** (Threat, 12) + **B-06** (Pentest, 12)                                 |
+| Kans × Impact = Score | **3 × 4 = 12** (hoogste van bronnen)                                         |
+| Niveau                | **Hoog**                                                                     |
+| Prioriteit            | **P1 – Must**                                                                |
 | STRIDE                | Repudiation                                                                  |
 | OWASP                 | A09 – Security Logging and Monitoring Failures                               |
 | NEN-7510              | A.8.15 – Logging en monitoring                                               |
@@ -296,10 +359,10 @@ Als beheerder wil ik dat elke wijziging aan een afspraak herleidbaar is naar een
 
 | Veld                  | Waarde                                                  |
 | --------------------- | ------------------------------------------------------- |
-| Bron                  | **T7** (Threat model)                                   |
-| Kans × Impact = Score | **3 × 3 = 9**                                           |
-| Niveau                | **Middel**                                              |
-| Prioriteit            | **P2 – Should**                                         |
+| Bron                  | **T5** (Threat model)                                   |
+| Kans × Impact = Score | **3 × 4 = 12**                                          |
+| Niveau                | **Hoog**                                                |
+| Prioriteit            | **P1 – Must**                                           |
 | STRIDE                | Repudiation                                             |
 | OWASP                 | A09 – Security Logging and Monitoring Failures          |
 | NEN-7510              | A.8.15 – Logging en monitoring                          |
@@ -321,10 +384,10 @@ Als beheerder wil ik dat ook acties via de OpenMRS Web UI (niet alleen via de RE
 
 | Veld                  | Waarde                                                |
 | --------------------- | ----------------------------------------------------- |
-| Bron                  | **T3** (Threat model)                                 |
-| Kans × Impact = Score | **2 × 4 = 8**                                         |
-| Niveau                | **Middel**                                            |
-| Prioriteit            | **P2 – Should**                                       |
+| Bron                  | **T6** (Threat model)                                 |
+| Kans × Impact = Score | **3 × 4 = 12**                                        |
+| Niveau                | **Hoog**                                              |
+| Prioriteit            | **P1 – Must**                                         |
 | STRIDE                | Denial of Service                                     |
 | OWASP                 | A04 – Insecure Design                                 |
 | NEN-7510              | A.8.14 – Redundantie van informatieverwerking         |
@@ -344,18 +407,20 @@ Als zorgmedewerker wil ik dat de Appointment Scheduling Module beschikbaar blijf
 
 ## 5. Samenvatting backlog (gesorteerd op risicoscore)
 
-| ID    | Requirement                                                | Bron(nen)            | Score | Niveau      | Prio  |
-| ----- | ---------------------------------------------------------- | -------------------- | ----: | ----------- | ----- |
-| SR-03 | Autorisatiecontrole (IDOR + privilege escalation)          | **T2 + T3 + B-03 + B-04** | **20** | **Kritiek** | **P0** |
-| SR-01 | Verwijder PII uit applicatie-/auditlogs                    | B-05                 | **20** | **Kritiek** | **P0** |
-| SR-04 | Sterke authenticatie + brute-force bescherming             | T1 + B-02            | 15    | Hoog        | P1    |
-| SR-08 | Audit logging van afspraakwijzigingen (zonder PII)         | T5                   | 12    | Hoog        | P1    |
-| SR-05 | Rate limiting & resource throttling                        | T6                   | 12    | Hoog        | P1    |
-| SR-02 | Bescherming tegen SQL Injection                            | T7 + B-01            | 10    | Hoog        | P1    |
-| SR-06 | Sessiebeveiliging (CSRF, cookies, headers)                 | T1                   | 15    | Hoog        | P1    |
-| SR-07 | Beveiligd transport (TLS, HSTS, password hashing)          | T1                   | 15    | Hoog        | P1    |
-| SR-09 | Audit logging van acties via de Web UI                     | T5                   | 12    | Hoog        | P1    |
-| SR-10 | Beschikbaarheid en herstelvermogen                         | T6                   | 12    | Hoog        | P1    |
+| ID    | Requirement                                                | Bron(nen)                                  | Score | Niveau      | Prio  |
+| ----- | ---------------------------------------------------------- | ------------------------------------------ | ----: | ----------- | ----- |
+| SR-03 | Autorisatiecontrole (IDOR + privesc + trust boundary)      | **T2 + T3 + B-03 + B-04 + B-10 + B-11**   | **20** | **Kritiek** | **P0** |
+| SR-01 | Verwijder PII uit applicatie-/auditlogs                    | **B-05 + B-08**                            | **20** | **Kritiek** | **P0** |
+| SR-04 | Sterke authenticatie + brute-force bescherming             | T1                                         |    15 | Hoog        | P1    |
+| SR-11 | Geen hardcoded credentials in broncode                     | B-02                                       |    15 | Hoog        | P1    |
+| SR-06 | Sessiebeveiliging (CSRF, cookies, headers)                 | T1 + B-07                                  |    15 | Hoog        | P1    |
+| SR-07 | Beveiligd transport (TLS, HSTS, password hashing)          | T1                                         |    15 | Hoog        | P1    |
+| SR-08 | Audit logging van afspraakwijzigingen (zonder PII)         | T5 + B-06                                  |    12 | Hoog        | P1    |
+| SR-09 | Audit logging van acties via de Web UI                     | T5                                         |    12 | Hoog        | P1    |
+| SR-05 | Rate limiting & resource throttling                        | T6                                         |    12 | Hoog        | P1    |
+| SR-10 | Beschikbaarheid en herstelvermogen                         | T6                                         |    12 | Hoog        | P1    |
+| SR-02 | Bescherming tegen SQL Injection                            | T7 + B-01                                  |    10 | Hoog        | P1    |
+| SR-12 | Bescherming tegen XSS in de webclient                      | B-09                                       |     6 | Middel      | P2    |
 
 ---
 
