@@ -80,13 +80,23 @@ Per teamlid wordt vastgelegd:
 
 ### 3.4 Rami
 
-**Gebruikte tools:** *in te vullen door Rami*
+**Gebruikte tools:** M365 Copilot
 
 **Inzet:**
-- *in te vullen door Rami*
+- Ondersteuning bij het begrijpen en analyseren van securitybevindingen.
+- Hulp bij het structureren van documentatie en het formuleren van duidelijke markdown-teksten.
+- Ondersteuning bij het nadenken over mogelijke oplossingen en mitigaties.
+- Hulp bij het controleren van codewijzigingen, testaanpak en Git-commando’s.
+- Sparringpartner bij het verbeteren van de onderbouwing van risico’s, fixes en validatie.
 
 **Kritische reflectie:**
-- *in te vullen door Rami*
+- AI hielp goed om technische bevindingen duidelijker te begrijpen en beter te verwoorden.
+- AI was nuttig als sparringpartner bij het kiezen tussen mogelijke oplossingen.
+- AI versnelde het maken en verbeteren van documentatie.
+- Niet alle suggesties waren direct bruikbaar; sommige antwoorden moesten worden gecontroleerd worden in de repo.
+- AI gaf soms te uitgebreide oplossingen, waardoor handmatige selectie en controle nodig bleef.
+- Alle codewijzigingen, testresultaten, Git-output en securityclaims zijn handmatig gecontroleerd voordat ze zijn gebruikt.
+- Les: AI is vooral handig als hulpmiddel voor uitleg, structuur en reflectie, maar de eindverantwoordelijkheid blijft bij mij.
 
 ---
 
