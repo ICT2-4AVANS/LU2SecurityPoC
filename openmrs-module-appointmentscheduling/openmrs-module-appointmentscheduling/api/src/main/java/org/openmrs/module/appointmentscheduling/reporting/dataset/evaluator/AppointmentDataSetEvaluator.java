@@ -23,7 +23,6 @@ import org.openmrs.module.reporting.dataset.SimpleDataSet;
 import org.openmrs.module.reporting.dataset.column.definition.RowPerObjectColumnDefinition;
 import org.openmrs.module.reporting.dataset.definition.DataSetDefinition;
 import org.openmrs.module.reporting.dataset.definition.evaluator.DataSetEvaluator;
-import org.openmrs.module.reporting.definition.DefinitionUtil;
 import org.openmrs.module.reporting.evaluation.EvaluationContext;
 import org.openmrs.module.reporting.evaluation.EvaluationException;
 import org.openmrs.module.reporting.evaluation.parameter.Mapped;
@@ -68,12 +67,11 @@ public class AppointmentDataSetEvaluator implements DataSetEvaluator {
         // Evaluate each specified ColumnDefinition for all of the included rows and add these to the dataset
         for (RowPerObjectColumnDefinition cd : dsd.getColumnDefinitions()) {
 
+            
             if (log.isDebugEnabled()) {
-                log.debug("Evaluating column: " + cd.getName());
-                log.debug("With Data Definition: " + DefinitionUtil.format(cd.getDataDefinition().getParameterizable()));
-                log.debug("With Mappings: " + cd.getDataDefinition().getParameterMappings());
-                log.debug("With Parameters: " + aec.getParameterValues());
+                log.debug("Evaluating appointment dataset column");
             }
+
 
             StopWatch sw = new StopWatch();
             sw.start();
