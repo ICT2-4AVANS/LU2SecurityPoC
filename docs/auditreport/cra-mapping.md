@@ -90,7 +90,7 @@ De CRA bevat in **Artikel 13** en **Bijlage I** concrete technische eisen. Hiero
 | Veilige standaardinstellingen (secure by default) | Art. 13 lid 1 | ✅ Geïmplementeerd | Hardcoded credentials verwijderd (B-02, PR #51); admin wachtwoord in `.env` (PR #60) |
 | Beveiligde ontwikkelomgeving (secure CI/CD) | Art. 13 lid 1 | ✅ Geïmplementeerd | CodeQL, Snyk SAST, Zizmor pipeline-audit — zie `zizmor-pipeline-audit.md` |
 | Minimale aanvalsoppervlak | Art. 13 lid 1 | ✅ Geïmplementeerd | Least privilege in workflows (Zizmor Z-02 fix); RBAC via OpenMRS |
-| Bescherming van integriteit en vertrouwelijkheid | Art. 13 lid 1 | ⚠️ Gedeeltelijk | B-05 (PII logging) en B-08 (debug logging) nog open |
+| Bescherming van integriteit en vertrouwelijkheid | Art. 13 lid 1 | ⚠️ Gedeeltelijk | B-05 (PII logging) nog open; B-08 opgelost (PR #79) |
 
 ---
 
@@ -111,7 +111,7 @@ De CRA bevat in **Artikel 13** en **Bijlage I** concrete technische eisen. Hiero
 | **Geen bekende exploiteerbare kwetsbaarheden** bij oplevering | §1 lid 1 | ⚠️ Gedeeltelijk | 6/11 bevindingen gemitigeerd; resterende open bevindingen zijn gedocumenteerd met risico-acceptatie |
 | **Authenticatie en toegangscontrole** | §1 lid 2 | ✅ Geïmplementeerd | RBAC via OpenMRS (A.8.3 gap-analyse); CSRF-bescherming toegevoegd B-07 (PR #55); trust boundary B-10/B-11 (PR #57) |
 | **Geen hardcoded credentials** | §1 lid 3 | ✅ Geïmplementeerd | B-02 opgelost (PR #51) + geautomatiseerde test `AppointmentActivatorHardcodedCredentialsTest` |
-| **Bescherming van persoonsgegevens** (PII) | §1 lid 5 | ⚠️ Open | B-05 (PII in audit log) + B-08 (debug logging) nog niet gemitigeerd |
+| **Bescherming van persoonsgegevens** (PII) | §1 lid 5 | ⚠️ Gedeeltelijk | B-05 (PII in audit log) nog open; B-08 (debug logging) opgelost (PR #79) |
 | **Bescherming van integriteit van data** | §1 lid 6 | ✅ Geïmplementeerd | SQL injection fix B-01 (PR #49); IDOR gedocumenteerd B-03 |
 | **Minimale aanvalsoppervlak** | §1 lid 8 | ✅ Geïmplementeerd | Privilege escalation fix B-04 (PR #52); DWR endpoint beveiligd B-07 |
 | **Logging en auditspoor** | §1 lid 9 | ⚠️ Gedeeltelijk | Audit logging aanwezig (A.8.15 gap-analyse); B-06 geaccepteerd risico |
@@ -142,7 +142,6 @@ NEN-7510 en CRA zijn grotendeels **complementair**: voldoen aan NEN-7510 levert 
 |---|---|---|---|
 | B-03 IDOR | Bijlage I §1 lid 6 | Complexe fix, vereist service-laag wijziging | Netwerksegmentatie + authenticatie als compenserende maatregel |
 | B-05 PII logging | Bijlage I §1 lid 5 | Niet tijdig geïmplementeerd | Geplande fix na inlevering |
-| B-08 Debug logging | Bijlage I §1 lid 5 | Niet tijdig geïmplementeerd | Geplande fix na inlevering |
 | B-09 XSS | Bijlage I §1 lid 2 | Moeilijke fix (CodeQL bevinding) | Content Security Policy als compenserende maatregel |
 | Unpinned GitHub Actions (Z-01) | Art. 13 lid 1 | Tag-pinning voldoende voor PoC-scope | Commit-SHA pinning aanbevolen voor productie |
 
@@ -157,6 +156,6 @@ Het project voldoet aan de **kern-CRA-vereisten** voor een PoC-omgeving:
 - Geen hardcoded credentials
 - Authenticatie en toegangscontrole geborgd
 
-De resterende open punten (B-03, B-05, B-08, B-09) zijn gedocumenteerd met risico-acceptatie en compenserende maatregelen, conform artikel 13 lid 6 CRA (risicobeheer op basis van proportionaliteit).
+De resterende open punten (B-03, B-05, B-09) zijn gedocumenteerd met risico-acceptatie en compenserende maatregelen, conform artikel 13 lid 6 CRA (risicobeheer op basis van proportionaliteit). B-08 is opgelost ([PR #79](https://github.com/ICT2-4AVANS/LU2SecurityPoC/pull/79)).
 
 Voor een productie-oplevering conform CRA (deadline december 2027) is een volledige migratie naar OpenMRS Platform 2.x vereist (zie `06-update-advies.md §8.2`).
