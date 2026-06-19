@@ -87,8 +87,8 @@ jobs:
           mvn -B \
             org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
             -Dsonar.host.url=https://sonarcloud.io \
-            -Dsonar.organization=ict2-4avans-1 \
-            -Dsonar.projectKey=ICT2-4AVANS_LU2SecurityPoC \
+            -Dsonar.organization=ict2-4avans-2 \
+            -Dsonar.projectKey=ICT2-4AVANS_LU2SecurityPoC2 \
             -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml \
             -Dsonar.qualitygate.wait=true
         # Sonar draait bewust op de api-module (niet op de parent reactor):
