@@ -6,7 +6,7 @@
 | **Run-datum** | 2026-06-17 19:13 |
 | **Reproducer** | `./scripts/run-baseline.sh` |
 | **Raw output** | [`raw/tests/baseline-20260617-191339.txt`](./raw/tests/baseline-20260617-191339.txt) |
-| **PIT-rapport** | [`raw/tests/pit-20260617-index.html`](./raw/tests/pit-20260617-index.html) |
+| **PIT-rapport** | [`raw/index.html`](.\raw\index.html) |
 
 ---
 
@@ -109,6 +109,6 @@ gearchiveerd, zodat een tweede reviewer met één commando dezelfde cijfers krij
 ## Bijlagen
 
 - [`raw/tests/baseline-20260617-191339.txt`](./raw/tests/baseline-20260617-191339.txt) — volledige output van `run-baseline.sh`.
-- [`raw/tests/pit-20260617-index.html`](./raw/tests/pit-20260617-index.html) — PIT-projectsamenvatting.
-- [`raw/tests/pit-20260617-mutations.csv`](./raw/tests/pit-20260617-mutations.csv) — PIT mutation-records.
+- [`raw/tests/index.html`](./raw/index.html) — PIT-projectsamenvatting.
+- [`raw/tests/pit-20260617-mutations.csv`](./raw/mutations.csv) — PIT mutation-records.
 - [`../non-functional-requirements.md`](../non-functional-requirements.md) — bron van MNT-1..4 en REL-1.

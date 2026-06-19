@@ -4,7 +4,7 @@
 |---|---|
 | **Module** | openmrs-module-appointmentscheduling |
 | **Bronnen** | bp1 ([`01-analyse.md`](./01-analyse.md)) + bp2 ([`02-tests.md`](./02-tests.md)) |
-| **Sonar-export** | [`raw/sonar-export-20260617.json`](./raw/sonar-export-20260617.json) (426 issues) |
+| **Sonar-export** | [`raw/SONAR_export.json`](./raw/SONAR_export.json) (426 issues) |
 
 ---
 
