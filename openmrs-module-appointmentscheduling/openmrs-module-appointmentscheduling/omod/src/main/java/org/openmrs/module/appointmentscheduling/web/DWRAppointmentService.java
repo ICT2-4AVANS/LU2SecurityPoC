@@ -12,6 +12,8 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.directwebremoting.WebContext;
 import org.directwebremoting.WebContextFactory;
 import org.openmrs.Location;
@@ -36,6 +38,8 @@ import org.openmrs.util.OpenmrsUtil;
  * @see PatientService
  */
 public class DWRAppointmentService {
+
+	private static final Log log = LogFactory.getLog(DWRAppointmentService.class);
 
 	// CSRF defence: DWR sets X-Requested-With on every call; cross-site HTML forms cannot set this header.
 	private void requireXmlHttpRequest() {
@@ -81,9 +85,11 @@ public class DWRAppointmentService {
 			Date fromDateAsDate = cal.getTime();
 			cal.setTimeInMillis(toDate);
 			Date toDateAsDate = cal.getTime();
-			
+
 			appointmentBlockDatalist = this.getAppointmentBlocks(Context.getDateTimeFormat().format(fromDateAsDate), Context
 			        .getDateTimeFormat().format(toDateAsDate), locationId, providerId, appointmentTypeId);
+		} else {
+			log.warn("Unauthorized DWR call to getAppointmentBlocksForCalendar blocked (anonymous session)");
 		}
 		return appointmentBlockDatalist;
 	}
@@ -142,10 +148,12 @@ public class DWRAppointmentService {
 					        .getEndDate()));
 				}
 			}
+		} else {
+			log.warn("Unauthorized DWR call to getAppointmentBlocks blocked (anonymous session)");
 		}
 		return appointmentBlockDatalist;
 	}
-	
+
 	public List<List<AppointmentData>> getPatientsInAppointmentBlock(Integer appointmentBlockId) {
 		requireXmlHttpRequest();
 		List<List<AppointmentData>> patients = null;
@@ -186,6 +194,8 @@ public class DWRAppointmentService {
 					}
 				}
 			}
+		} else {
+			log.warn("Unauthorized DWR call to getPatientsInAppointmentBlock blocked (anonymous session)");
 		}
 		return patients;
 	}
@@ -227,6 +237,8 @@ public class DWRAppointmentService {
 				TimeSlot timeSlot = Context.getService(AppointmentService.class)
 				        .getTimeSlotsInAppointmentBlock(appointmentBlock).get(0);
 				return (timeSlot.getEndDate().getTime() - timeSlot.getStartDate().getTime()) / 60000 + "";
+			} else {
+				log.warn("Unauthorized DWR call to getTimeSlotLength blocked (anonymous session)");
 			}
 		}
 		return "";
