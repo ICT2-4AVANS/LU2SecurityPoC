@@ -4,13 +4,20 @@ on:
   push:
     branches: [main]
 
+permissions:
+  contents: read
+
 jobs:
   deploy-test:
     name: Deploy to test
     runs-on: ubuntu-24.04
     environment: test
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4.2.2
+        with:
+          persist-credentials: false
 
       # NOTE: deze job draait op een ephemere GitHub-hosted runner.
       # Voor een persistente testomgeving is een self-hosted runner of
@@ -18,6 +25,7 @@ jobs:
       - name: Deploy to test environment
         run: |
           echo "Deploying to test environment"
+          echo "DB_PASSWORD=${DB_PASSWORD}" > .env.test
           docker compose --env-file .env.test -f docker-compose.test.yml up -d
         env:
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
@@ -27,8 +35,12 @@ jobs:
     runs-on: ubuntu-24.04
     needs: deploy-test
     environment: production
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4.2.2
+        with:
+          persist-credentials: false
 
       # NOTE: zie deploy-test — voor echte productie is een self-hosted runner
       # of externe deploy-target vereist. De handmatige goedkeuring via de
@@ -36,6 +48,7 @@ jobs:
       - name: Deploy to production environment
         run: |
           echo "Deploying to production environment"
+          echo "DB_PASSWORD=${DB_PASSWORD}" > .env.prod
           docker compose --env-file .env.prod -f docker-compose.prod.yml up -d
         env:
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}

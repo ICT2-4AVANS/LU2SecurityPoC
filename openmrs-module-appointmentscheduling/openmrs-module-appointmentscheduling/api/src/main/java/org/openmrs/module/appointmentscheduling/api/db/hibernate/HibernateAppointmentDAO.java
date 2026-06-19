@@ -50,6 +50,11 @@ public class HibernateAppointmentDAO extends HibernateSingleClassDAO
 		implements
 			AppointmentDAO {
 
+	private static final String PATIENT    = "patient";
+	private static final String STATUS     = "status";
+	private static final String VOIDED     = "voided";
+	private static final String TIME_SLOT  = "timeSlot";
+
 	public HibernateAppointmentDAO() {
 		super(Appointment.class);
 	}
@@ -59,7 +64,7 @@ public class HibernateAppointmentDAO extends HibernateSingleClassDAO
 	public List<Appointment> getAppointmentsByPatient(Patient patient) {
 		return super.sessionFactory.getCurrentSession()
 				.createCriteria(Appointment.class)
-				.add(Restrictions.eq("patient", patient)).list();
+				.add(Restrictions.eq(PATIENT, patient)).list();
 	}
 
 	@Override
@@ -83,7 +88,7 @@ public class HibernateAppointmentDAO extends HibernateSingleClassDAO
 
 		List<Appointment> appointment = super.sessionFactory
 				.getCurrentSession().createQuery(query)
-				.setParameter("patient", patient).list();
+				.setParameter(PATIENT, patient).list();
 
 		if (appointment.size() > 0)
 			return (Appointment) appointment.get(0);
@@ -141,7 +146,7 @@ public class HibernateAppointmentDAO extends HibernateSingleClassDAO
 			if (appointmentType != null)
 				query.setParameter("appointmentType", appointmentType);
 			if (patient != null)
-				query.setParameter("patient", patient);
+				query.setParameter(PATIENT, patient);
 
 			return query.list();
 		}
@@ -187,11 +192,11 @@ public class HibernateAppointmentDAO extends HibernateSingleClassDAO
 	public List<Appointment> getScheduledAppointmentsForPatient(Patient patient) {
 		Criteria criteria = sessionFactory.getCurrentSession().createCriteria(
 				mappedClass);
-		criteria.add(Restrictions.eq("patient", patient));
-		criteria.add(Restrictions.or(Restrictions.eq("status", SCHEDULED),
-				Restrictions.eq("status", RESCHEDULED)));
-		criteria.add(Restrictions.eq("voided", false));
-		criteria.createAlias("timeSlot", "timeSlot");
+		criteria.add(Restrictions.eq(PATIENT, patient));
+		criteria.add(Restrictions.or(Restrictions.eq(STATUS, SCHEDULED),
+				Restrictions.eq(STATUS, RESCHEDULED)));
+		criteria.add(Restrictions.eq(VOIDED, false));
+		criteria.createAlias(TIME_SLOT, "timeSlot");
 		criteria.addOrder(Order.asc("timeSlot.startDate"));
 
 		return criteria.list();
@@ -203,13 +208,13 @@ public class HibernateAppointmentDAO extends HibernateSingleClassDAO
 			List<AppointmentType> appointmentTypes) {
 		Criteria criteria = sessionFactory.getCurrentSession().createCriteria(
 				mappedClass);
-		criteria.createAlias("timeSlot", "time_slot");
+		criteria.createAlias(TIME_SLOT, "time_slot");
 		criteria.add(Restrictions.eq("time_slot.appointmentBlock",
 				appointmentBlock));
 
 		if (appointmentTypes != null)
 			criteria.add(Restrictions.in("appointmentType", appointmentTypes));
-		criteria.add(Restrictions.eq("voided", false));
+		criteria.add(Restrictions.eq(VOIDED, false));
 
 		return criteria.list();
 	}
@@ -245,15 +250,15 @@ public class HibernateAppointmentDAO extends HibernateSingleClassDAO
 	private Criteria createAppointmentsInTimeSlotCriteria(TimeSlot timeSlot) {
 		Criteria criteria = sessionFactory.getCurrentSession().createCriteria(
 				Appointment.class);
-		criteria.add(Restrictions.eq("timeSlot", timeSlot));
-		criteria.add(Restrictions.eq("voided", false));
+		criteria.add(Restrictions.eq(TIME_SLOT, timeSlot));
+		criteria.add(Restrictions.eq(VOIDED, false));
 		return criteria;
 	}
 
 	private Criteria createAppointmentsInTimeSlotByStatusCriteria(
 			TimeSlot timeSlot, List<AppointmentStatus> statuses) {
 		Criteria criteria = createAppointmentsInTimeSlotCriteria(timeSlot);
-		criteria.add(Restrictions.in("status", statuses));
+		criteria.add(Restrictions.in(STATUS, statuses));
 		return criteria;
 	}
 
@@ -309,12 +314,18 @@ public class HibernateAppointmentDAO extends HibernateSingleClassDAO
 	}
 
     /**
-     * Searches appointments by patient name using a raw SQL query.
-     * Used for quick administrative lookup.
-     */
-    public java.util.List<?> searchAppointmentsByPatientName(String patientName) {
-        // VULNERABILITY: SQL injection - patientName is concatenated directly into query
-        String hql = "from Appointment ap where ap.visit.patient.personName.givenName = '" + patientName + "' or ap.visit.patient.personName.familyName = '" + patientName + "'";
-        return super.sessionFactory.getCurrentSession().createQuery(hql).list();
-    }
+	 * Searches appointments by patient name using a parameterized HQL query.
+	 * Used for quick administrative lookup.
+	 */
+    @Transactional(readOnly = true)
+	public java.util.List<?> searchAppointmentsByPatientName(String patientName) {
+		String hql = "from Appointment ap " +
+				"where ap.visit.patient.personName.givenName = :patientName " +
+				"or ap.visit.patient.personName.familyName = :patientName";
+
+		return super.sessionFactory.getCurrentSession()
+				.createQuery(hql)
+				.setParameter("patientName", patientName)
+				.list();
+	}
 }

@@ -9,8 +9,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.directwebremoting.WebContext;
 import org.directwebremoting.WebContextFactory;
 import org.openmrs.Location;
@@ -35,8 +38,20 @@ import org.openmrs.util.OpenmrsUtil;
  * @see PatientService
  */
 public class DWRAppointmentService {
-	
+
+	private static final Log log = LogFactory.getLog(DWRAppointmentService.class);
+
+	// CSRF defence: DWR sets X-Requested-With on every call; cross-site HTML forms cannot set this header.
+	private void requireXmlHttpRequest() {
+		WebContext webContext = WebContextFactory.get();
+		HttpServletRequest request = webContext.getHttpServletRequest();
+		if (!"XMLHttpRequest".equals(request.getHeader("X-Requested-With"))) {
+			throw new SecurityException("CSRF protection: X-Requested-With header missing or invalid");
+		}
+	}
+
 	public PatientData getPatientDescription(Integer patientId) {
+		requireXmlHttpRequest();
 		Patient patient = Context.getPatientService().getPatient(patientId);
 		if (patient == null)
 			return null;
@@ -62,6 +77,7 @@ public class DWRAppointmentService {
 	
 	public List<AppointmentBlockData> getAppointmentBlocksForCalendar(Long fromDate, Long toDate, Integer locationId,
 	        Integer providerId, Integer appointmentTypeId) throws ParseException {
+		requireXmlHttpRequest();
 		List<AppointmentBlockData> appointmentBlockDatalist = new ArrayList<AppointmentBlockData>();
 		if (Context.isAuthenticated()) {
 			Calendar cal = OpenmrsUtil.getDateTimeFormat(Context.getLocale()).getCalendar();
@@ -69,15 +85,18 @@ public class DWRAppointmentService {
 			Date fromDateAsDate = cal.getTime();
 			cal.setTimeInMillis(toDate);
 			Date toDateAsDate = cal.getTime();
-			
+
 			appointmentBlockDatalist = this.getAppointmentBlocks(Context.getDateTimeFormat().format(fromDateAsDate), Context
 			        .getDateTimeFormat().format(toDateAsDate), locationId, providerId, appointmentTypeId);
+		} else {
+			log.warn("Unauthorized DWR call to getAppointmentBlocksForCalendar blocked (anonymous session)");
 		}
 		return appointmentBlockDatalist;
 	}
 	
 	public List<AppointmentBlockData> getAppointmentBlocks(String fromDate, String toDate, Integer locationId,
 	        Integer providerId, Integer appointmentTypeId) throws ParseException {
+		requireXmlHttpRequest();
 		List<AppointmentBlock> appointmentBlockList = new ArrayList<AppointmentBlock>();
 		List<AppointmentBlockData> appointmentBlockDatalist = new ArrayList<AppointmentBlockData>();
 		Date fromAsDate = null;
@@ -129,11 +148,14 @@ public class DWRAppointmentService {
 					        .getEndDate()));
 				}
 			}
+		} else {
+			log.warn("Unauthorized DWR call to getAppointmentBlocks blocked (anonymous session)");
 		}
 		return appointmentBlockDatalist;
 	}
-	
+
 	public List<List<AppointmentData>> getPatientsInAppointmentBlock(Integer appointmentBlockId) {
+		requireXmlHttpRequest();
 		List<List<AppointmentData>> patients = null;
 		if (Context.isAuthenticated()) {
 			AppointmentService as = Context.getService(AppointmentService.class);
@@ -172,11 +194,14 @@ public class DWRAppointmentService {
 					}
 				}
 			}
+		} else {
+			log.warn("Unauthorized DWR call to getPatientsInAppointmentBlock blocked (anonymous session)");
 		}
 		return patients;
 	}
 	
 	public boolean validateDates(String fromDate, String toDate) throws ParseException {
+		requireXmlHttpRequest();
 		boolean error = false;
 		WebContext webContext = WebContextFactory.get();
 		HttpSession httpSession = webContext.getHttpServletRequest().getSession();
@@ -212,6 +237,8 @@ public class DWRAppointmentService {
 				TimeSlot timeSlot = Context.getService(AppointmentService.class)
 				        .getTimeSlotsInAppointmentBlock(appointmentBlock).get(0);
 				return (timeSlot.getEndDate().getTime() - timeSlot.getStartDate().getTime()) / 60000 + "";
+			} else {
+				log.warn("Unauthorized DWR call to getTimeSlotLength blocked (anonymous session)");
 			}
 		}
 		return "";
@@ -224,6 +251,7 @@ public class DWRAppointmentService {
 	 * @return True if has any open consultation, False otherwise
 	 */
 	public Boolean checkProviderOpenConsultations(Integer appointmentId) {
+		requireXmlHttpRequest();
 		if (appointmentId == null)
 			return false;
 		else {
@@ -245,6 +273,7 @@ public class DWRAppointmentService {
 	 * @return True if has any open consultation, False otherwise
 	 */
 	public Boolean checkProviderOpenConsultationsByPatient(Integer patientId) {
+		requireXmlHttpRequest();
 		if (patientId == null)
 			return false;
 		else {
@@ -300,6 +329,7 @@ public class DWRAppointmentService {
 	 * @throws ParseException
 	 */
 	public Object[][] getAverageWaitingTimeByType(String fromDate, String toDate) throws ParseException {
+		requireXmlHttpRequest();
 		return getAverageHistoryDurationByCriteria(fromDate, toDate, AppointmentStatus.WAITING);
 	}
 	
@@ -313,6 +343,7 @@ public class DWRAppointmentService {
 	 * @throws ParseException
 	 */
 	public Object[][] getAverageConsultationTimeByType(String fromDate, String toDate) throws ParseException {
+		requireXmlHttpRequest();
 		return getAverageHistoryDurationByCriteria(fromDate, toDate, AppointmentStatus.INCONSULTATION);
 	}
 	
@@ -367,6 +398,7 @@ public class DWRAppointmentService {
 	 * @throws ParseException Date parse exception
 	 */
 	public Object[][] getAppointmentTypeDistribution(String fromDate, String toDate) throws ParseException {
+		requireXmlHttpRequest();
 		Date fromDateAsDate = Context.getDateTimeFormat().parse(fromDate);
 		Date toDateAsDate = Context.getDateTimeFormat().parse(toDate);
 		Map<AppointmentType, Integer> distribution = Context.getService(AppointmentService.class)
@@ -392,6 +424,7 @@ public class DWRAppointmentService {
 	 * @throws ParseException Date parse exception
 	 */
 	public Integer getAppointmentsCount(String fromDate, String toDate) throws ParseException {
+		requireXmlHttpRequest();
 		Date fromDateAsDate = Context.getDateTimeFormat().parse(fromDate);
 		Date toDateAsDate = Context.getDateTimeFormat().parse(toDate);
 		Map<AppointmentType, Integer> distribution = Context.getService(AppointmentService.class)
@@ -445,6 +478,7 @@ public class DWRAppointmentService {
 	 * @throws ParseException
 	 */
 	public Object[][] getAverageWaitingTimeByProvider(String fromDate, String toDate) throws ParseException {
+		requireXmlHttpRequest();
 		return getAverageHistoryDurationByCriteriaByProvider(fromDate, toDate, AppointmentStatus.WAITING);
 	}
 	
@@ -457,6 +491,7 @@ public class DWRAppointmentService {
 	 * @throws ParseException
 	 */
 	public Object[][] getAverageConsultationTimeByProvider(String fromDate, String toDate) throws ParseException {
+		requireXmlHttpRequest();
 		return getAverageHistoryDurationByCriteriaByProvider(fromDate, toDate, AppointmentStatus.INCONSULTATION);
 	}
 	

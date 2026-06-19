@@ -5,6 +5,7 @@
 
 <openmrs:htmlInclude
 	file="/moduleResources/appointmentscheduling/Styles/createAppointmentStyle.css" />
+<openmrs:htmlInclude file="/moduleResources/appointmentscheduling/Styles/appointmentscheduling-layout.css"/>
 
 <openmrs:require privilege="Manage Appointment Types" otherwise="/login.htm" redirect="/module/appointmentscheduling/appointmentTypeForm.form" />
 	
@@ -50,8 +51,8 @@
 		</td>
 	</tr>
 	<tr>
-		<td valign="top"><spring:message code="general.description"/></td>
-		<td valign="top">
+		<td class="appt-valign-top"><spring:message code="general.description"/></td>
+		<td class="appt-valign-top">
 			<spring:bind path="appointmentType.description">
 				<textarea name="description" rows="3" cols="40" onkeypress="return forceMaxLength(this, 1024);" ><c:out value="${status.value}"/></textarea>
 				<c:if test="${status.errorMessage != ''}"><span class="error">${status.errorMessage}</span></c:if>
@@ -59,8 +60,8 @@
 		</td>
 	</tr>
 	<tr>
-		<td valign="top"><spring:message code="appointmentscheduling.AppointmentType.enterDuration"/></td>
-		<td valign="top">
+		<td class="appt-valign-top"><spring:message code="appointmentscheduling.AppointmentType.enterDuration"/></td>
+		<td class="appt-valign-top">
 			<spring:bind path="appointmentType.duration">
 				<input type="text" name="duration" value="<c:out value="${status.value}"/>" size="35" />
 				<c:if test="${status.errorMessage != ''}"><span class="error">${status.errorMessage}</span></c:if>

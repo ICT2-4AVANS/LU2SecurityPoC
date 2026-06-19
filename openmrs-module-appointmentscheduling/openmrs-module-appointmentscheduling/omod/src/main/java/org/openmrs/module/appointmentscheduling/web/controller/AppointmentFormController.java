@@ -13,6 +13,8 @@
  */
 package org.openmrs.module.appointmentscheduling.web.controller;
 
+import org.openmrs.annotation.Authorized;
+
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -51,10 +53,12 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.openmrs.api.APIAuthenticationException;
 
 /**
  * Controller for creating appointments.
  */
+@Authorized(AppointmentUtils.PRIV_SCHEDULE_APPOINTMENTS)
 @Controller
 public class AppointmentFormController {
 	
@@ -88,13 +92,16 @@ public class AppointmentFormController {
 	
 	@ModelAttribute("appointment")
 	public Appointment getAppointment(@RequestParam(value = "appointmentId", required = false) Integer appointmentId,
-	        @RequestParam(value = "patientId", required = false) Integer patientId) {
+			@RequestParam(value = "patientId", required = false) Integer patientId) {
 		Appointment appointment = null;
 		
 		if (Context.isAuthenticated()) {
 			AppointmentService as = Context.getService(AppointmentService.class);
-			if (appointmentId != null)
+			
+			if (appointmentId != null) {
 				appointment = as.getAppointment(appointmentId);
+				validateAppointmentPatientAccess(appointment, patientId);
+			}
 		}
 		
 		if (appointment == null) {
@@ -104,6 +111,18 @@ public class AppointmentFormController {
 		}
 		
 		return appointment;
+	}
+
+	public void validateAppointmentPatientAccess(Appointment appointment, Integer patientId) {
+		if (appointment == null || patientId == null) {
+			return;
+		}
+		
+		if (appointment.getPatient() == null
+				|| appointment.getPatient().getPatientId() == null
+				|| !appointment.getPatient().getPatientId().equals(patientId)) {
+			throw new APIAuthenticationException("Unauthorized access to appointment");
+		}
 	}
 	
 	@ModelAttribute("availableTimes")

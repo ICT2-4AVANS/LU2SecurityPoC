@@ -13,6 +13,8 @@
  */
 package org.openmrs.module.appointmentscheduling.web.controller;
 
+import org.openmrs.annotation.Authorized;
+
 import java.util.LinkedList;
 import java.util.List;
 
@@ -36,6 +38,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 /**
  * Controller for manipulating module's settings.
  */
+@Authorized(AppointmentUtils.PRIV_MANAGE_APPOINTMENTS_SETTINGS)
 @Controller
 public class AppointmentSettingsFormController {
 	
