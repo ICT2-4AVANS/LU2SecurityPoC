@@ -25,6 +25,7 @@ jobs:
       - name: Deploy to test environment
         run: |
           echo "Deploying to test environment"
+          echo "DB_PASSWORD=${DB_PASSWORD}" > .env.test
           docker compose --env-file .env.test -f docker-compose.test.yml up -d
         env:
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
@@ -47,6 +48,7 @@ jobs:
       - name: Deploy to production environment
         run: |
           echo "Deploying to production environment"
+          echo "DB_PASSWORD=${DB_PASSWORD}" > .env.prod
           docker compose --env-file .env.prod -f docker-compose.prod.yml up -d
         env:
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
