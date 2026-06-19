@@ -56,25 +56,54 @@ Per teamlid wordt vastgelegd:
 
 ### 3.2 Nick
 
-**Gebruikte tools:** *in te vullen door Nick*
+**Gebruikte tools:** ChatGPT & GitHub Copilot
 
 **Inzet:**
-- *in te vullen door Nick*
+- Ondersteuning bij het analyseren en uitwerken van securitybevindingen, zoals B-01 SQL Injection, B-04 privilege escalation en B-10/B-11 trust boundary violations
+- Code-assistent bij het begrijpen van bestaande Java-code en het bedenken van passende fixes
+- Hulp bij het schrijven en verbeteren van fix-documentatie, auditrapportteksten, traceability matrix en CRA-mapping
+- Sparringpartner bij het koppelen van bevindingen aan NEN-7510-controls, zoals 8.3, 8.5, 8.15 en aanvullend 8.28
+- Ondersteuning bij het formuleren van risico's, impact, mitigaties en restrisico's in duidelijke audit-taal
+- Hulp bij het controleren van pull requests en het schrijven van reviewcomments
+- Ondersteuning bij het verbeteren van markdown-structuur, tabellen en bewijsverwijzingen in de documentatie
 
 **Kritische reflectie:**
-- *in te vullen door Nick*
+- ChatGPT hielp goed bij het vertalen van technische kwetsbaarheden naar duidelijke auditrapportage
+- GitHub Copilot was handig als code-assistent bij het begrijpen van bestaande code en het sneller vinden van mogelijke oplossingsrichtingen
+- AI versnelde vooral het structureren van documentatie, zoals fixdocumenten, traceability matrix en auditrapportonderdelen
+- Niet alle suggesties waren direct correct of bruikbaar; sommige teksten waren te algemeen of bevatten aannames die ik zelf moest controleren
+- Bij securityclaims, NEN-7510-koppelingen, PR-nummers, testresultaten en statusvelden heb ik handmatig gecontroleerd of dit overeenkwam met de repository en de gemaakte fixes
+- AI gaf soms te uitgebreide antwoorden, waardoor ik zelf moest kiezen wat relevant was voor ons project en wat niet
+- De uiteindelijke codewijzigingen, documentatie, screenshots, testuitkomsten en onderbouwingen zijn door mij zelf gecontroleerd voordat ze zijn gebruikt
+- ✅ Les: AI is een handig hulpmiddel voor uitleg, structuur, documentatie en het meedenken over fixes, maar je moet zelf blijven controleren of de oplossing klopt, het bewijs aanwezig is en de conclusie goed onderbouwd is — zeker bij security
 
 ---
 
 ### 3.3 Enes
 
-**Gebruikte tools:** *in te vullen door Enes*
+**Gebruikte tools:** Claude, VSCode, GitHub, SonarCloud
 
 **Inzet:**
-- *in te vullen door Enes*
+- Gap-analyse opgezet
+- JaCoCo coverage ingericht
+- PIT mutation testing uitgevoerd
+- AuditLogger gemaakt (wie, wat, waar, wanneer, hoe)
+- Unit tests geschreven voor AuditLogger
+- Surefire exports gegenereerd
+- `maintainabilitytests.yml` workflow opgezet
+- SonarCloud project ingericht
+- bp1 t/m bp6 onderhoudbaarheid documentatie geschreven
+- B-06 auth logger opgelost
+- Extract Constant refactor uitgevoerd in `HibernateAppointmentDAO.java`
+- Baseline en post-PoC metingen vergeleken
 
 **Kritische reflectie:**
-- *in te vullen door Enes*
+- Claude hielp om snel een eerste opzet te maken, maar de antwoorden waren vaak te uitgebreid; regelmatig gevraagd om het eenvoudiger te maken
+- De code die Claude voorstelde is nooit direct overgenomen; alles zelf nagekeken, aangepast en gerefactord — daardoor altijd zelf de controle over de uiteindelijke oplossing gehouden
+- Soms was niet duidelijk welke wijzigingen precies waren gedaan; daarom altijd zelf de bestanden geopend om alles te controleren vóór een commit
+- Tests zoals `mvn verify`, PIT en de Sonar-scan moest ik zelf uitvoeren; Claude kan deze niet zelf draaien en kon de resultaten pas beoordelen nadat ik ze had gedeeld
+- Niet alle voorspellingen van Claude kwamen overeen met de uiteindelijke resultaten; alle uitkomsten zelf gecontroleerd en niet alleen vertrouwd op de AI
+- ✅ Les: AI is een handig hulpmiddel voor een eerste opzet, uitleg en suggesties, maar je moet AI niet blind vertrouwen. Door de code zelf te refactoren, de resultaten te controleren en alle tests zelf uit te voeren, hield ik de autonomie volledig in eigen handen
 
 ---
 
