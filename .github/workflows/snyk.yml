@@ -13,7 +13,7 @@ jobs:
 snyk:
 runs-on: ubuntu-22.04
 
-```
+
 steps:
   - name: Checkout repository
     uses: actions/checkout@v4.2.2
@@ -64,4 +64,4 @@ steps:
       path: |
         snyk-sca.json
         snyk-sast.json
-```
+
