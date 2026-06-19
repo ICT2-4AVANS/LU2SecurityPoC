@@ -4,7 +4,7 @@
 |---|---|
 | **PoC-item** | E1 — Extract Constant in `HibernateAppointmentDAO.java` |
 | **Vergelijking** | bp1/bp2 (vóór E1) ↔ post-E1 metingen |
-| **Post-E1 raw** | [`raw/tests/baseline-postE1-20260617-220403.txt`](./raw/tests/baseline-postE1-20260617-220403.txt) + [`raw/sonar-export-postE1-20260617.json`](./raw/sonar-export-postE1-20260617.json) |
+| **Post-E1 raw** | [`raw/tests/baseline-20260617-220403.txt`](./raw/tests/baseline-20260617-220403.txt) + [`raw/sonarexport20260617.json`](./raw/sonarexport20260617.json) |
 
 ---
 
@@ -39,7 +39,7 @@ Daarna een nieuwe SonarCloud-API-export via dezelfde call als in bp1.
 > (alias-name ≠ property-name), maar Sonar herkent het wel als duplicaat.
 > Opvolging als losse backlog-item.
 
-**Bronnen**: `raw/sonar-export-postE1-20260617.json` (header: `total=423`,
+**Bronnen**: `raw/SONAR_exportv2.json` (header: `total=423`,
 `effortTotal=5715`).
 
 ## 4. Regressie-toets
@@ -78,7 +78,7 @@ gearchiveerd voor controle.
 
 ## Bijlagen
 
-- [`raw/tests/baseline-postE1-20260617-220403.txt`](./raw/tests/baseline-postE1-20260617-220403.txt) — post-E1 `run-baseline.sh` output
-- [`raw/tests/pit-postE1-20260617-mutations.csv`](./raw/tests/pit-postE1-20260617-mutations.csv) — post-E1 PIT mutation-records (15/15 KILLED)
-- [`raw/sonar-export-postE1-20260617.json`](./raw/sonar-export-postE1-20260617.json) — post-E1 SonarCloud API-export (`total=423`)
+- [`raw/tests/baseline-postE1-20260617-220403.txt`](./raw/tests/baseline-20260617-220403.txt) — post-E1 `run-baseline.sh` output
+- [`raw/tests/mutations.csv`](./raw/tests/mutations.csv) — post-E1 PIT mutation-records (15/15 KILLED)
+- [`raw/sonar-export-postE1-20260617.json`](./raw/sonarexport20260617.json) — post-E1 SonarCloud API-export (`total=423`)
 - [`01-analyse.md`](./01-analyse.md), [`02-tests.md`](./02-tests.md) — vergelijkings-baseline

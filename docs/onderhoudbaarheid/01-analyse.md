@@ -6,7 +6,7 @@
 | **Sonar-project** | `ICT2-4AVANS_LU2SecurityPoC` |
 | **Snapshot** | 17/06/2026 18:05 |
 | **NFR-bron** | [`../non-functional-requirements.md`](../non-functional-requirements.md) |
-| **Raw data** | [`raw/sonar-export-20260617.json`](./raw/sonar-export-20260617.json) |
+| **Raw data** | [`raw/sonarexport20260617.json`](./raw/sonarexport20260617.json) |
 
 ---
 
@@ -34,7 +34,7 @@ GET https://sonarcloud.io/api/issues/search
     &ps=100&p=1
 ```
 
-De volledige response staat in `raw/sonar-export-20260617.json`.
+De volledige response staat in `raw/sonarexport20260617.json`.
 
 ## 4. NFR-grenzen (uit `non-functional-requirements.md`)
 
@@ -82,6 +82,5 @@ die vormen de input voor de prioritering in bulletpoint 3.
 
 ## Bijlagen
 
-- [`raw/sonar-export-20260617.json`](./raw/sonar-export-20260617.json) — volledige API-export (`total: 426`, `effortTotal: 5747`).
-- Screenshot SonarCloud-dashboard 17/06/2026 — toe te voegen als `raw/sonar-dashboard-20260617.png`.
+- [`raw/sonar-export-20260617.json`](./raw/sonarexport20260617.json) — volledige API-export (`total: 426`, `effortTotal: 5747`).
 - [`../non-functional-requirements.md`](../non-functional-requirements.md) — bron van MNT-1..4.
