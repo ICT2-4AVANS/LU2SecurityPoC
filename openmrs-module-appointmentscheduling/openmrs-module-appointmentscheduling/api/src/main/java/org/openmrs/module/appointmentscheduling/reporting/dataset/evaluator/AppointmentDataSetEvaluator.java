@@ -67,12 +67,8 @@ public class AppointmentDataSetEvaluator implements DataSetEvaluator {
         // Evaluate each specified ColumnDefinition for all of the included rows and add these to the dataset
         for (RowPerObjectColumnDefinition cd : dsd.getColumnDefinitions()) {
 
+            log.debug("Evaluating appointment dataset column");
             
-            if (log.isDebugEnabled()) {
-                log.debug("Evaluating appointment dataset column");
-            }
-
-
             StopWatch sw = new StopWatch();
             sw.start();
 
