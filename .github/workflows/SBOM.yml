@@ -43,7 +43,7 @@ jobs:
 
       # SARIF formaat zodat bevindingen zichtbaar zijn in GitHub Security tab
       - name: Upload Grype resultaten naar GitHub Security
-        uses: github/codeql-action/upload-sarif@v3.28.18
+        uses: github/codeql-action/upload-sarif@v4.36.2
         if: always()
         with:
           sarif_file: ${{ steps.grype.outputs.sarif }}
